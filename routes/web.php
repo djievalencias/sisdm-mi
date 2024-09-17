@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Auth\Passwords\PasswordBroker;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('password/reset/{token}', function ($token) {
+    // This route can be used to display the password reset form.
+    // You might want to show a view where users can input their new password.
+    return view('auth.passwords.reset', ['token' => $token]);
+})->name('password.reset');
+
+Route::post('password/reset', [App\Http\Controllers\Api\Auth\PasswordController::class, 'reset'])
+    ->name('password.update');
