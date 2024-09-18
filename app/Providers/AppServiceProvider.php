@@ -17,8 +17,9 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot()
     {
-        //
+        config(['app.locale' => 'ko']); // Set locale to Korean
+        \Carbon\Carbon::setLocale('ko'); // Set Carbon's locale to Korean
     }
 }

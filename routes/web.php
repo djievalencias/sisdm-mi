@@ -18,6 +18,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+Route::resource('user', App\Http\Controllers\UserController::class);
+
 Route::get('password/reset/{token}', function ($token) {
     // This route can be used to display the password reset form.
     // You might want to show a view where users can input their new password.
@@ -26,3 +31,7 @@ Route::get('password/reset/{token}', function ($token) {
 
 Route::post('password/reset', [App\Http\Controllers\Api\Auth\PasswordController::class, 'reset'])
     ->name('password.update');
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

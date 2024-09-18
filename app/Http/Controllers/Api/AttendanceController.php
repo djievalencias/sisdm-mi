@@ -25,10 +25,11 @@ class AttendanceController extends Controller
         ]);
 
         $photo = $request->file('photo');
+        $today = Carbon::now('Asia/Seoul')->startOfDay();
         $attendanceType = $request->type;
         $userAttendanceToday = $request->user()
             ->attendances()
-            ->whereDate('created_at', Carbon::today())
+            ->whereDate('created_at', $today)
             ->first();
 
         $responseMessage = '';
@@ -83,27 +84,19 @@ class AttendanceController extends Controller
 
     public function history(Request $request)
     {
-        $request->validate(
-            [
-                'from' => ['required'],
-                'to' => ['required'],
-            ]
-        );
+        $request->validate([
+            'from' => ['required'],
+            'to' => ['required'],
+        ]);
 
         $history = $request->user()->attendances()->with('detail')
-            ->whereBetween(
-                DB::raw('DATE(created_at)'),
-                [
-                    $request->from, $request->to
-                ]
-            )->get();
+            ->whereBetween(DB::raw('DATE(created_at)'), [$request->from, $request->to])
+            ->get();
 
-        return response()->json(
-            [
-                'message' => "list of presences by user",
-                'data' => $history,
-            ],
-            Response::HTTP_OK
-        );
+        // Formatting should be handled by model accessors
+        return response()->json([
+            'message' => "list of presences by user",
+            'data' => $history,
+        ], Response::HTTP_OK);
     }
 }
