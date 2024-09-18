@@ -33,22 +33,29 @@
                         </div>
                     @endif
 
-                    <!-- Attendance Chart -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">
-                                <i class="ion ion-clipboard mr-1"></i>
-                                Attendance
-                            </h3>
+                    <!-- If admin, show attendance chart -->
+                    @if (auth()->check() && auth()->user()->is_admin)
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <i class="ion ion-clipboard mr-1"></i>
+                                    Attendance
+                                </h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                @php
+                                    $attendanceChart = new \App\Charts\AttendanceChart();
+                                @endphp
+                                {!! $attendanceChart->container() !!}
+                            </div>
                         </div>
-                        <!-- /.card-header -->
-                        <div class="card-body">
-                            @php
-                                $attendanceChart = new \App\Charts\AttendanceChart();
-                            @endphp
-                            {!! $attendanceChart->container() !!}
+                    @else
+                        <!-- If not admin, show the message -->
+                        <div class="alert alert-warning">
+                            <h5><i class="icon fas fa-exclamation-triangle"></i> eitss hanya admin yang boleh akses yaa</h5>
                         </div>
-                    </div>
+                    @endif
                     <!-- /.card -->
                 </section>
                 <!-- /.Left col -->
@@ -62,6 +69,8 @@
 @push('scripts')
     <!-- Load chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Render chart.js -->
-    {!! $attendanceChart->script() !!}
+    <!-- Render chart.js if admin -->
+    @if (auth()->check() && auth()->user()->is_admin)
+        {!! $attendanceChart->script() !!}
+    @endif
 @endpush
