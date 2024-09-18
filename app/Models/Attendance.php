@@ -14,6 +14,13 @@ class Attendance extends Model
 
     protected $dates = ['created_at', 'updated_at'];
 
+    public function scopeCountAttendance($query, $status)
+    {
+        $today = Carbon::now('Asia/Seoul')->startOfDay();
+        return $query->whereDate('created_at', $today)
+            ->where('status', $status)->count();
+    }
+
     // Define the accessors to format date attributes
     public function getCreatedAtAttribute($value)
     {
