@@ -22,6 +22,7 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::resource('user', App\Http\Controllers\UserController::class);
+Route::resource('attendance', App\Http\Controllers\AttendanceController::class)->only(['index', 'show']);
 
 Route::get('password/reset/{token}', function ($token) {
     // This route can be used to display the password reset form.
