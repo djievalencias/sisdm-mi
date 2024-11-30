@@ -15,7 +15,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'nama' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
             'device_name' => ['required']
@@ -28,7 +28,7 @@ class AuthController extends Controller
 
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
-                'message' => 'The provided credentials are incorrect.',
+                'message' => 'Email/password salah.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -53,9 +53,16 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
+        if(!$user)
+        {
             throw ValidationException::withMessages([
-                'message' => ['The provided credentials are incorrect.'],
+                'message' => ['Email tidak terdaftar.'],
+            ]);
+        }
+
+        if (empty($user) || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'message' => ['Email/password salah.'],
             ]);
         }
 
@@ -74,7 +81,7 @@ class AuthController extends Controller
     {
         $request->user()->tokens()->delete();
         return response()->json([
-            'message' => 'log out success'
+            'message' => 'Log out berhasil.'
         ], Response::HTTP_OK);
     }
 }
