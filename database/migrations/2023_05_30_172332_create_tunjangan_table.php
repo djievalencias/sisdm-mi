@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jabatans', function (Blueprint $table) {
-            $table->id('id_jabatan');
-            $table->integer('id_grup')->unsigned();
+        Schema::create('tunjangan', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('id_payroll')->unique()->constrained('payroll')->onDelete('cascade');
             $table->string('nama');
+            $table->decimal('nominal', 6, 2);
+            $table->boolean('status')->default(false); // True: Processed, False: Drafted
             $table->timestamps();
-
-            // Foreign key
-            // $table->foreign('id_grup')->references('id')->on('grups')->onDelete('set null');
         });
     }
 
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jabatans');
+        Schema::dropIfExists('tunjangan');
     }
 };
