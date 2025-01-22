@@ -26,10 +26,10 @@ class Shift extends Model
         'description',
     ];
 
-    public function karyawan(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    public function user(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
-        return $this->hasManyThrough(Karyawan::class, Shift::class,
-            'id_shift', 'id', 'id', 'id_karyawan')
+        return $this->hasManyThrough(User::class, Shift::class,
+            'id_shift', 'id', 'id', 'id_user')
             ->where('shift.tanggal_berakhir', null);
     }
 

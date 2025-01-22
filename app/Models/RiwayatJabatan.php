@@ -10,15 +10,15 @@ class RiwayatJabatan extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id_karyawan',
+        'id_user',
         'id_jabatan',
         'tanggal_mulai',
         'tanggal_selesai',
     ];
 
-    public function karyawan()
+    public function user()
     {
-        return $this->belongsTo(Karyawan::class, 'id_karyawan');
+        return $this->belongsTo(User::class, 'id_user');
     }
 
     public function jabatan()

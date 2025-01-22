@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('judul');
             $table->text('pesan');
             $table->string('foto')->nullable();
-            $table->foreignId('created_by')->constrained('karyawan')->onDelete('cascade');
-            $table->foreignId('updated_by')->nullable()->constrained('karyawan')->onDelete('set null');
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });
     }

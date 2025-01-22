@@ -20,7 +20,7 @@ class Kantor extends Model
 
     public function manager()
     {
-        return $this->belongsTo(Karyawan::class, 'id_manager');
+        return $this->belongsTo(User::class, 'id_manager');
     }
 
     public function departemen()

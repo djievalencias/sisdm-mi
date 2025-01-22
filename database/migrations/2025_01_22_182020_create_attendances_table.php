@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_karyawan')->constrained('karyawan')->onDelete('cascade');
+            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->Date('tanggal');
             $table->boolean('status')->default(false); // 0 for check in, 1 for check out
             $table->decimal('hari_kerja', 4, 2);
             $table->decimal('jumlah_jam_lembur', 4, 2)->nullable();
             $table->boolean('is_tanggal_merah')->default(false);
-            $table->unique(['id_karyawan', 'tanggal']);
+            $table->unique(['id_user', 'tanggal']);
             $table->timestamps();
         });
     }

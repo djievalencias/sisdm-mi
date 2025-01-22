@@ -10,7 +10,7 @@ class Payroll extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id_karyawan',
+        'id_user',
         'tanggal_payroll',
         'gaji_pokok',
         'upah_lembur',
@@ -21,7 +21,7 @@ class Payroll extends Model
         'bpjs_jht_perusahaan',
         'bpjs_jkm_perusahaan',
         'bpjs_jp_perusahaan',
-        'bpjs_kes_karyawan',
+        'bpjs_kes_user',
         'is_reviewed',
         'status',
     ];
@@ -32,9 +32,9 @@ class Payroll extends Model
         'status' => 'boolean',
     ];
 
-    public function karyawan()
+    public function user()
     {
-        return $this->belongsTo(Karyawan::class, 'id_karyawan');
+        return $this->belongsTo(User::class, 'id_user');
     }
 
     protected function statusText(): Attribute

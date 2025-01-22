@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('riwayat_jabatan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_karyawan')->constrained('karyawan')->onDelete('cascade');
+            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->foreignId('id_jabatan')->nullable()->constrained('jabatan')->onDelete('set null');
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai')->nullable();

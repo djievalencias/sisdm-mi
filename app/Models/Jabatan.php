@@ -19,10 +19,10 @@ class Jabatan extends Model
         'nama',
     ];
 
-    public function karyawan(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    public function user(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
-        return $this->hasManyThrough(Karyawan::class, Jabatan::class,
-            'id_jabatan', 'id', 'id', 'id_karyawan')
+        return $this->hasManyThrough(User::class, Jabatan::class,
+            'id_jabatan', 'id', 'id', 'id_user')
             ->where('jabatan.tanggal_selesai', null);
     }
 }

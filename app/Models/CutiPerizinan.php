@@ -10,7 +10,7 @@ class CutiPerizinan extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id_karyawan',
+        'id_user',
         'tanggal_mulai',
         'tanggal_selesai',
         'keterangan',
@@ -25,13 +25,13 @@ class CutiPerizinan extends Model
         'tanggal_selesai' => 'date',
     ];
 
-    public function karyawan()
+    public function user()
     {
-        return $this->belongsTo(Karyawan::class, 'id_karyawan');
+        return $this->belongsTo(User::class, 'id_user');
     }
 
     public function disetujuiOleh()
     {
-        return $this->belongsTo(Karyawan::class, 'disetujui_oleh');
+        return $this->belongsTo(User::class, 'disetujui_oleh');
     }
 }

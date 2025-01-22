@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('penjadwalan_shift', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_karyawan')->constrained('karyawan')->onDelete('cascade');
+            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->foreignId('id_shift')->nullable()->constrained('shift')->onDelete('set null');
             $table->boolean('is_ditampilkan')->default(false);
             $table->timestamps();
