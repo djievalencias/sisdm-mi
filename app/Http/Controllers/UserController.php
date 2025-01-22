@@ -61,18 +61,39 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $photo = $request->file('image');
+        $request->validate([
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_bpjs_kesehatan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_bpjs_ketenagakerjaan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
 
-        if ($photo) {
-            $request['photo'] = $this->uploadImage($photo, $request->name, 'profile');
+        ]);
+
+        $data = $request->all();
+
+        if ($request->hasFile('foto_profil')) {
+            $data['foto_profil'] = $request->file('foto_profil')->store('profile', 'public');
         }
 
-        $request['password'] = Hash::make($request->password);
+        if ($request->hasFile('foto_ktp')) {
+            $data['foto_ktp'] = $request->file('foto_ktp')->store('ktp', 'public');
+        }
 
-        User::create($request->all());
+        if ($request->hasFile('foto_bpjs_kesehatan')) {
+            $data['foto_bpjs_kesehatan'] = $request->file('foto_bpjs_kesehatan')->store('bpjs_kesehatan', 'public');
+        }
+
+        if ($request->hasFile('foto_bpjs_ketenagakerjaan')) {
+            $data['foto_bpjs_ketenagakerjaan'] = $request->file('foto_bpjs_ketenagakerjaan')->store('bpjs_ketenagakerjaan', 'public');
+        }
+
+        $data['password'] = Hash::make($request->password);
+
+        User::create($data);
 
         return redirect()->route('user.index');
     }
+
 
     /**
      * Display the specified resource.
@@ -108,19 +129,51 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        $photo = $request->file('image');
 
-        if ($photo) {
-            $request['photo'] = $this->uploadImage($photo, $request->name, 'profile', true, $user->photo);
+        $request->validate([
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_bpjs_kesehatan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_bpjs_ketenagakerjaan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $data = $request->all();
+
+        if ($request->hasFile('foto_profil')) {
+            if ($user->foto_profil) {
+                \Storage::disk('public')->delete($user->foto_profil);
+            }
+            $data['foto_profil'] = $request->file('foto_profil')->store('profile', 'public');
+        }
+
+        if ($request->hasFile('foto_ktp')) {
+            if ($user->foto_ktp) {
+                \Storage::disk('public')->delete($user->foto_ktp);
+            }
+            $data['foto_ktp'] = $request->file('foto_ktp')->store('ktp', 'public');
+        }
+
+        if ($request->hasFile('foto_bpjs_kesehatan')) {
+            if ($user->foto_ktp) {
+                \Storage::disk('public')->delete($user->foto_ktp);
+            }
+            $data['foto_bpjs_kesehatan'] = $request->file('foto_bpjs_kesehatan')->store('bpjs_kesehatan', 'public');
+        }
+
+        if ($request->hasFile('foto_bpjs_ketenagakerjaan')) {
+            if ($user->foto_ktp) {
+                \Storage::disk('public')->delete($user->foto_ktp);
+            }
+            $data['foto_bpjs_ketenagakerjaan'] = $request->file('foto_bpjs_ketenagakerjaan')->store('bpjs_ketenagakerjaan', 'public');
         }
 
         if ($request->password) {
-            $request['password'] = Hash::make($request->password);
+            $data['password'] = Hash::make($request->password);
         } else {
-            $request['password'] = $user->password;
+            unset($data['password']);
         }
 
-        $user->update($request->all());
+        $user->update($data);
 
         return redirect()->route('user.index');
     }

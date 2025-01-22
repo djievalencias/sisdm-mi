@@ -25,7 +25,7 @@ class AttendanceController extends Controller
         ]);
 
         $photo = $request->file('photo');
-        $today = Carbon::now('Asia/Seoul')->startOfDay();
+        $today = Carbon::now('Asia/Jakarta')->startOfDay();
         $attendanceType = $request->type;
         $userAttendanceToday = $request->user()
             ->attendances()
