@@ -15,13 +15,14 @@ class Jabatan extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'id_jabatan',
         'id_grup',
         'nama',
     ];
 
-    public function grup()
+    public function karyawan(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
-        return $this->belongsTo(Grup::class, 'id_grup');
+        return $this->hasManyThrough(Karyawan::class, Jabatan::class,
+            'id_jabatan', 'id', 'id', 'id_karyawan')
+            ->where('jabatan.tanggal_selesai', null);
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Traits\ImageStorage;
-use App\Models\User;
+use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
@@ -24,7 +24,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = User::query();
+            $data = Karyawan::query();
 
             return DataTables::eloquent($data)
                 ->addColumn('action', function ($data) {
@@ -69,7 +69,7 @@ class UserController extends Controller
 
         $request['password'] = Hash::make($request->password);
 
-        User::create($request->all());
+        Karyawan::create($request->all());
 
         return redirect()->route('user.index');
     }
@@ -82,7 +82,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::findOrFail($id);
+        $user = Karyawan::findOrFail($id);
         return view('pages.user.show', compact('user'));
     }
 
@@ -94,7 +94,7 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        $user = User::findOrFail($id);
+        $user = Karyawan::findOrFail($id);
         return view('pages.user.edit', compact('user'));
     }
 
@@ -107,7 +107,7 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+        $user = Karyawan::findOrFail($id);
         $photo = $request->file('image');
 
         if ($photo) {
@@ -133,7 +133,7 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::find($id);
+        $user = Karyawan::find($id);
 
         if ($user->photo) {
             $this->deleteImage($user->photo, 'profile');

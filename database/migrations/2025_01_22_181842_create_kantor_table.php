@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendance_details', function (Blueprint $table) {
+        Schema::create('kantor', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('attendance_id');
-            $table->string('long');
-            $table->string('lat');
-            $table->string('address');
-            $table->string('photo');
-            $table->enum('type', ['in', 'out']);
+            $table->string('nama');
+            $table->string('alamat');
+            $table->float('koordinat_x');
+            $table->float('koordinat_y');
+            $table->float('radius');
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendance_details');
+        Schema::dropIfExists('kantor');
     }
 };

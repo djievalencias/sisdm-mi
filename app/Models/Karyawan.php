@@ -7,7 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class Karyawan extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -51,12 +51,12 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'remember_token',
         'nik',
         'npwp',
         'foto_ktp',
         'foto_bpjs_kesehatan',
         'foto_bpjs_ketenagakerjaan',
-        'remember_token',
     ];
 
     /**
@@ -67,20 +67,38 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'tanggal_lahir' => 'date',
+        'tanggal_perekrutan' => 'date',
+        'tanggal_pemutusan_kontrak' => 'date',
     ];
 
     public function jabatan()
     {
         return $this->belongsTo(Jabatan::class, 'id_jabatan');
     }
-
+    
     public function atasan()
     {
-        return $this->belongsTo(User::class, 'id_atasan');
+        return $this->belongsTo(self::class, 'id_atasan');
     }
-
+    
+    public function bawahan()
+    {
+        return $this->hasMany(self::class, 'id_atasan');
+    }
+    
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
+    }
+    
+    public function shift()
+    {
+        return $this->belongsTo(Shift::class, 'id_shift');
+    }
+
+    public function payroll()
+    {
+        return $this->hasMany(Payroll::class);
     }
 }
