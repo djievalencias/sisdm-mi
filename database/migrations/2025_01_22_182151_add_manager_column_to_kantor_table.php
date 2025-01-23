@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('kantor', function (Blueprint $table) {
-            $table->foreignId('id_manager')->after('id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('id_manager')->nullable()->constrained('users')->onDelete('set null');
         });
     }
 

@@ -52,3 +52,4 @@ Route::resource('departemen', DepartemenController::class)->middleware(['auth', 
 
 // Kantor Routes
 Route::resource('kantor', KantorController::class)->middleware(['auth', 'is_admin']);
+Route::get('/kantor/{kantor}/edit', [KantorController::class, 'edit'])->name('kantor.edit');

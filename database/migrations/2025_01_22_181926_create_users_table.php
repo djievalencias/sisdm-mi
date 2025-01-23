@@ -19,7 +19,7 @@ return new class extends Migration
             $table->char('nik', 16)->unique()->default('');
             $table->string('email')->unique();
             $table->char('npwp', 16)->unique()->default('');
-            $table->string('password');
+            $table->string('password')->default('');
             $table->string('no_telepon')->unique()->default('');
             $table->enum('jenis_kelamin', ['P', 'L'])->default('L'); // L for male, P for female
             $table->string('tempat_lahir')->default('');

@@ -27,28 +27,28 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-{
-    if ($request->ajax()) {
-        $data = User::with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
+    {
+        if ($request->ajax()) {
+            $data = User::with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
 
-        return DataTables::eloquent($data)
-            ->addColumn('action', function ($data) {
-                return view('layouts._action', [
-                    'model' => $data,
-                    'edit_url' => route('user.edit', $data->id),
-                    'show_url' => route('user.show', $data->id),
-                    'delete_url' => route('user.destroy', $data->id),
-                ]);
-            })
-            ->addIndexColumn()
-            ->rawColumns(['action'])
-            ->toJson();
+            return DataTables::eloquent($data)
+                ->addColumn('action', function ($data) {
+                    return view('layouts._action', [
+                        'model' => $data,
+                        'edit_url' => route('user.edit', $data->id),
+                        'show_url' => route('user.show', $data->id),
+                        'delete_url' => route('user.destroy', $data->id),
+                    ]);
+                })
+                ->addIndexColumn()
+                ->rawColumns(['action'])
+                ->toJson();
+        }
+
+        $users = User::with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
+
+        return view('pages.user.index', compact('users'));
     }
-
-    $users = User::with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
-
-    return view('pages.user.index', compact('users'));
-}
 
 
     /**
@@ -57,14 +57,14 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-{
-    $jabatan = Jabatan::all();
-    $grup = Grup::all();
-    $departemen = Departemen::all();
-    $kantor = Kantor::all();
+    {
+        $jabatan = Jabatan::all();
+        $grup = Grup::all();
+        $departemen = Departemen::all();
+        $kantor = Kantor::all();
 
-    return view('pages.user.create', compact('jabatan', 'grup', 'departemen', 'kantor'));
-}
+        return view('pages.user.create', compact('jabatan', 'grup', 'departemen', 'kantor'));
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -107,8 +107,13 @@ class UserController extends Controller
             'id_grup' => 'nullable|exists:grup,id',
             'id_departemen' => 'nullable|exists:departemen,id',
             'id_kantor' => 'nullable|exists:kantor,id',
+            'nik' => 'required|string|max:16|unique:users,nik',
+            'npwp' => 'required|string|max:16|unique:users,npwp',
+            'no_telepon' => 'required|string|max:16|unique:users,no_telepon',
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
         ] + $this->validateUserData($request));
-    
+
         User::create($data);
 
         return redirect()->route('user.index');
@@ -134,15 +139,15 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-{
-    $user = User::findOrFail($id);
-    $jabatan = Jabatan::all();
-    $grup = Grup::all();
-    $departemen = Departemen::all();
-    $kantor = Kantor::all();
+    {
+        $user = User::findOrFail($id);
+        $jabatan = Jabatan::all();
+        $grup = Grup::all();
+        $departemen = Departemen::all();
+        $kantor = Kantor::all();
 
-    return view('pages.user.edit', compact('user', 'jabatan', 'grup', 'departemen', 'kantor'));
-}
+        return view('pages.user.edit', compact('user', 'jabatan', 'grup', 'departemen', 'kantor'));
+    }
 
     /**
      * Update the specified resource in storage.
@@ -230,11 +235,11 @@ class UserController extends Controller
     }
 
     private function validateUserData($request)
-{
-    return [
-        'nama' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email',
-        // Add other fields here as needed
-    ];
-}
+    {
+        return [
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            // Add other fields here as needed
+        ];
+    }
 }
