@@ -35,8 +35,7 @@
     <a href="{{ url('login') }}">login</a>
   </div>
   <div class="lockscreen-footer text-center">
-    Copyright &copy; 2014-2019 <b><a href="http://adminlte.io" class="text-black">AdminLTE.io</a></b><br>
-    All rights reserved
+    Capstone S1T24K01
   </div>
 </div>
 <!-- /.center -->

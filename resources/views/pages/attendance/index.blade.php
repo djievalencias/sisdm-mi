@@ -67,49 +67,55 @@
 @endsection
 
 @push('scripts')
-    <script>
-        $(document).ready(function() {
-            $('#datatable').DataTable({
-                processing: true,
-                serverSide: true,
-                responsive: true,
-                ajax: '{{ url('attendance') }}',
-                columns: [{
-                        data: 'DT_RowIndex',
-                        name: 'id'
+<script>
+    $(document).ready(function() {
+        $('#datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            ajax: '{{ url('attendance') }}',
+            columns: [
+                {
+                    data: 'DT_RowIndex',
+                    name: 'id'
+                },
+                {
+                    data: 'user.nama',
+                    name: 'user.nama'
+                },
+                {
+                    data: function(row) {
+                        return row.status ? "Check Out" : "Check In";
                     },
-                    {
-                        data: 'user.name',
-                        name: 'user.name'
+                    name: 'status'
+                },
+                {
+                    data: function(row) {
+                        let date = new Date(row.created_at);
+                        return date.toLocaleString();
                     },
-                    {
-                        data: function(row) {
-                            return row.status ? "Check Out" : "Check In"
-                        },
-                        name: 'status'
-                    },
-                    {
-                        data: function(row) {
-                            let date = new Date(row.created_at);
-                            return date.toLocaleString();
-                        },
-                        name: 'created_at'
-                    },
-                    {
-                        data: function(row) {
+                    name: 'created_at'
+                },
+                {
+                    data: function(row) {
+                        if (row.status) {
                             let date = new Date(row.updated_at);
                             return date.toLocaleString();
-                        },
-                        name: 'updated_at'
+                        } else {
+                            return "User belum checkout";
+                        }
                     },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    }
-                ]
-            });
+                    name: 'updated_at'
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false
+                }
+            ]
         });
-    </script>
+    });
+</script>
+
 @endpush

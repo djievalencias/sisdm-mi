@@ -7,6 +7,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
+use App\Models\Jabatan;
+use App\Models\Grup;
+use App\Models\Departemen;
+use App\Models\Kantor;
+
 
 class UserController extends Controller
 {
@@ -22,26 +27,29 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
-        if ($request->ajax()) {
-            $data = User::query();
+{
+    if ($request->ajax()) {
+        $data = User::with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
 
-            return DataTables::eloquent($data)
-                ->addColumn('action', function ($data) {
-                    return view('layouts._action', [
-                        'model' => $data,
-                        'edit_url' => route('user.edit', $data->id),
-                        'show_url' => route('user.show', $data->id),
-                        'delete_url' => route('user.destroy', $data->id),
-                    ]);
-                })
-                ->addIndexColumn()
-                ->rawColumns(['action'])
-                ->toJson();
-        }
-
-        return view('pages.user.index');
+        return DataTables::eloquent($data)
+            ->addColumn('action', function ($data) {
+                return view('layouts._action', [
+                    'model' => $data,
+                    'edit_url' => route('user.edit', $data->id),
+                    'show_url' => route('user.show', $data->id),
+                    'delete_url' => route('user.destroy', $data->id),
+                ]);
+            })
+            ->addIndexColumn()
+            ->rawColumns(['action'])
+            ->toJson();
     }
+
+    $users = User::with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
+
+    return view('pages.user.index', compact('users'));
+}
+
 
     /**
      * Show the form for creating a new resource.
@@ -49,9 +57,14 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {
-        return view('pages.user.create');
-    }
+{
+    $jabatan = Jabatan::all();
+    $grup = Grup::all();
+    $departemen = Departemen::all();
+    $kantor = Kantor::all();
+
+    return view('pages.user.create', compact('jabatan', 'grup', 'departemen', 'kantor'));
+}
 
     /**
      * Store a newly created resource in storage.
@@ -61,18 +74,46 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $photo = $request->file('image');
+        $request->validate([
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_bpjs_kesehatan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_bpjs_ketenagakerjaan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
 
-        if ($photo) {
-            $request['photo'] = $this->uploadImage($photo, $request->name, 'profile');
+        ]);
+
+        $data = $request->all();
+
+        if ($request->hasFile('foto_profil')) {
+            $data['foto_profil'] = $request->file('foto_profil')->store('profile', 'public');
         }
 
-        $request['password'] = Hash::make($request->password);
+        if ($request->hasFile('foto_ktp')) {
+            $data['foto_ktp'] = $request->file('foto_ktp')->store('ktp', 'public');
+        }
 
-        User::create($request->all());
+        if ($request->hasFile('foto_bpjs_kesehatan')) {
+            $data['foto_bpjs_kesehatan'] = $request->file('foto_bpjs_kesehatan')->store('bpjs_kesehatan', 'public');
+        }
+
+        if ($request->hasFile('foto_bpjs_ketenagakerjaan')) {
+            $data['foto_bpjs_ketenagakerjaan'] = $request->file('foto_bpjs_ketenagakerjaan')->store('bpjs_ketenagakerjaan', 'public');
+        }
+
+        $data['password'] = Hash::make($request->password);
+
+        $data = $request->validate([
+            'id_jabatan' => 'nullable|exists:jabatan,id',
+            'id_grup' => 'nullable|exists:grup,id',
+            'id_departemen' => 'nullable|exists:departemen,id',
+            'id_kantor' => 'nullable|exists:kantor,id',
+        ] + $this->validateUserData($request));
+    
+        User::create($data);
 
         return redirect()->route('user.index');
     }
+
 
     /**
      * Display the specified resource.
@@ -93,10 +134,15 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    {
-        $user = User::findOrFail($id);
-        return view('pages.user.edit', compact('user'));
-    }
+{
+    $user = User::findOrFail($id);
+    $jabatan = Jabatan::all();
+    $grup = Grup::all();
+    $departemen = Departemen::all();
+    $kantor = Kantor::all();
+
+    return view('pages.user.edit', compact('user', 'jabatan', 'grup', 'departemen', 'kantor'));
+}
 
     /**
      * Update the specified resource in storage.
@@ -108,19 +154,58 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        $photo = $request->file('image');
 
-        if ($photo) {
-            $request['photo'] = $this->uploadImage($photo, $request->name, 'profile', true, $user->photo);
+        $request->validate([
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_bpjs_kesehatan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_bpjs_ketenagakerjaan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $data = $request->all();
+
+        if ($request->hasFile('foto_profil')) {
+            if ($user->foto_profil) {
+                \Storage::disk('public')->delete($user->foto_profil);
+            }
+            $data['foto_profil'] = $request->file('foto_profil')->store('profile', 'public');
+        }
+
+        if ($request->hasFile('foto_ktp')) {
+            if ($user->foto_ktp) {
+                \Storage::disk('public')->delete($user->foto_ktp);
+            }
+            $data['foto_ktp'] = $request->file('foto_ktp')->store('ktp', 'public');
+        }
+
+        if ($request->hasFile('foto_bpjs_kesehatan')) {
+            if ($user->foto_ktp) {
+                \Storage::disk('public')->delete($user->foto_ktp);
+            }
+            $data['foto_bpjs_kesehatan'] = $request->file('foto_bpjs_kesehatan')->store('bpjs_kesehatan', 'public');
+        }
+
+        if ($request->hasFile('foto_bpjs_ketenagakerjaan')) {
+            if ($user->foto_ktp) {
+                \Storage::disk('public')->delete($user->foto_ktp);
+            }
+            $data['foto_bpjs_ketenagakerjaan'] = $request->file('foto_bpjs_ketenagakerjaan')->store('bpjs_ketenagakerjaan', 'public');
         }
 
         if ($request->password) {
-            $request['password'] = Hash::make($request->password);
+            $data['password'] = Hash::make($request->password);
         } else {
-            $request['password'] = $user->password;
+            unset($data['password']);
         }
 
-        $user->update($request->all());
+        $data = $request->validate([
+            'id_jabatan' => 'nullable|exists:jabatan,id',
+            'id_grup' => 'nullable|exists:grup,id',
+            'id_departemen' => 'nullable|exists:departemen,id',
+            'id_kantor' => 'nullable|exists:kantor,id',
+        ] + $this->validateUserData($request));
+
+        $user->update($data);
 
         return redirect()->route('user.index');
     }
@@ -143,4 +228,13 @@ class UserController extends Controller
 
         return redirect()->route('user.index');
     }
+
+    private function validateUserData($request)
+{
+    return [
+        'nama' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        // Add other fields here as needed
+    ];
+}
 }

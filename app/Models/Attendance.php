@@ -16,7 +16,7 @@ class Attendance extends Model
 
     public function scopeCountAttendance($query, $status)
     {
-        $today = Carbon::now('Asia/Seoul')->startOfDay();
+        $today = Carbon::now('Asia/Jakarta')->startOfDay();
         return $query->whereDate('created_at', $today)
             ->where('status', $status)->count();
     }
@@ -24,12 +24,12 @@ class Attendance extends Model
     // Define the accessors to format date attributes
     public function getCreatedAtAttribute($value)
     {
-        return Carbon::parse($value)->setTimezone('Asia/Seoul')->format('Y-m-d H:i:s');
+        return Carbon::parse($value)->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s');
     }
 
     public function getUpdatedAtAttribute($value)
     {
-        return Carbon::parse($value)->setTimezone('Asia/Seoul')->format('Y-m-d H:i:s');
+        return Carbon::parse($value)->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s');
     }
 
     public function detail()

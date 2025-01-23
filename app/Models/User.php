@@ -17,11 +17,31 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'id_jabatan',
+        'id_atasan',
+        'nama',
+        'nik',
         'email',
+        'npwp',
         'password',
+        'no_telepon',
+        'jenis_kelamin',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'tanggal_perekrutan',
+        'agama',
+        'alamat',
+        'rt',
+        'rw',
+        'kelurahan',
+        'kecamatan',
+        'kabupaten_kota',
+        'foto_profil',
+        'foto_ktp',
+        'foto_bpjs_kesehatan',
+        'foto_bpjs_ketenagakerjaan',
+        'is_aktif',
         'is_admin',
-        'photo'
     ];
 
     /**
@@ -32,6 +52,11 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'nik',
+        'npwp',
+        'foto_ktp',
+        'foto_bpjs_kesehatan',
+        'foto_bpjs_ketenagakerjaan',
     ];
 
     /**
@@ -42,10 +67,38 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'tanggal_lahir' => 'date',
+        'tanggal_perekrutan' => 'date',
+        'tanggal_pemutusan_kontrak' => 'date',
     ];
 
+    public function jabatan()
+    {
+        return $this->belongsTo(Jabatan::class, 'id_jabatan');
+    }
+    
+    public function atasan()
+    {
+        return $this->belongsTo(self::class, 'id_atasan');
+    }
+    
+    public function bawahan()
+    {
+        return $this->hasMany(self::class, 'id_atasan');
+    }
+    
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
+    }
+    
+    public function shift()
+    {
+        return $this->belongsTo(Shift::class, 'id_shift');
+    }
+
+    public function payroll()
+    {
+        return $this->hasMany(Payroll::class);
     }
 }
