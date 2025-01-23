@@ -27,28 +27,30 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
-        if ($request->ajax()) {
-            $data = User::with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
+{
+    if ($request->ajax()) {
+        $data = User::where('is_archived', false)->with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
 
-            return DataTables::eloquent($data)
-                ->addColumn('action', function ($data) {
-                    return view('layouts._action', [
-                        'model' => $data,
-                        'edit_url' => route('user.edit', $data->id),
-                        'show_url' => route('user.show', $data->id),
-                        'delete_url' => route('user.destroy', $data->id),
-                    ]);
-                })
-                ->addIndexColumn()
-                ->rawColumns(['action'])
-                ->toJson();
-        }
-
-        $users = User::with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
-
-        return view('pages.user.index', compact('users'));
+        return DataTables::eloquent($data)
+            ->addColumn('action', function ($data) {
+                return view('layouts._action', [
+                    'model' => $data,
+                    'edit_url' => route('user.edit', $data->id),
+                    'show_url' => route('user.show', $data->id),
+                    'archive_url' => route('user.archive', $data->id),
+                    'delete_url' => route('user.destroy', $data->id),
+                ]);
+            })
+            ->addIndexColumn()
+            ->rawColumns(['action'])
+            ->toJson();
     }
+
+    $users = User::where('is_archived', false)->with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
+
+    return view('pages.user.index', compact('users'));
+}
+
 
 
     /**
@@ -241,5 +243,44 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             // Add other fields here as needed
         ];
+    }
+
+    public function archive($id)
+    {
+        $user = User::findOrFail($id);
+        $user->update(['is_archived' => true]);
+        return redirect()->route('user.index')->with('status', 'User archived successfully!');
+    }
+
+
+    public function archivedUsers(Request $request)
+{
+    if ($request->ajax()) {
+        $data = User::where('is_archived', true)->get();
+
+        return DataTables::of($data)
+            ->addColumn('action', function ($data) {
+                return view('layouts._action', [
+                    'model' => $data,
+                    'restore_url' => route('user.restore', $data->id),
+                    'delete_url' => route('user.destroy', $data->id),
+                ]);
+            })
+            ->addIndexColumn()
+            ->rawColumns(['action'])
+            ->toJson();
+    }
+
+    $users = User::where('is_archived', true)->get();
+    return view('pages.user.archived', compact('users'));
+}
+
+
+
+    public function restore($id)
+    {
+        $user = User::findOrFail($id);
+        $user->update(['is_archived' => false]);
+        return redirect()->route('user.archived')->with('status', 'User restored successfully!');
     }
 }
