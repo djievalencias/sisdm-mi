@@ -9,20 +9,16 @@ class Jabatan extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<string>
-     */
+    protected $table = 'jabatan';
+
     protected $fillable = [
         'id_grup',
         'nama',
+        'description',
     ];
 
-    public function user(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    public function grup()
     {
-        return $this->hasManyThrough(User::class, Jabatan::class,
-            'id_jabatan', 'id', 'id', 'id_user')
-            ->where('jabatan.tanggal_selesai', null);
+        return $this->belongsTo(Grup::class, 'id_grup');
     }
 }

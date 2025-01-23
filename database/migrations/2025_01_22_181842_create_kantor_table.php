@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('alamat');
-            $table->float('koordinat_x');
-            $table->float('koordinat_y');
+            $table->string('koordinat_x');
+            $table->string('koordinat_y');
             $table->float('radius');
             $table->timestamps();
         });

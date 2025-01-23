@@ -47,6 +47,22 @@
                                         <td>{{ $user->email }}</td>
                                     </tr>
                                     <tr>
+                                        <th>Jabatan</th>
+                                        <td>{{ $user->jabatan }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Grup</th>
+                                        <td>{{ $user->grup }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Departemen</th>
+                                        <td>{{ $user->departemen }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Kantor</th>
+                                        <td>{{ $user->kantor }}</td>
+                                    </tr>
+                                    <tr>
                                         <th>NPWP</th>
                                         <td>{{ $user->npwp }}</td>
                                     </tr>

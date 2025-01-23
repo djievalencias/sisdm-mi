@@ -9,6 +9,8 @@ class Grup extends Model
 {
     use HasFactory;
 
+    protected $table = 'grup';
+
     protected $fillable = [
         'id_departemen',
         'nama',
@@ -17,10 +19,5 @@ class Grup extends Model
     public function departemen()
     {
         return $this->belongsTo(Departemen::class, 'id_departemen');
-    }
-
-    public function jabatan()
-    {
-        return $this->hasMany(Jabatan::class, 'id_grup');
     }
 }

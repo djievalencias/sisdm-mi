@@ -7,6 +7,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
+use App\Models\Jabatan;
+use App\Models\Grup;
+use App\Models\Departemen;
+use App\Models\Kantor;
+
 
 class UserController extends Controller
 {
@@ -22,26 +27,29 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
-        if ($request->ajax()) {
-            $data = User::query();
+{
+    if ($request->ajax()) {
+        $data = User::with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
 
-            return DataTables::eloquent($data)
-                ->addColumn('action', function ($data) {
-                    return view('layouts._action', [
-                        'model' => $data,
-                        'edit_url' => route('user.edit', $data->id),
-                        'show_url' => route('user.show', $data->id),
-                        'delete_url' => route('user.destroy', $data->id),
-                    ]);
-                })
-                ->addIndexColumn()
-                ->rawColumns(['action'])
-                ->toJson();
-        }
-
-        return view('pages.user.index');
+        return DataTables::eloquent($data)
+            ->addColumn('action', function ($data) {
+                return view('layouts._action', [
+                    'model' => $data,
+                    'edit_url' => route('user.edit', $data->id),
+                    'show_url' => route('user.show', $data->id),
+                    'delete_url' => route('user.destroy', $data->id),
+                ]);
+            })
+            ->addIndexColumn()
+            ->rawColumns(['action'])
+            ->toJson();
     }
+
+    $users = User::with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
+
+    return view('pages.user.index', compact('users'));
+}
+
 
     /**
      * Show the form for creating a new resource.
@@ -49,9 +57,14 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {
-        return view('pages.user.create');
-    }
+{
+    $jabatan = Jabatan::all();
+    $grup = Grup::all();
+    $departemen = Departemen::all();
+    $kantor = Kantor::all();
+
+    return view('pages.user.create', compact('jabatan', 'grup', 'departemen', 'kantor'));
+}
 
     /**
      * Store a newly created resource in storage.
@@ -89,6 +102,13 @@ class UserController extends Controller
 
         $data['password'] = Hash::make($request->password);
 
+        $data = $request->validate([
+            'id_jabatan' => 'nullable|exists:jabatan,id',
+            'id_grup' => 'nullable|exists:grup,id',
+            'id_departemen' => 'nullable|exists:departemen,id',
+            'id_kantor' => 'nullable|exists:kantor,id',
+        ] + $this->validateUserData($request));
+    
         User::create($data);
 
         return redirect()->route('user.index');
@@ -114,10 +134,15 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    {
-        $user = User::findOrFail($id);
-        return view('pages.user.edit', compact('user'));
-    }
+{
+    $user = User::findOrFail($id);
+    $jabatan = Jabatan::all();
+    $grup = Grup::all();
+    $departemen = Departemen::all();
+    $kantor = Kantor::all();
+
+    return view('pages.user.edit', compact('user', 'jabatan', 'grup', 'departemen', 'kantor'));
+}
 
     /**
      * Update the specified resource in storage.
@@ -173,6 +198,13 @@ class UserController extends Controller
             unset($data['password']);
         }
 
+        $data = $request->validate([
+            'id_jabatan' => 'nullable|exists:jabatan,id',
+            'id_grup' => 'nullable|exists:grup,id',
+            'id_departemen' => 'nullable|exists:departemen,id',
+            'id_kantor' => 'nullable|exists:kantor,id',
+        ] + $this->validateUserData($request));
+
         $user->update($data);
 
         return redirect()->route('user.index');
@@ -196,4 +228,13 @@ class UserController extends Controller
 
         return redirect()->route('user.index');
     }
+
+    private function validateUserData($request)
+{
+    return [
+        'nama' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        // Add other fields here as needed
+    ];
+}
 }
