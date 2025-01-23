@@ -48,19 +48,19 @@
                                     </tr>
                                     <tr>
                                         <th>Jabatan</th>
-                                        <td>{{ $user->jabatan }}</td>
+                                        <td>{{ $user->jabatan->nama ?? '-' }}</td>
                                     </tr>
                                     <tr>
                                         <th>Grup</th>
-                                        <td>{{ $user->grup }}</td>
+                                        <td>{{ $user->jabatan->grup->nama ?? '-' }}</td>
                                     </tr>
                                     <tr>
                                         <th>Departemen</th>
-                                        <td>{{ $user->departemen }}</td>
+                                        <td>{{ $user->jabatan->grup->departemen->nama ?? '-' }}</td>
                                     </tr>
                                     <tr>
                                         <th>Kantor</th>
-                                        <td>{{ $user->kantor }}</td>
+                                        <td>{{ $user->jabatan->grup->departemen->kantor->nama ?? '-' }}</td>
                                     </tr>
                                     <tr>
                                         <th>NPWP</th>
@@ -72,7 +72,7 @@
                                     </tr>
                                     <tr>
                                         <th>Gender</th>
-                                        <td>{{ $user->jenis_kelamin == 'M' ? 'Male' : ($user->jenis_kelamin == 'F' ? 'Female' : 'Not specified') }}
+                                        <td>{{ $user->jenis_kelamin == 'L' ? 'Male' : ($user->jenis_kelamin == 'P' ? 'Female' : 'Not specified') }}
                                         </td>
                                     </tr>
                                     <tr>

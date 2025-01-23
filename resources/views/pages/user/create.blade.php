@@ -1,6 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
+
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
@@ -106,8 +117,8 @@
                                 <label for="">Gender</label>
                                 <select name="jenis_kelamin" class="form-control">
                                     <option value="" {{ old('jenis_kelamin') == '' ? 'selected' : '' }}>Select Gender</option>
-                                    <option value="M" {{ old('jenis_kelamin') == 'M' ? 'selected' : '' }}>Male</option>
-                                    <option value="F" {{ old('jenis_kelamin') == 'F' ? 'selected' : '' }}>Female</option>
+                                    <option value="L" {{ old('jenis_kelamin') == 'L' ? 'selected' : '' }}>Male</option>
+                                    <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Female</option>
                                 </select>
                             </div>
                             <div class="form-group">

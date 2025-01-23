@@ -12,10 +12,8 @@ use App\Models\Grup;
 use App\Models\Departemen;
 use App\Models\Kantor;
 
-
 class UserController extends Controller
 {
-
     use ImageStorage;
 
     public function __construct()
@@ -27,36 +25,32 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-{
-    if ($request->ajax()) {
-        $data = User::where('is_archived', false)->with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
+    {
+        if ($request->ajax()) {
+            $data = User::where('is_archived', false)->with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
 
-        return DataTables::eloquent($data)
-            ->addColumn('action', function ($data) {
-                return view('layouts._action', [
-                    'model' => $data,
-                    'edit_url' => route('user.edit', $data->id),
-                    'show_url' => route('user.show', $data->id),
-                    'archive_url' => route('user.archive', $data->id),
-                    'delete_url' => route('user.destroy', $data->id),
-                ]);
-            })
-            ->addIndexColumn()
-            ->rawColumns(['action'])
-            ->toJson();
+            return DataTables::eloquent($data)
+                ->addColumn('action', function ($data) {
+                    return view('layouts._action', [
+                        'model' => $data,
+                        'edit_url' => route('user.edit', $data->id),
+                        'show_url' => route('user.show', $data->id),
+                        'archive_url' => route('user.archive', $data->id),
+                        'delete_url' => route('user.destroy', $data->id),
+                    ]);
+                })
+                ->addIndexColumn()
+                ->rawColumns(['action'])
+                ->toJson();
+        }
+
+        $users = User::where('is_archived', false)->with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
+
+        return view('pages.user.index', compact('users'));
     }
-
-    $users = User::where('is_archived', false)->with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
-
-    return view('pages.user.index', compact('users'));
-}
-
-
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function create()
     {
@@ -70,63 +64,21 @@ class UserController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_bpjs_kesehatan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_bpjs_ketenagakerjaan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        $data = $this->validateUserRequest($request);
 
-        ]);
-
-        $data = $request->all();
-
-        if ($request->hasFile('foto_profil')) {
-            $data['foto_profil'] = $request->file('foto_profil')->store('profile', 'public');
-        }
-
-        if ($request->hasFile('foto_ktp')) {
-            $data['foto_ktp'] = $request->file('foto_ktp')->store('ktp', 'public');
-        }
-
-        if ($request->hasFile('foto_bpjs_kesehatan')) {
-            $data['foto_bpjs_kesehatan'] = $request->file('foto_bpjs_kesehatan')->store('bpjs_kesehatan', 'public');
-        }
-
-        if ($request->hasFile('foto_bpjs_ketenagakerjaan')) {
-            $data['foto_bpjs_ketenagakerjaan'] = $request->file('foto_bpjs_ketenagakerjaan')->store('bpjs_ketenagakerjaan', 'public');
-        }
-
+        $data = $this->handleFileUploads($request, $data);
         $data['password'] = Hash::make($request->password);
-
-        $data = $request->validate([
-            'id_jabatan' => 'nullable|exists:jabatan,id',
-            'id_grup' => 'nullable|exists:grup,id',
-            'id_departemen' => 'nullable|exists:departemen,id',
-            'id_kantor' => 'nullable|exists:kantor,id',
-            'nik' => 'required|string|max:16|unique:users,nik',
-            'npwp' => 'required|string|max:16|unique:users,npwp',
-            'no_telepon' => 'required|string|max:16|unique:users,no_telepon',
-            'nama' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-        ] + $this->validateUserData($request));
 
         User::create($data);
 
         return redirect()->route('user.index');
     }
 
-
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
@@ -136,9 +88,6 @@ class UserController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
@@ -153,64 +102,17 @@ class UserController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
 
-        $request->validate([
-            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_bpjs_kesehatan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_bpjs_ketenagakerjaan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
-
-        $data = $request->all();
-
-        if ($request->hasFile('foto_profil')) {
-            if ($user->foto_profil) {
-                \Storage::disk('public')->delete($user->foto_profil);
-            }
-            $data['foto_profil'] = $request->file('foto_profil')->store('profile', 'public');
-        }
-
-        if ($request->hasFile('foto_ktp')) {
-            if ($user->foto_ktp) {
-                \Storage::disk('public')->delete($user->foto_ktp);
-            }
-            $data['foto_ktp'] = $request->file('foto_ktp')->store('ktp', 'public');
-        }
-
-        if ($request->hasFile('foto_bpjs_kesehatan')) {
-            if ($user->foto_ktp) {
-                \Storage::disk('public')->delete($user->foto_ktp);
-            }
-            $data['foto_bpjs_kesehatan'] = $request->file('foto_bpjs_kesehatan')->store('bpjs_kesehatan', 'public');
-        }
-
-        if ($request->hasFile('foto_bpjs_ketenagakerjaan')) {
-            if ($user->foto_ktp) {
-                \Storage::disk('public')->delete($user->foto_ktp);
-            }
-            $data['foto_bpjs_ketenagakerjaan'] = $request->file('foto_bpjs_ketenagakerjaan')->store('bpjs_ketenagakerjaan', 'public');
-        }
+        $data = $this->validateUserRequest($request, $user);
+        $data = $this->handleFileUploads($request, $data, $user);
 
         if ($request->password) {
             $data['password'] = Hash::make($request->password);
-        } else {
-            unset($data['password']);
         }
-
-        $data = $request->validate([
-            'id_jabatan' => 'nullable|exists:jabatan,id',
-            'id_grup' => 'nullable|exists:grup,id',
-            'id_departemen' => 'nullable|exists:departemen,id',
-            'id_kantor' => 'nullable|exists:kantor,id',
-        ] + $this->validateUserData($request));
 
         $user->update($data);
 
@@ -219,30 +121,18 @@ class UserController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
         $user = User::find($id);
 
-        if ($user->photo) {
-            $this->deleteImage($user->photo, 'profile');
+        if ($user->foto_profil) {
+            $this->deleteImage($user->foto_profil, 'profile');
         }
 
         $user->delete();
 
         return redirect()->route('user.index');
-    }
-
-    private function validateUserData($request)
-    {
-        return [
-            'nama' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            // Add other fields here as needed
-        ];
     }
 
     public function archive($id)
@@ -252,35 +142,97 @@ class UserController extends Controller
         return redirect()->route('user.index')->with('status', 'User archived successfully!');
     }
 
-
     public function archivedUsers(Request $request)
-{
-    if ($request->ajax()) {
-        $data = User::where('is_archived', true)->get();
+    {
+        if ($request->ajax()) {
+            $data = User::where('is_archived', true)->get();
 
-        return DataTables::of($data)
-            ->addColumn('action', function ($data) {
-                return view('layouts._action', [
-                    'model' => $data,
-                    'restore_url' => route('user.restore', $data->id),
-                    'delete_url' => route('user.destroy', $data->id),
-                ]);
-            })
-            ->addIndexColumn()
-            ->rawColumns(['action'])
-            ->toJson();
+            return DataTables::of($data)
+                ->addColumn('action', function ($data) {
+                    return view('layouts._action', [
+                        'model' => $data,
+                        'restore_url' => route('user.restore', $data->id),
+                        'delete_url' => route('user.destroy', $data->id),
+                    ]);
+                })
+                ->addIndexColumn()
+                ->rawColumns(['action'])
+                ->toJson();
+        }
+
+        $users = User::where('is_archived', true)->get();
+        return view('pages.user.archived', compact('users'));
     }
-
-    $users = User::where('is_archived', true)->get();
-    return view('pages.user.archived', compact('users'));
-}
-
-
 
     public function restore($id)
     {
         $user = User::findOrFail($id);
         $user->update(['is_archived' => false]);
         return redirect()->route('user.archived')->with('status', 'User restored successfully!');
+    }
+
+    /**
+     * Validate user request data.
+     */
+    private function validateUserRequest(Request $request, $user = null)
+    {
+        $rules = [
+            'id_jabatan' => 'nullable|exists:jabatan,id',
+            'id_atasan' => 'nullable|exists:users,id',
+            'nama' => 'required|string|max:255',
+            'nik' => 'required|string|size:16|unique:users,nik' . ($user ? ",{$user->id}" : ''),
+            'email' => 'required|email|max:255|unique:users,email' . ($user ? ",{$user->id}" : ''),
+            'npwp' => 'nullable|string|size:16|unique:users,npwp' . ($user ? ",{$user->id}" : ''),
+            'password' => $user ? 'nullable|min:8' : 'required|min:8',
+            'no_telepon' => 'nullable|string|max:15|unique:users,no_telepon' . ($user ? ",{$user->id}" : ''),
+            'jenis_kelamin' => 'required|in:P,L',
+            'tempat_lahir' => 'nullable|string|max:255',
+            'tanggal_lahir' => 'nullable|date',
+            'tanggal_perekrutan' => 'nullable|date',
+            'tanggal_pemutusan_kontrak' => 'nullable|date|after_or_equal:tanggal_perekrutan',
+            'agama' => 'nullable|string|max:255',
+            'alamat' => 'nullable|string|max:255',
+            'rt' => 'nullable|string|max:10',
+            'rw' => 'nullable|string|max:10',
+            'kelurahan' => 'nullable|string|max:255',
+            'kecamatan' => 'nullable|string|max:255',
+            'kabupaten_kota' => 'nullable|string|max:255',
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_bpjs_kesehatan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_bpjs_ketenagakerjaan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'is_aktif' => 'nullable|boolean',
+            'is_admin' => 'nullable|boolean',
+            'is_archived' => 'nullable|boolean',
+            'is_remote' => 'nullable|boolean',
+            'email_verified_at' => 'nullable|date',
+        ];
+
+        return $request->validate($rules);
+    }
+
+
+    /**
+     * Handle file uploads for the user.
+     */
+    private function handleFileUploads(Request $request, array $data, $user = null)
+    {
+        $files = [
+            'foto_profil' => 'profile',
+            'foto_ktp' => 'ktp',
+            'foto_bpjs_kesehatan' => 'bpjs_kesehatan',
+            'foto_bpjs_ketenagakerjaan' => 'bpjs_ketenagakerjaan',
+        ];
+
+        foreach ($files as $field => $path) {
+            if ($request->hasFile($field)) {
+                if ($user && $user->$field) {
+                    \Storage::disk('public')->delete($user->$field);
+                }
+                $data[$field] = $request->file($field)->store($path, 'public');
+            }
+        }
+
+        return $data;
     }
 }
