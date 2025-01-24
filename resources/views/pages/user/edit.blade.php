@@ -70,24 +70,11 @@
                                         value="{{ old('email', $user->email) }}">
                                 </div>
                                 <div class="form-group">
-                                    <label for="id_jabatan">Jabatan</label>
-                                    <select name="id_jabatan" class="form-control">
-                                        <option value="">Select Jabatan</option>
-                                        @foreach ($jabatan as $item)
-                                        <option value="{{ $item->id }}" {{ $user->id_jabatan == $item->id ? 'selected' : '' }}>
-                                            {{ $item->nama }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="id_grup">Grup</label>
-                                    <select name="id_grup" class="form-control">
-                                        <option value="">Select Grup</option>
-                                        @foreach ($grup as $item)
-                                        <option value="{{ $item->id }}" {{ $user->id_grup == $item->id ? 'selected' : '' }}>
-                                            {{ $item->nama }}
-                                        </option>
+                                    <label for="id_kantor">Kantor</label>
+                                    <select name="id_kantor" class="form-control">
+                                        <option value="">Select Kantor</option>
+                                        @foreach ($kantor as $item)
+                                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -96,24 +83,28 @@
                                     <select name="id_departemen" class="form-control">
                                         <option value="">Select Departemen</option>
                                         @foreach ($departemen as $item)
-                                        <option value="{{ $item->id }}" {{ $user->id_departemen == $item->id ? 'selected' : '' }}>
-                                            {{ $item->nama }}
-                                        </option>
+                                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="id_kantor">Kantor</label>
-                                    <select name="id_kantor" class="form-control">
-                                        <option value="">Select Kantor</option>
-                                        @foreach ($kantor as $item)
-                                        <option value="{{ $item->id }}" {{ $user->id_kantor == $item->id ? 'selected' : '' }}>
-                                            {{ $item->nama }}
-                                        </option>
+                                    <label for="id_grup">Grup</label>
+                                    <select name="id_grup" class="form-control">
+                                        <option value="">Select Grup</option>
+                                        @foreach ($grup as $item)
+                                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
                                         @endforeach
                                     </select>
                                 </div>
-                                
+                                <div class="form-group">
+                                    <label for="id_jabatan">Jabatan</label>
+                                    <select name="id_jabatan" class="form-control">
+                                        <option value="">Select Jabatan</option>
+                                        @foreach ($jabatan as $item)
+                                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div class="form-group">
                                     <label for="">NPWP</label>
                                     <input type="text" name="npwp" class="form-control"

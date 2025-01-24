@@ -10,48 +10,85 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::where('is_archived', false);
+        $users = User::where('is_archived', false)->get();
         return response()->json($users);
     }
 
     public function show($id)
     {
         $user = User::where('is_archived', false)->find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found or is archived'
+            ], 404);
+        }
+    
         return response()->json($user);
     }
 
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+        try {
+            // Fetch the user, ensuring it's not archived
+            $user = User::where('is_archived', false)->find($id);
 
-        $data = $this->validateUserRequest($request, $user);
-        $data = $this->handleFileUploads($request, $data, $user);
+            if (!$user) {
+                return response()->json([
+                    'message' => 'User not found or is archived'
+                ], 404);
+            }
 
-        Log::info('Request Data:', $data);
-        
-        if ($request->password) {
-            $data['password'] = Hash::make($request->password);
+            // Validate request
+            $data = $this->validateUserRequest($request, $user);
+
+            // Handle file uploads
+            $data = $this->handleFileUploads($request, $data, $user);
+
+            // Hash password if provided
+            if ($request->password) {
+                $data['password'] = Hash::make($request->password);
+            }
+
+            // Update the user
+            $user->update($data);
+
+            return response()->json($user, 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            // Handle other exceptions
+            Log::error('Update Error:', ['message' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'An error occurred during update',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $user->update($data);
-
-        Log::info('Updated User:', $user->toArray());
-
-        return response()->json($user);
     }
 
-    public function destroy($id)
-    {
-        $user = User::find($id);
 
-        if ($user->photo) {
-            $this->deleteImage($user->photo, 'profile');
-        }
+    // public function destroy($id)
+    // {
+    //     $user = User::find($id);
+
+    //     if (!$user) {
+    //         return response()->json([
+    //             'message' => 'User not found'
+    //         ], 404);
+    //     }
+
+    //     if ($user->photo) {
+    //         $this->deleteImage($user->photo, 'profile');
+    //     }
         
-        $user->forceDelete();
+    //     $user->delete();
 
-        return response()->json(['message' => 'User deleted']);
-    }
+    //     return response()->json(['message' => 'User deleted']);
+    // }
 
     private function validateUserRequest(Request $request, $user = null)
     {

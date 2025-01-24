@@ -53,4 +53,10 @@ class GrupController extends Controller
         $grup->delete();
         return redirect()->route('grup.index')->with('status', 'Grup deleted successfully!');
     }
+
+    public function getByDepartemen($id)
+    {
+        $grup = Grup::where('departemen_id', $id)->get();
+        return response()->json($grup);
+    }
 }
