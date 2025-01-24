@@ -35,6 +35,8 @@ Route::resource('user', App\Http\Controllers\UserController::class);
 
 Route::resource('attendance', App\Http\Controllers\AttendanceController::class)->only(['index', 'show']);
 
+Route::resource('shift', App\Http\Controllers\ShiftController::class);
+
 Route::get('password/reset/{token}', function ($token) {
     // This route can be used to display the password reset form.
     // You might want to show a view where users can input their new password.
