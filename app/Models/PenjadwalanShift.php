@@ -9,6 +9,8 @@ class PenjadwalanShift extends Model
 {
     use HasFactory;
 
+    protected $table = 'penjadwalan_shift';
+
     protected $fillable = [
         'id_user',
         'id_shift',

@@ -6,6 +6,7 @@ use App\Http\Controllers\JabatanController;
 use App\Http\Controllers\GrupController;
 use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\KantorController;
+use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserController;
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,9 @@ Route::patch('user/{id}/restore', [UserController::class, 'restore'])->name('use
 Route::resource('user', App\Http\Controllers\UserController::class);
 
 Route::resource('attendance', App\Http\Controllers\AttendanceController::class)->only(['index', 'show']);
+
+Route::get('shift/{shift}/assign', [ShiftController::class, 'assignForm'])->name('shift.assignForm');
+Route::post('shift/{shift}/assign', [ShiftController::class, 'assign'])->name('shift.assign');
 
 Route::resource('shift', App\Http\Controllers\ShiftController::class);
 

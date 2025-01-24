@@ -58,6 +58,7 @@
                                                 <button type="submit" class="btn btn-sm btn-danger" 
                                                     onclick="return confirm('Are you sure you want to delete this shift?');">Delete</button>
                                             </form>
+                                            <a href="{{ route('shift.assignForm', $shift->id) }}" class="btn btn-sm btn-primary">Assign Users</a>
                                         </td>
                                     </tr>
                                 @empty
