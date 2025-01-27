@@ -18,9 +18,9 @@ class KantorController extends Controller
     public function create()
     {
         // Fetch only users with a jabatan containing "Manager"
-    $managers = User::whereHas('jabatan', function ($query) {
-        $query->where('nama', 'like', '%Manager%'); // Adjust this condition as needed
-    })->get();
+        $managers = User::whereHas('jabatan', function ($query) {
+            $query->where('nama', 'like', '%Manager%'); // Adjust this condition as needed
+        })->get();
         return view('pages.kantor.create', compact('managers'));
     }
 
@@ -41,13 +41,14 @@ class KantorController extends Controller
 
     public function edit(Kantor $kantor)
     {
-        $kantor = Kantor::findOrFail($id);
-        // Fetch only users with a jabatan containing "Manager"
-    $managers = User::whereHas('jabatan', function ($query) {
-        $query->where('nama', 'like', '%Manager%'); // Adjust this condition as needed
-    })->get();
+        $managers = User::whereHas('jabatan', function ($query) {
+            $query->where('nama', 'like', '%Manager%'); // Sesuaikan dengan kebutuhan
+        })->get();
+
         return view('pages.kantor.edit', compact('kantor', 'managers'));
     }
+
+
 
     public function update(Request $request, Kantor $kantor)
     {

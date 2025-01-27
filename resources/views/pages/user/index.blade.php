@@ -40,6 +40,7 @@
                         <a href="{{ route('departemen.index') }}" class="btn btn-sm btn-info">Departemen</a>
                         <a href="{{ route('grup.index') }}" class="btn btn-sm btn-info">Grup</a>
                         <a href="{{ route('jabatan.index') }}" class="btn btn-sm btn-info">Jabatan</a>
+                        <a href="{{ route('user.archived') }}" class="btn btn-sm btn-info">Archive</a>
                     </div>
 
 
@@ -77,9 +78,15 @@
                                             <td>{{ $user->jabatan->grup->departemen->nama ?? '-' }}</td>
                                             <td>{{ $user->jabatan->grup->departemen->kantor->nama ?? '-' }}</td>
                                             <td>
-                                                <a href="{{ route('user.show', $user->id) }}" class="btn btn-sm btn-secondary">Show</a>
+                                                <a href="{{ route('user.show', $user->id) }}"
+                                                    class="btn btn-sm btn-secondary">Show</a>
                                                 <a href="{{ route('user.edit', $user->id) }}"
                                                     class="btn btn-sm btn-warning">Edit</a>
+                                                <form action="{{ route('user.archive', $user->id) }}" method="POST"
+                                                    style="display:inline-block;">
+                                                    @csrf @method('PATCH')
+                                                    <button type="submit" class="btn btn-sm btn-info">Archive</button>
+                                                </form>
                                                 <form action="{{ route('user.destroy', $user->id) }}" method="POST"
                                                     style="display:inline-block;">
                                                     @csrf @method('DELETE')
@@ -88,6 +95,7 @@
                                             </td>
                                         </tr>
                                     @endforeach
+
                                 </tbody>
                             </table>
 

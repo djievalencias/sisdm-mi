@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\PasswordController;
 use App\Http\Controllers\Api\AttendanceController;
+use App\Http\Controllers\Api\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,13 @@ use App\Http\Controllers\Api\AttendanceController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/users', [UserController::class, 'index']);
+    Route::get('/users/{id}', [UserController::class, 'show']);
+    Route::put('/users/{id}', [UserController::class, 'update']);
+    Route::delete('/users/{id}', [UserController::class, 'destroy']);
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -30,11 +38,6 @@ Route::group(['prefix' => 'auth'], function () {
         ->middleware('auth:sanctum');
     
     Route::post('/password/forgot', [PasswordController::class, 'sendResetLinkEmail']);
-});
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('attendance', [AttendanceController::class, 'store']);
-    Route::get('attendance/history', [AttendanceController::class, 'history']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {

@@ -39,11 +39,9 @@
                     <div class="form-group">
                         <label for="id_manager">Manager</label>
                         <select name="id_manager" class="form-control">
-                            <option value="">Select Manager</option>
+                            <option value="">Pilih Manager</option>
                             @foreach ($managers as $manager)
-                            <option value="{{ $manager->id }}" {{ $kantor->id_manager == $manager->id ? 'selected' : '' }}>
-                                {{ $manager->nama }}
-                            </option>
+                                <option value="{{ $manager->id }}">{{ $manager->nama }}</option>
                             @endforeach
                         </select>
                     </div>

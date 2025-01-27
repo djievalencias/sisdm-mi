@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('attendance_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_attendance')->unique()->constrained('attendances')->onDelete('cascade');
+            $table->foreignId('id_attendance')->constrained('attendances')->onDelete('cascade');
             $table->string('long');
             $table->string('lat');
             $table->string('address');
