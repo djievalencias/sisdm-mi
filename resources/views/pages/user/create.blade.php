@@ -1,6 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
+
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
@@ -54,19 +65,10 @@
                                 <input type="email" name="email" class="form-control" value="{{ old('email') }}">
                             </div>
                             <div class="form-group">
-                                <label for="id_jabatan">Jabatan</label>
-                                <select name="id_jabatan" class="form-control">
-                                    <option value="">Select Jabatan</option>
-                                    @foreach ($jabatan as $item)
-                                    <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="id_grup">Grup</label>
-                                <select name="id_grup" class="form-control">
-                                    <option value="">Select Grup</option>
-                                    @foreach ($grup as $item)
+                                <label for="id_kantor">Kantor</label>
+                                <select name="id_kantor" class="form-control">
+                                    <option value="">Select Kantor</option>
+                                    @foreach ($kantor as $item)
                                     <option value="{{ $item->id }}">{{ $item->nama }}</option>
                                     @endforeach
                                 </select>
@@ -81,15 +83,23 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="id_kantor">Kantor</label>
-                                <select name="id_kantor" class="form-control">
-                                    <option value="">Select Kantor</option>
-                                    @foreach ($kantor as $item)
+                                <label for="id_grup">Grup</label>
+                                <select name="id_grup" class="form-control">
+                                    <option value="">Select Grup</option>
+                                    @foreach ($grup as $item)
                                     <option value="{{ $item->id }}">{{ $item->nama }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            
+                            <div class="form-group">
+                                <label for="id_jabatan">Jabatan</label>
+                                <select name="id_jabatan" class="form-control">
+                                    <option value="">Select Jabatan</option>
+                                    @foreach ($jabatan as $item)
+                                    <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <div class="form-group">
                                 <label for="">NPWP</label>
                                 <input type="text" name="npwp" class="form-control" value="{{ old('npwp') }}">
@@ -106,8 +116,8 @@
                                 <label for="">Gender</label>
                                 <select name="jenis_kelamin" class="form-control">
                                     <option value="" {{ old('jenis_kelamin') == '' ? 'selected' : '' }}>Select Gender</option>
-                                    <option value="M" {{ old('jenis_kelamin') == 'M' ? 'selected' : '' }}>Male</option>
-                                    <option value="F" {{ old('jenis_kelamin') == 'F' ? 'selected' : '' }}>Female</option>
+                                    <option value="L" {{ old('jenis_kelamin') == 'L' ? 'selected' : '' }}>Male</option>
+                                    <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Female</option>
                                 </select>
                             </div>
                             <div class="form-group">
