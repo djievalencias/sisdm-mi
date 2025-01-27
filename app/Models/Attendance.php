@@ -38,4 +38,10 @@ class Attendance extends Model
     {
         return $this->belongsTo(User::class, 'id_user');
     }
+
+    public static function countAttendance(bool $status): int
+    {
+        // Assuming 'status' is the column indicating "in" or "out"
+        return self::where('status', $status)->count();
+    }
 }
