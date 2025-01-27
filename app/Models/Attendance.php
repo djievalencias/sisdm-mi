@@ -10,35 +10,38 @@ class Attendance extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $table = 'attendances';
 
-    protected $dates = ['created_at', 'updated_at'];
+    protected $fillable = [
+        'id_user',
+        'tanggal',
+        'status',
+        'hari_kerja',
+        'jumlah_jam_lembur',
+        'is_tanggal_merah',
+    ];
 
-    public function scopeCountAttendance($query, $status)
-    {
-        $today = Carbon::now('Asia/Seoul')->startOfDay();
-        return $query->whereDate('created_at', $today)
-            ->where('status', $status)->count();
-    }
-
-    // Define the accessors to format date attributes
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->setTimezone('Asia/Seoul')->format('Y-m-d H:i:s');
-    }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->setTimezone('Asia/Seoul')->format('Y-m-d H:i:s');
-    }
+    protected $casts = [
+        'tanggal' => 'date',
+        'status' => 'boolean',
+        'hari_kerja' => 'decimal:2',
+        'jumlah_jam_lembur' => 'decimal:2',
+        'is_tanggal_merah' => 'boolean',
+    ];
 
     public function detail()
     {
-        return $this->hasMany(AttendanceDetail::class);
+        return $this->hasMany(AttendanceDetail::class, 'id_attendance');
     }
-    
+
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public static function countAttendance(bool $status): int
+    {
+        // Assuming 'status' is the column indicating "in" or "out"
+        return self::where('status', $status)->count();
     }
 }

@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
-
     use ImageStorage;
 
     public function store(Request $request)
@@ -20,61 +19,64 @@ class AttendanceController extends Controller
             'long' => ['required'],
             'lat' => ['required'],
             'address' => ['required'],
-            'type' => ['in:in,out', 'required'],
-            'photo' => ['required']
+            'type' => ['in:in,out,lembur', 'required'],
+            'photo' => ['required'],
         ]);
 
         $photo = $request->file('photo');
-        $today = Carbon::now('Asia/Seoul')->startOfDay();
+        $tanggal = Carbon::now('Asia/Jakarta')->format('Y-m-d');
         $attendanceType = $request->type;
+
         $userAttendanceToday = $request->user()
             ->attendances()
-            ->whereDate('created_at', $today)
+            ->where('tanggal', $tanggal)
             ->first();
 
         $responseMessage = '';
-        $statusCode = Response::HTTP_OK; // Default status code
+        $statusCode = Response::HTTP_OK;
 
         if ($attendanceType == 'in') {
             if (!$userAttendanceToday) {
                 $attendance = $request
                     ->user()
                     ->attendances()
-                    ->create(['status' => false]);
+                    ->create([
+                        'tanggal' => $tanggal,
+                        'status' => false,
+                        'hari_kerja' => 1.0, // Default workday
+                    ]);
 
                 $attendance->detail()->create([
                     'type' => 'in',
                     'long' => $request->long,
                     'lat' => $request->lat,
                     'photo' => $this->uploadImage($photo, $request->user()->name, 'attendance'),
-                    'address' => $request->address
+                    'address' => $request->address,
                 ]);
 
                 $responseMessage = 'Success';
                 $statusCode = Response::HTTP_CREATED;
             } else {
-                $responseMessage = 'User has been checked in';
+                $responseMessage = 'User has already checked in today';
             }
         } elseif ($attendanceType == 'out') {
-            if ($userAttendanceToday) {
-                if ($userAttendanceToday->status) {
-                    $responseMessage = 'User has been checked out';
-                } else {
-                    $userAttendanceToday->update(['status' => true]);
+            if ($userAttendanceToday && !$userAttendanceToday->status) {
+                $userAttendanceToday->update(['status' => true]);
 
-                    $userAttendanceToday->detail()->create([
-                        'type' => 'out',
-                        'long' => $request->long,
-                        'lat' => $request->lat,
-                        'photo' => $this->uploadImage($photo, $request->user()->name, 'attendance'),
-                        'address' => $request->address
-                    ]);
+                $userAttendanceToday->detail()->create([
+                    'type' => 'out',
+                    'long' => $request->long,
+                    'lat' => $request->lat,
+                    'photo' => $this->uploadImage($photo, $request->user()->name, 'attendance'),
+                    'address' => $request->address,
+                ]);
 
-                    $responseMessage = 'Success';
-                    $statusCode = Response::HTTP_CREATED;
-                }
+                $responseMessage = 'Success';
+                $statusCode = Response::HTTP_CREATED;
             } else {
-                $responseMessage = 'Please do check in first';
+                $responseMessage = $userAttendanceToday
+                    ? 'User has already checked out'
+                    : 'Please check in first';
                 $statusCode = Response::HTTP_UNPROCESSABLE_ENTITY;
             }
         }
@@ -85,17 +87,17 @@ class AttendanceController extends Controller
     public function history(Request $request)
     {
         $request->validate([
-            'from' => ['required'],
-            'to' => ['required'],
+            'from' => ['required', 'date'],
+            'to' => ['required', 'date'],
         ]);
 
-        $history = $request->user()->attendances()->with('detail')
-            ->whereBetween(DB::raw('DATE(created_at)'), [$request->from, $request->to])
+        $history = $request->user()->attendances()
+            ->with('detail')
+            ->whereBetween('tanggal', [$request->from, $request->to])
             ->get();
 
-        // Formatting should be handled by model accessors
         return response()->json([
-            'message' => "list of presences by user",
+            'message' => "List of user's attendance history",
             'data' => $history,
         ], Response::HTTP_OK);
     }

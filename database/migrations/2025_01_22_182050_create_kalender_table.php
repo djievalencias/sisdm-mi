@@ -17,6 +17,8 @@ return new class extends Migration
             $table->date('tanggal_selesai')->nullable();
             $table->string('judul');
             $table->enum('tipe', ['hari_libur', 'meeting', 'acara', 'lainnya'])->default('hari_libur');
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+            $table->foreignId('updated_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

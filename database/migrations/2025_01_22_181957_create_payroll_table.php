@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('payroll', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_karyawan')->constrained('karyawan')->onDelete('cascade');
+            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->date('tanggal_payroll');
             $table->decimal('gaji_pokok', 7, 2)->default(0);
             $table->decimal('upah_lembur', 5, 2)->default(0);
@@ -24,10 +24,10 @@ return new class extends Migration
             $table->decimal('bpjs_jht_perusahaan', 5, 2)->default(0);
             $table->decimal('bpjs_jkm_perusahaan', 5, 2)->default(0);
             $table->decimal('bpjs_jp_perusahaan', 5, 2)->default(0);
-            $table->decimal('bpjs_kes_karyawan', 5, 2)->default(0);
+            $table->decimal('bpjs_kes_user', 5, 2)->default(0);
             $table->boolean('is_reviewed')->default(false);
             $table->boolean('status')->default(false); // True: Paid, False: Pending
-            $table->unique(['id_karyawan', 'tanggal_payroll']);
+            $table->unique(['id_user', 'tanggal_payroll']);
             $table->timestamps();
         });
     }

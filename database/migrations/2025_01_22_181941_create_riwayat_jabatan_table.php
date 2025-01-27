@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('penjadwalan_shift', function (Blueprint $table) {
+        Schema::create('riwayat_jabatan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_karyawan')->constrained('karyawan')->onDelete('cascade');
-            $table->foreignId('id_shift')->nullable()->constrained('shift')->onDelete('set null');
-            $table->boolean('is_ditampilkan')->default(false);
+            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
+            $table->foreignId('id_jabatan')->nullable()->constrained('jabatan')->onDelete('set null');
+            $table->date('tanggal_mulai');
+            $table->date('tanggal_selesai')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('penjadwalan_shift');
+        Schema::dropIfExists('riwayat_jabatan');
     }
 };

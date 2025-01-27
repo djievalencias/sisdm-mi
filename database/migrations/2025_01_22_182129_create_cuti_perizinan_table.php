@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('cuti_perizinan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_karyawan')->constrained('karyawan')->onDelete('cascade');
+            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
             $table->string('keterangan');
             $table->enum('jenis', ['izin', 'alpa', 'sakit'])->default('alpa');
             $table->enum('status_pengajuan', ['diajukan', 'disetujui', 'ditolak'])->default('diajukan');
-            $table->foreignId('disetujui_oleh')->nullable()->constrained('karyawan')->onDelete('set null');
+            $table->foreignId('disetujui_oleh')->nullable()->constrained('users')->onDelete('set null');
             $table->string('surat_izin')->nullable();
             $table->timestamps();
         });

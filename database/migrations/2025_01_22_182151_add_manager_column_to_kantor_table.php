@@ -11,14 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kantor', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama');
-            $table->string('alamat');
-            $table->float('koordinat_x');
-            $table->float('koordinat_y');
-            $table->float('radius');
-            $table->timestamps();
+        Schema::table('kantor', function (Blueprint $table) {
+            $table->foreignId('id_manager')->nullable()->constrained('users')->onDelete('set null');
         });
     }
 
@@ -27,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kantor');
+        Schema::table('kantor', function (Blueprint $table) {
+            //
+        });
     }
 };

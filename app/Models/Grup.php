@@ -5,20 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Jabatan extends Model
+class Grup extends Model
 {
     use HasFactory;
 
-    protected $table = 'jabatan';
+    protected $table = 'grup';
 
     protected $fillable = [
-        'id_grup',
+        'id_departemen',
         'nama',
-        'description',
     ];
 
-    public function grup()
+    public function departemen()
     {
-        return $this->belongsTo(Grup::class, 'id_grup');
+        return $this->belongsTo(Departemen::class, 'id_departemen');
     }
 }

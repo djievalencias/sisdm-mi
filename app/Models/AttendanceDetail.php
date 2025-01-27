@@ -10,23 +10,19 @@ class AttendanceDetail extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $table = 'attendance_details';
 
-    protected $dates = ['created_at', 'updated_at'];
-
-    // Define the accessors to format date attributes
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->setTimezone('Asia/Seoul')->format('Y-m-d H:i:s');
-    }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->setTimezone('Asia/Seoul')->format('Y-m-d H:i:s');
-    }
+    protected $fillable = [
+        'id_attendance',
+        'long',
+        'lat',
+        'address',
+        'photo',
+        'type',
+    ];
 
     public function attendance()
     {
-        return $this->belongsTo(Attendance::class);
+        return $this->belongsTo(Attendance::class, 'id_attendance');
     }
 }

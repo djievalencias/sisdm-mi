@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pengumuman', function (Blueprint $table) {
+        Schema::create('kantor', function (Blueprint $table) {
             $table->id();
-            $table->string('judul');
-            $table->text('pesan');
-            $table->string('foto')->nullable();
-            $table->foreignId('created_by')->constrained('karyawan')->onDelete('cascade');
-            $table->foreignId('updated_by')->nullable()->constrained('karyawan')->onDelete('set null');
+            $table->string('nama');
+            $table->string('alamat');
+            $table->string('koordinat_x');
+            $table->string('koordinat_y');
+            $table->float('radius');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pengumuman');
+        Schema::dropIfExists('kantor');
     }
 };
