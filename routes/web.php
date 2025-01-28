@@ -6,7 +6,10 @@ use App\Http\Controllers\JabatanController;
 use App\Http\Controllers\GrupController;
 use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\KantorController;
+use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PengumumanController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -35,6 +38,11 @@ Route::resource('user', App\Http\Controllers\UserController::class);
 
 Route::resource('attendance', App\Http\Controllers\AttendanceController::class)->only(['index', 'show']);
 
+Route::get('shift/{shift}/assign', [ShiftController::class, 'assignForm'])->name('shift.assignForm');
+Route::post('shift/{shift}/assign', [ShiftController::class, 'assign'])->name('shift.assign');
+
+Route::resource('shift', App\Http\Controllers\ShiftController::class);
+
 Route::get('password/reset/{token}', function ($token) {
     // This route can be used to display the password reset form.
     // You might want to show a view where users can input their new password.
@@ -62,4 +70,5 @@ Route::resource('departemen', DepartemenController::class)->middleware(['auth', 
 Route::resource('kantor', KantorController::class)->middleware(['auth', 'is_admin']);
 Route::get('/kantor/{kantor}/edit', [KantorController::class, 'edit'])->name('kantor.edit');
 
-
+// Pengumuman Routes
+Route::resource('pengumuman', PengumumanController::class);

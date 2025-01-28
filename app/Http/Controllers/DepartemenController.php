@@ -53,4 +53,10 @@ class DepartemenController extends Controller
         $departemen->delete();
         return redirect()->route('departemen.index')->with('status', 'Departemen deleted successfully!');
     }
+
+    public function getByKantor($id)
+    {
+        $departemen = Departemen::where('kantor_id', $id)->get();
+        return response()->json($departemen);
+    }
 }

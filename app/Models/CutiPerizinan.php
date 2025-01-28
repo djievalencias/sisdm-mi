@@ -20,11 +20,6 @@ class CutiPerizinan extends Model
         'surat_izin',
     ];
 
-    protected $casts = [
-        'tanggal_mulai' => 'date',
-        'tanggal_selesai' => 'date',
-    ];
-
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user');

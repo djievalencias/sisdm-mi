@@ -29,7 +29,7 @@ class JabatanController extends Controller
         ]);
 
         Jabatan::create($request->all());
-        return redirect()->route('jabatan.index')->with('status', 'Jabatan created successfully!');
+        return redirect()->route('jabatan.index')->with('status', 'Jabatan created successfully.');
     }
 
     public function edit(Jabatan $jabatan)
@@ -47,12 +47,18 @@ class JabatanController extends Controller
         ]);
 
         $jabatan->update($request->all());
-        return redirect()->route('jabatan.index')->with('status', 'Jabatan updated successfully!');
+        return redirect()->route('jabatan.index')->with('status', 'Jabatan updated successfully.');
     }
 
     public function destroy(Jabatan $jabatan)
     {
         $jabatan->delete();
-        return redirect()->route('jabatan.index')->with('status', 'Jabatan deleted successfully!');
+        return redirect()->route('jabatan.index')->with('status', 'Jabatan deleted successfully.');
+    }
+
+    public function getByDepartemen($id)
+    {
+        $jabatan = Jabatan::where('departemen_id', $id)->get();
+        return response()->json($jabatan);
     }
 }

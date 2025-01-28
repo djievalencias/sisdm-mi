@@ -9,17 +9,19 @@ class DistribusiPengumuman extends Model
 {
     use HasFactory;
 
+    protected $table = 'distribusi_pengumuman';
+
     protected $fillable = [
         'id_pengumuman',
         'id_departemen',
     ];
 
-    public function pengumuman(): BelongsTo
+    public function pengumuman()
     {
         return $this->belongsTo(Pengumuman::class, 'id_pengumuman');
     }
 
-    public function departemen(): BelongsTo
+    public function departemen()
     {
         return $this->belongsTo(Departemen::class, 'id_departemen');
     }
