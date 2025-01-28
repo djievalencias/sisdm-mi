@@ -41,6 +41,13 @@
                         <p>Shifts</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ url('/pengumuman') }}" class="nav-link">
+                        <i class="nav-icon fas fa-bullhorn"></i>
+                        <p>Pengumuman</p>
+                    </a>
+                </li>
+                             
             @endif
 
             <li class="nav-header">LABELS</li>

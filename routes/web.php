@@ -8,6 +8,8 @@ use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\KantorController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PengumumanController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -68,4 +70,5 @@ Route::resource('departemen', DepartemenController::class)->middleware(['auth', 
 Route::resource('kantor', KantorController::class)->middleware(['auth', 'is_admin']);
 Route::get('/kantor/{kantor}/edit', [KantorController::class, 'edit'])->name('kantor.edit');
 
-
+// Pengumuman Routes
+Route::resource('pengumuman', PengumumanController::class);

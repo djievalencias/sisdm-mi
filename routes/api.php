@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\PasswordController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\PengumumanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,4 +44,8 @@ Route::group(['prefix' => 'auth'], function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('attendance', [AttendanceController::class, 'store']);
     Route::get('attendance/history', [AttendanceController::class, 'history']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('pengumuman', PengumumanController::class);
 });
