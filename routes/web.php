@@ -9,6 +9,7 @@ use App\Http\Controllers\KantorController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PengumumanController;
+use App\Http\Controllers\CutiPerizinanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,3 +73,10 @@ Route::get('/kantor/{kantor}/edit', [KantorController::class, 'edit'])->name('ka
 
 // Pengumuman Routes
 Route::resource('pengumuman', PengumumanController::class);
+
+// Cuti
+Route::get('cuti-perizinan/hasil-permohonan', [CutiPerizinanController::class, 'hasilPermohonan'])->name('cuti-perizinan.hasil');
+Route::resource('cuti-perizinan', CutiPerizinanController::class);
+Route::post('/cuti-perizinan/{cutiPerizinan}/approve', [CutiPerizinanController::class, 'approve'])->name('cuti-perizinan.approve');
+Route::post('/cuti-perizinan/{cutiPerizinan}/reject', [CutiPerizinanController::class, 'reject'])->name('cuti-perizinan.reject');
+Route::post('/cuti-perizinan/{cutiPerizinan}/undo', [CutiPerizinanController::class, 'undoApproval'])->name('cuti-perizinan.undo');

@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Auth\PasswordController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PengumumanController;
+use App\Http\Controllers\Api\CutiPerizinanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,3 +50,9 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('pengumuman', PengumumanController::class);
 });
+
+Route::put('cuti-perizinan/{id}', [CutiPerizinanController::class, 'update']);
+Route::post('cuti-perizinan', [CutiPerizinanController::class, 'store']);
+Route::get('cuti-perizinan', [CutiPerizinanController::class, 'getAllPermohonan']);
+Route::get('cuti-perizinan/{id}', [CutiPerizinanController::class, 'getPermohonanById']);
+
