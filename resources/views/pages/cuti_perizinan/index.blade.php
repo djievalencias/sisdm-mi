@@ -2,55 +2,62 @@
 
 @section('content')
 <div class="container">
-    <h1>Daftar Permohonan Izin</h1>
-    <a href="{{ route('cuti-perizinan.create') }}" class="btn btn-primary mb-3">Ajukan Izin</a>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>User</th>
-                <th>Tanggal Mulai</th>
-                <th>Tanggal Selesai</th>
-                <th>Keterangan</th>
-                <th>Jenis</th>
-                <th>Status</th>
-                <th>Disetujui Oleh</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($cutiPerizinans as $cutiPerizinan)
-            <tr>
-                <td>{{ $cutiPerizinan->id }}</td>
-                <td>{{ $cutiPerizinan->user->name }}</td>
-                <td>{{ $cutiPerizinan->tanggal_mulai }}</td>
-                <td>{{ $cutiPerizinan->tanggal_selesai }}</td>
-                <td>{{ $cutiPerizinan->keterangan }}</td>
-                <td>{{ $cutiPerizinan->jenis }}</td>
-                <td>{{ $cutiPerizinan->status_pengajuan }}</td>
-                <td>{{ $cutiPerizinan->disetujuiOleh->name ?? '-' }}</td>
-                <td>
-                    <a href="{{ route('cuti-perizinan.show', $cutiPerizinan) }}" class="btn btn-info">Lihat</a>
-                    <a href="{{ route('cuti-perizinan.edit', $cutiPerizinan) }}" class="btn btn-warning">Edit</a>
-                    <form action="{{ route('cuti-perizinan.destroy', $cutiPerizinan) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Hapus</button>
-                    </form>
-                    @if ($cutiPerizinan->status_pengajuan === 'diajukan')
-                        <form action="{{ route('cuti-perizinan.approve', $cutiPerizinan) }}" method="POST" style="display:inline;">
-                            @csrf
-                            <button type="submit" class="btn btn-success">Setujui</button>
-                        </form>
-                        <form action="{{ route('cuti-perizinan.reject', $cutiPerizinan) }}" method="POST" style="display:inline;">
-                            @csrf
-                            <button type="submit" class="btn btn-danger">Tolak</button>
-                        </form>
-                    @endif
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+    <h1 class="text-center mb-4">Data Permohonan Izin</h1>
+
+    <div class="d-flex justify-content-between mb-3">
+        <a href="{{ route('cuti-perizinan.hasil') }}" class="btn btn-primary">Lihat Hasil Permohonan</a>
+    </div>
+
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nama</th>
+                        <th>Tanggal Mulai</th>
+                        <th>Tanggal Selesai</th>
+                        <th>Keterangan</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($cutiPerizinans as $izin)
+                    <tr>
+                        <td>{{ $izin->user->nama }}</td>
+                        <td>{{ $izin->tanggal_mulai }}</td>
+                        <td>{{ $izin->tanggal_selesai }}</td>
+                        <td>{{ $izin->keterangan }}</td>
+                        <td>
+                            <span class="badge {{ $izin->status_pengajuan == 'diajukan' ? 'bg-warning' : ($izin->status_pengajuan == 'disetujui' ? 'bg-success' : 'bg-danger') }}">
+                                {{ ucfirst($izin->status_pengajuan) }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ route('cuti-perizinan.show', $izin->id) }}" class="btn btn-info btn-sm">Detail</a>
+                            <a href="{{ route('cuti-perizinan.edit', $izin->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                            <form action="{{ route('cuti-perizinan.destroy', $izin->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                            </form>
+                            <form action="{{ route('cuti-perizinan.approve', $izin->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                            </form>
+                            
+                            <form action="{{ route('cuti-perizinan.reject', $izin->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-secondary btn-sm">Reject</button>
+                            </form>
+                            
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 @endsection

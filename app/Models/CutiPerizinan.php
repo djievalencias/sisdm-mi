@@ -9,6 +9,8 @@ class CutiPerizinan extends Model
 {
     use HasFactory;
 
+    protected $table = 'cuti_perizinan'; // Pastikan nama tabel sesuai
+
     protected $fillable = [
         'id_user',
         'tanggal_mulai',
