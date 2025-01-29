@@ -31,6 +31,8 @@ class CutiPerizinanController extends Controller
         return response()->json($cutiPerizinan);
     }
 
+
+    //  TASK: API BELOM BISA UPDATE TOLONG PERBAIKI!
     public function update(Request $request, $id): JsonResponse 
     {
         // Debug untuk melihat data yang diterima
