@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PengumumanController;
 use App\Http\Controllers\Api\CutiPerizinanController;
+use App\Http\Controllers\Api\KalenderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,3 +57,4 @@ Route::post('cuti-perizinan', [CutiPerizinanController::class, 'store']);
 Route::get('cuti-perizinan', [CutiPerizinanController::class, 'getAllPermohonan']);
 Route::get('cuti-perizinan/{id}', [CutiPerizinanController::class, 'getPermohonanById']);
 
+Route::get('/kalender', [KalenderController::class, 'index']);
