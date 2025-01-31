@@ -10,6 +10,7 @@ use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\CutiPerizinanController;
+use App\Http\Controllers\KalenderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -80,3 +81,5 @@ Route::resource('cuti-perizinan', CutiPerizinanController::class);
 Route::post('/cuti-perizinan/{cutiPerizinan}/approve', [CutiPerizinanController::class, 'approve'])->name('cuti-perizinan.approve');
 Route::post('/cuti-perizinan/{cutiPerizinan}/reject', [CutiPerizinanController::class, 'reject'])->name('cuti-perizinan.reject');
 Route::post('/cuti-perizinan/{cutiPerizinan}/undo', [CutiPerizinanController::class, 'undoApproval'])->name('cuti-perizinan.undo');
+
+Route::resource('kalender', KalenderController::class);
