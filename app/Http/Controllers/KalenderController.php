@@ -82,12 +82,12 @@ class KalenderController extends Controller
     private function validateRequest(Request $request)
     {
         return $request->validate([
-            'tanggal_mulai' => 'required|date|after_or_equal:today',
+            'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
             'judul' => 'required|string|max:255',
             'tipe' => 'required|in:hari_libur,meeting,acara,lainnya',
             'repeat_type' => 'required|in:never,weekly,monthly,yearly',
-            'repeat_until' => 'nullable|date|after:tanggal_mulai'
+            'repeat_until' => 'nullable|date|after:tanggal_mulai|required_if:repeat_type,weekly,monthly,yearly'
         ]);
     }
 
