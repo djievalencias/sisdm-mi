@@ -8,6 +8,10 @@ use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\KantorController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PengumumanController;
+use App\Http\Controllers\CutiPerizinanController;
+use App\Http\Controllers\KalenderController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -68,4 +72,14 @@ Route::resource('departemen', DepartemenController::class)->middleware(['auth', 
 Route::resource('kantor', KantorController::class)->middleware(['auth', 'is_admin']);
 Route::get('/kantor/{kantor}/edit', [KantorController::class, 'edit'])->name('kantor.edit');
 
+// Pengumuman Routes
+Route::resource('pengumuman', PengumumanController::class);
 
+// Cuti
+Route::get('cuti-perizinan/hasil-permohonan', [CutiPerizinanController::class, 'hasilPermohonan'])->name('cuti-perizinan.hasil');
+Route::resource('cuti-perizinan', CutiPerizinanController::class);
+Route::post('/cuti-perizinan/{cutiPerizinan}/approve', [CutiPerizinanController::class, 'approve'])->name('cuti-perizinan.approve');
+Route::post('/cuti-perizinan/{cutiPerizinan}/reject', [CutiPerizinanController::class, 'reject'])->name('cuti-perizinan.reject');
+Route::post('/cuti-perizinan/{cutiPerizinan}/undo', [CutiPerizinanController::class, 'undoApproval'])->name('cuti-perizinan.undo');
+
+Route::resource('kalender', KalenderController::class);

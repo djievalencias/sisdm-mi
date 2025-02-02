@@ -9,20 +9,27 @@ class Pengumuman extends Model
 {
     use HasFactory;
 
+    protected $table = 'pengumuman';
+
     protected $fillable = [
         'judul',
         'pesan',
         'foto',
         'created_by',
-        'updated_by'
+        'updated_by',
     ];
 
-    public function createdBy()
+    public function distribusi()
+    {
+        return $this->hasMany(DistribusiPengumuman::class, 'id_pengumuman');
+    }
+
+    public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function updatedBy()
+    public function updater()
     {
         return $this->belongsTo(User::class, 'updated_by');
     }

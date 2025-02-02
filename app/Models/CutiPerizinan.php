@@ -9,6 +9,8 @@ class CutiPerizinan extends Model
 {
     use HasFactory;
 
+    protected $table = 'cuti_perizinan'; // Pastikan nama tabel sesuai
+
     protected $fillable = [
         'id_user',
         'tanggal_mulai',
@@ -18,11 +20,6 @@ class CutiPerizinan extends Model
         'status_pengajuan',
         'disetujui_oleh',
         'surat_izin',
-    ];
-
-    protected $casts = [
-        'tanggal_mulai' => 'date',
-        'tanggal_selesai' => 'date',
     ];
 
     public function user()

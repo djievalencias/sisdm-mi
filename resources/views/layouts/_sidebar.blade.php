@@ -6,7 +6,7 @@
                 class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-            <a href="#" class="d-block">{{ Auth::user()->name }}</a>
+            <a href="#" class="d-block">{{ Auth::user()->nama }}</a>
         </div>
     </div>
 
@@ -41,6 +41,18 @@
                         <p>Shifts</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ url('/pengumuman') }}" class="nav-link">
+                        <i class="nav-icon fas fa-bullhorn"></i>
+                        <p>Pengumuman</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/cuti-perizinan') }}" class="nav-link">
+                        <i class="nav-icon fas fa-calendar-minus"></i>
+                        <p>Cuti/Perizinan</p>
+                    </a>
+                </li>        
             @endif
 
             <li class="nav-header">LABELS</li>

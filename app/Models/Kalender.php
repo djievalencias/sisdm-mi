@@ -9,11 +9,15 @@ class Kalender extends Model
 {
     use HasFactory;
 
+    protected $table = 'kalender';
+
     protected $fillable = [
         'judul',
         'tanggal_mulai',
         'tanggal_selesai',
         'tipe',
+        'repeat_type',
+        'repeat_until',
         'created_by',
         'updated_by'
     ];
