@@ -28,11 +28,11 @@
                         <div class="card-header">
                             <h3 class="card-title">
                                 <i class="ion ion-clipboard mr-1"></i>
-                                User
+                                User Details
                             </h3>
                         </div>
                         <div class="card-body">
-                            <table class="table" id="datatable">
+                            <table class="table">
                                 <tbody>
                                     <tr>
                                         <th>Nama</th>
@@ -43,28 +43,12 @@
                                         <td>{{ $user->nik }}</td>
                                     </tr>
                                     <tr>
-                                        <th>E-Mail</th>
-                                        <td>{{ $user->email }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Jabatan</th>
-                                        <td>{{ $user->jabatan->nama ?? '-' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Grup</th>
-                                        <td>{{ $user->jabatan->grup->nama ?? '-' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Departemen</th>
-                                        <td>{{ $user->jabatan->grup->departemen->nama ?? '-' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Kantor</th>
-                                        <td>{{ $user->jabatan->grup->departemen->kantor->nama ?? '-' }}</td>
-                                    </tr>
-                                    <tr>
                                         <th>NPWP</th>
                                         <td>{{ $user->npwp }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>E-Mail</th>
+                                        <td>{{ $user->email }}</td>
                                     </tr>
                                     <tr>
                                         <th>No. HP</th>
@@ -119,54 +103,104 @@
                                         <th>Is Admin?</th>
                                         <td>{{ $user->is_admin ? 'Yes' : 'No' }}</td>
                                     </tr>
-                                    <tr>
-                                        <th>Foto Profil</th>
-                                        <td>
-                                            @if ($user->foto_profil)
-                                                <img src="{{ Storage::url($user->foto_profil) }}" alt="Profile Photo"
-                                                    width="350">
-                                            @else
-                                                No photo available
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Foto KTP</th>
-                                        <td>
-                                            @if ($user->foto_ktp)
-                                                <img src="{{ Storage::url($user->foto_ktp) }}" alt="KTP Photo"
-                                                    width="350">
-                                            @else
-                                                No photo available
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>BPJS Kesehatan</th>
-                                        <td>
-                                            @if ($user->foto_bpjs_kesehatan)
-                                                <img src="{{ Storage::url($user->foto_bpjs_kesehatan) }}"
-                                                    alt="BPJS Kesehatan" width="350">
-                                            @else
-                                                No photo available
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>BPJS Ketenagakerjaan</th>
-                                        <td>
-                                            @if ($user->foto_bpjs_ketenagakerjaan)
-                                                <img src="{{ Storage::url($user->foto_bpjs_ketenagakerjaan) }}"
-                                                    alt="BPJS Ketenagakerjaan" width="350">
-                                            @else
-                                                No photo available
-                                            @endif
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
+
+                    <!-- Riwayat Jabatan Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="ion ion-briefcase mr-1"></i>
+                                Riwayat Jabatan
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Kantor</th>
+                                        <th>Departemen</th>
+                                        <th>Grup</th>
+                                        <th>Jabatan</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if ($user->riwayatJabatan && $user->riwayatJabatan->count())
+                                        @foreach ($user->riwayatJabatan as $riwayatJabatan)
+                                            <tr>
+                                                <td>{{ $riwayatJabatan->jabatan->grup->departemen->kantor->nama ?? '-' }}</td>
+                                                <td>{{ $riwayatJabatan->jabatan->grup->departemen->nama ?? '-' }}</td>
+                                                <td>{{ $riwayatJabatan->jabatan->grup->nama ?? '-' }}</td>
+                                                <td>{{ $riwayatJabatan->jabatan->nama }}</td>
+                                                <td>{{ $riwayatJabatan->tanggal_mulai }}</td>
+                                                <td>{{ $riwayatJabatan->tanggal_selesai ?? 'Present' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="7" class="text-center"><strong>Belum ada riwayat jabatan</strong></td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Photos Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="ion ion-image mr-1"></i> Photos</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <tr>
+                                    <th>Foto Profil</th>
+                                    <td>
+                                        @if ($user->foto_profil)
+                                            <img src="{{ Storage::url($user->foto_profil) }}" alt="Profile Photo" width="350">
+                                        @else
+                                            No photo available
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Foto KTP</th>
+                                    <td>
+                                        @if ($user->foto_ktp)
+                                            <img src="{{ Storage::url($user->foto_ktp) }}" alt="KTP Photo" width="350">
+                                        @else
+                                            No photo available
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>BPJS Kesehatan</th>
+                                    <td>
+                                        @if ($user->foto_bpjs_kesehatan)
+                                            <img src="{{ Storage::url($user->foto_bpjs_kesehatan) }}" alt="BPJS Kesehatan" width="350">
+                                        @else
+                                            No photo available
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>BPJS Ketenagakerjaan</th>
+                                    <td>
+                                        @if ($user->foto_bpjs_ketenagakerjaan)
+                                            <img src="{{ Storage::url($user->foto_bpjs_ketenagakerjaan) }}" alt="BPJS Ketenagakerjaan" width="350">
+                                        @else
+                                            No photo available
+                                        @endif
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
                 </section>
             </div>
         </div>

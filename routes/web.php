@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Auth\Passwords\PasswordBroker;
 use App\Http\Controllers\JabatanController;
+use App\Http\Controllers\RiwayatJabatanController;
 use App\Http\Controllers\GrupController;
 use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\KantorController;
@@ -71,6 +72,14 @@ Route::resource('departemen', DepartemenController::class)->middleware(['auth', 
 // Kantor Routes
 Route::resource('kantor', KantorController::class)->middleware(['auth', 'is_admin']);
 Route::get('/kantor/{kantor}/edit', [KantorController::class, 'edit'])->name('kantor.edit');
+
+Route::prefix('riwayat_jabatan')->name('riwayat_jabatan.')->group(function () {
+    Route::get('/create/{user_id}', [RiwayatJabatanController::class, 'create'])->name('create'); // Show create form
+    Route::post('/store/{user_id}', [RiwayatJabatanController::class, 'store'])->name('store'); // Store new record
+    Route::get('/edit/{user_id}/{id}', [RiwayatJabatanController::class, 'edit'])->name('edit'); // Show edit form
+    Route::put('/update/{user_id}/{id}', [RiwayatJabatanController::class, 'update'])->name('update'); // Update record
+    Route::delete('/destroy/{user_id}/{id}', [RiwayatJabatanController::class, 'destroy'])->name('destroy'); // Delete record
+});
 
 // Pengumuman Routes
 Route::resource('pengumuman', PengumumanController::class);

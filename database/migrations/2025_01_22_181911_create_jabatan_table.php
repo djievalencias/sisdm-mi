@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('jabatan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_grup')->nullable()->constrained('grup')->onDelete('set null');
-            $table->string('nama')->unique();
+            $table->string('nama');
             $table->string('description')->nullable();
             $table->timestamps();
+
+            $table->unique(['id_grup', 'nama']);
         });
     }
 

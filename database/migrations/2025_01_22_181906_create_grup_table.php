@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('id_departemen')->nullable()->constrained('departemen')->onDelete('set null');
             $table->string('nama');
             $table->timestamps();
+
+            $table->unique(['id_departemen', 'nama']);
         });
     }
 

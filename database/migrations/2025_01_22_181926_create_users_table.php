@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_jabatan')->nullable()->constrained('jabatan')->onDelete('set null');
             $table->foreignId('id_atasan')->nullable()->constrained('users')->onDelete('set null');
             $table->string('nama');
             $table->char('nik', 16)->unique()->default('');
@@ -21,12 +20,14 @@ return new class extends Migration
             $table->char('npwp', 16)->unique()->default('');
             $table->string('password')->default('');
             $table->string('no_telepon')->unique()->default('');
-            $table->enum('jenis_kelamin', ['P', 'L'])->default('L'); // L for male, P for female
+            $table->enum('jenis_kelamin', ['P', 'L'])->default('L');
             $table->string('tempat_lahir')->default('');
             $table->date('tanggal_lahir')->nullable();
             $table->date('tanggal_perekrutan')->nullable();
             $table->date('tanggal_pemutusan_kontrak')->nullable();
             $table->string('agama')->default('');
+            $table->string('pendidikan')->default('');
+            $table->enum('status_perkawinan', ['Menikah', 'Belum menikah'])->default('Belum menikah');
             $table->string('alamat')->default('');
             $table->string('rt')->nullable();
             $table->string('rw')->nullable();
@@ -52,6 +53,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user');
+        Schema::dropIfExists('users');
     }
 };
