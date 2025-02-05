@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Auth\Passwords\PasswordBroker;
 use App\Http\Controllers\JabatanController;
+use App\Http\Controllers\RiwayatJabatanController;
 use App\Http\Controllers\GrupController;
 use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\KantorController;
@@ -72,6 +73,19 @@ Route::resource('departemen', DepartemenController::class)->middleware(['auth', 
 Route::resource('kantor', KantorController::class)->middleware(['auth', 'is_admin']);
 Route::get('/kantor/{kantor}/edit', [KantorController::class, 'edit'])->name('kantor.edit');
 
+// Riwayat Jabatan Routes
+// Explicit route for creating a new Riwayat Jabatan with a specific user
+Route::get('/riwayat-jabatan/create-for-user/{user}', [RiwayatJabatanController::class, 'create'])
+    ->name('riwayat-jabatan.create-for-user')
+    ->middleware(['auth', 'is_admin']);
+Route::post('/riwayat-jabatan/create-for-user/{user}', [RiwayatJabatanController::class, 'store'])
+    ->name('riwayat-jabatan.create-for-user')
+    ->middleware(['auth', 'is_admin']);
+
+// Resource routes for Riwayat Jabatan
+Route::resource('riwayat-jabatan', RiwayatJabatanController::class)
+    ->except(['create', 'show', 'store']) // Exclude the conflicting 'create' route
+    ->middleware(['auth', 'is_admin']);
 // Pengumuman Routes
 Route::resource('pengumuman', PengumumanController::class);
 
