@@ -1,5 +1,3 @@
-// TO-DO: Fix update jabatan, grup, departemen, kantor
-
 @extends('layouts.app')
 
 @section('content')
@@ -47,12 +45,11 @@
                         <div class="card-header">
                             <h3 class="card-title">
                                 <i class="ion ion-clipboard mr-1"></i>
-                                User
+                                Personal Data
                             </h3>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('user.update', $user->id) }}" method="post"
-                                enctype="multipart/form-data">
+                            <form action="{{ route('user.update', $user->id) }}" method="post" enctype="multipart/form-data">
                                 @csrf @method('PUT')
                                 <div class="form-group">
                                     <label for="">Nama</label>
@@ -65,50 +62,14 @@
                                         value="{{ old('nik', $user->nik) }}">
                                 </div>
                                 <div class="form-group">
-                                    <label for="">e-Mail</label>
-                                    <input type="email" name="email" class="form-control"
-                                        value="{{ old('email', $user->email) }}">
-                                </div>
-                                <div class="form-group">
-                                    <label for="id_kantor">Kantor</label>
-                                    <select name="id_kantor" class="form-control">
-                                        <option value="">Select Kantor</option>
-                                        @foreach ($kantor as $item)
-                                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="id_departemen">Departemen</label>
-                                    <select name="id_departemen" class="form-control">
-                                        <option value="">Select Departemen</option>
-                                        @foreach ($departemen as $item)
-                                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="id_grup">Grup</label>
-                                    <select name="id_grup" class="form-control">
-                                        <option value="">Select Grup</option>
-                                        @foreach ($grup as $item)
-                                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="id_jabatan">Jabatan</label>
-                                    <select name="id_jabatan" class="form-control">
-                                        <option value="">Select Jabatan</option>
-                                        @foreach ($jabatan as $item)
-                                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
                                     <label for="">NPWP</label>
                                     <input type="text" name="npwp" class="form-control"
                                         value="{{ old('npwp', $user->npwp) }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">e-Mail</label>
+                                    <input type="email" name="email" class="form-control"
+                                        value="{{ old('email', $user->email) }}">
                                 </div>
                                 <div class="form-group">
                                     <label for="">Password</label>
@@ -143,6 +104,17 @@
                                         value="{{ old('agama', $user->agama) }}">
                                 </div>
                                 <div class="form-group">
+                                    <label for="">Pendidikan</label>
+                                    <input type="text" name="pendidikan" class="form-control" value="{{ old('pendidikan', $user->pendidikan) }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Status Perkawinan</label>
+                                    <select name="status_perkawinan" class="form-control">
+                                        <option value="Belum menikah" {{ old('status_perkawinan', $user->status_perkawinan) == 'Belum menikah' ? 'selected' : '' }}>Belum menikah</option>
+                                        <option value="Menikah" {{ old('status_perkawinan', $user->status_perkawinan) == 'Menikah' ? 'selected' : '' }}>Menikah</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <label for="">Alamat</label>
                                     <textarea name="alamat" class="form-control">{{ old('alamat', $user->alamat) }}</textarea>
                                 </div>
@@ -172,38 +144,6 @@
                                         value="{{ old('kabupaten_kota', $user->kabupaten_kota) }}">
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Foto Profil</label>
-                                    <input type="file" name="foto_profil" class="form-control-file">
-                                    @if ($user->foto_profil)
-                                        <img src="{{ asset('/storage/profile/' . $user->foto_profil) }}" alt=""
-                                            height="100">
-                                    @endif
-                                </div>
-                                <div class="form-group">
-                                    <label for="">Foto KTP</label>
-                                    <input type="file" name="foto_ktp" class="form-control-file">
-                                    @if ($user->foto_ktp)
-                                        <img src="{{ asset('/storage/ktp/' . $user->foto_ktp) }}" alt=""
-                                            height="100">
-                                    @endif
-                                </div>
-                                <div class="form-group">
-                                    <label for="">BPJS Kesehatan</label>
-                                    <input type="file" name="foto_bpjs_kesehatan" class="form-control-file">
-                                    @if ($user->foto_bpjs_kesehatan)
-                                        <img src="{{ asset('/storage/bpjs_kesehatan/' . $user->foto_bpjs_kesehatan) }}"
-                                            alt="" height="100">
-                                    @endif
-                                </div>
-                                <div class="form-group">
-                                    <label for="">BPJS Ketenagakerjaan</label>
-                                    <input type="file" name="foto_bpjs_ketenagakerjaan" class="form-control-file">
-                                    @if ($user->foto_bpjs_ketenagakerjaan)
-                                        <img src="{{ asset('/storage/bpjs_ketenagakerjaan/' . $user->foto_bpjs_ketenagakerjaan) }}"
-                                            alt="" height="100">
-                                    @endif
-                                </div>
-                                <div class="form-group">
                                     <label for="">Is Active</label>
                                     <select name="is_aktif" class="form-control">
                                         <option value="1"
@@ -223,10 +163,92 @@
                                         <label class="form-check-label" for="inlineRadio2">No</label>
                                     </div>
                                 </div>
-                                
-
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-primary">Update</button>
                             </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="ion ion-image mr-1"></i>
+                                Photos
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="">Foto Profil</label>
+                                <input type="file" name="foto_profil" class="form-control-file">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="">Foto KTP</label>
+                                <input type="file" name="foto_ktp" class="form-control-file">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="">Foto BPJS Kesehatan</label>
+                                <input type="file" name="foto_bpjs_kesehatan" class="form-control-file">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="">Foto BPJS Ketenagakerjaan</label>
+                                <input type="file" name="foto_bpjs_ketenagakerjaan" class="form-control-file">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="ion ion-briefcase mr-1"></i>
+                                Riwayat Jabatan
+                            </h3>
+                            <a href="{{ route('riwayat_jabatan.create', $user->id) }}" class="btn btn-sm btn-success float-right">Create</a>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Kantor</th>
+                                        <th>Departemen</th>
+                                        <th>Grup</th>
+                                        <th>Jabatan</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @if ($user->riwayatJabatan && $user->riwayatJabatan->count())
+                                        @foreach ($user->riwayatJabatan as $riwayatJabatan)
+                                            <tr>
+                                                <td>{{ $riwayatJabatan->jabatan->grup->departemen->kantor->nama ?? '-' }}</td>
+                                                <td>{{ $riwayatJabatan->jabatan->grup->departemen->nama ?? '-' }}</td>
+                                                <td>{{ $riwayatJabatan->jabatan->grup->nama ?? '-' }}</td>
+                                                <td>{{ $riwayatJabatan->jabatan->nama }}</td>
+                                                <td>{{ $riwayatJabatan->tanggal_mulai }}</td>
+                                                <td>{{ $riwayatJabatan->tanggal_selesai ?? 'Present' }}</td>
+                                                <td>
+                                                    <a href="{{ route('riwayat_jabatan.edit', [$user->id, $riwayatJabatan->id]) }}" class="btn btn-sm btn-warning">Edit</a>
+                                                    <form action="{{ route('riwayat_jabatan.destroy', [$user->id, $riwayatJabatan->id]) }}" method="POST" style="display:inline;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="7" class="text-center"><strong>Belum ada riwayat jabatan</strong></td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </section>

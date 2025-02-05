@@ -60,11 +60,7 @@
                                         <th>ID</th>
                                         <th>Name</th>
                                         <th>E-Mail</th>
-                                        <th>Jabatan</th>
-                                        <th>Grup</th>
-                                        <th>Departemen</th>
-                                        <th>Kantor</th>
-                                        <th></th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -73,10 +69,6 @@
                                             <td>{{ $user->id }}</td>
                                             <td>{{ $user->nama }}</td>
                                             <td>{{ $user->email }}</td>
-                                            <td>{{ $user->jabatan->nama ?? '-' }}</td>
-                                            <td>{{ $user->jabatan->grup->nama ?? '-' }}</td>
-                                            <td>{{ $user->jabatan->grup->departemen->nama ?? '-' }}</td>
-                                            <td>{{ $user->jabatan->grup->departemen->kantor->nama ?? '-' }}</td>
                                             <td>
                                                 <a href="{{ route('user.show', $user->id) }}"
                                                     class="btn btn-sm btn-secondary">Show</a>

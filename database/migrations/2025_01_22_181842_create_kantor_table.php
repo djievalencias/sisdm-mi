@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('kantor', function (Blueprint $table) {
             $table->id();
-            $table->string('nama');
-            $table->string('alamat');
-            $table->string('koordinat_x');
-            $table->string('koordinat_y');
+            $table->string('nama')->unique();
+            $table->string('alamat')->unique();
+            $table->float('koordinat_x', 10, 6);
+            $table->float('koordinat_y', 10, 6);
             $table->float('radius');
             $table->timestamps();
         });

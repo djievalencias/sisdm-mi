@@ -73,19 +73,14 @@ Route::resource('departemen', DepartemenController::class)->middleware(['auth', 
 Route::resource('kantor', KantorController::class)->middleware(['auth', 'is_admin']);
 Route::get('/kantor/{kantor}/edit', [KantorController::class, 'edit'])->name('kantor.edit');
 
-// Riwayat Jabatan Routes
-// Explicit route for creating a new Riwayat Jabatan with a specific user
-Route::get('/riwayat-jabatan/create-for-user/{user}', [RiwayatJabatanController::class, 'create'])
-    ->name('riwayat-jabatan.create-for-user')
-    ->middleware(['auth', 'is_admin']);
-Route::post('/riwayat-jabatan/create-for-user/{user}', [RiwayatJabatanController::class, 'store'])
-    ->name('riwayat-jabatan.create-for-user')
-    ->middleware(['auth', 'is_admin']);
+Route::prefix('riwayat_jabatan')->name('riwayat_jabatan.')->group(function () {
+    Route::get('/create/{user_id}', [RiwayatJabatanController::class, 'create'])->name('create'); // Show create form
+    Route::post('/store/{user_id}', [RiwayatJabatanController::class, 'store'])->name('store'); // Store new record
+    Route::get('/edit/{user_id}/{id}', [RiwayatJabatanController::class, 'edit'])->name('edit'); // Show edit form
+    Route::put('/update/{user_id}/{id}', [RiwayatJabatanController::class, 'update'])->name('update'); // Update record
+    Route::delete('/destroy/{user_id}/{id}', [RiwayatJabatanController::class, 'destroy'])->name('destroy'); // Delete record
+});
 
-// Resource routes for Riwayat Jabatan
-Route::resource('riwayat-jabatan', RiwayatJabatanController::class)
-    ->except(['create', 'show', 'store']) // Exclude the conflicting 'create' route
-    ->middleware(['auth', 'is_admin']);
 // Pengumuman Routes
 Route::resource('pengumuman', PengumumanController::class);
 

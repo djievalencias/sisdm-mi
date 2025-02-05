@@ -18,6 +18,8 @@ return new class extends Migration
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai')->nullable();
             $table->timestamps();
+
+            $table->unique(['id_user', 'tanggal_mulai']);
         });
     }
 

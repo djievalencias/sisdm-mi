@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
-use App\Models\Jabatan;
+use App\Models\RiwayatJabatan;
 use App\Models\Grup;
 use App\Models\Departemen;
 use App\Models\Kantor;
@@ -27,7 +27,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = User::where('is_archived', false)->with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
+            $data = User::where('is_archived', false)->get();
 
             return DataTables::eloquent($data)
                 ->addColumn('action', function ($data) {
@@ -44,7 +44,7 @@ class UserController extends Controller
                 ->toJson();
         }
 
-        $users = User::where('is_archived', false)->with(['jabatan', 'jabatan.grup', 'jabatan.grup.departemen', 'jabatan.grup.departemen.kantor'])->get();
+        $users = User::where('is_archived', false)->get();
 
         return view('pages.user.index', compact('users'));
     }
@@ -54,12 +54,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        $jabatan = Jabatan::all();
-        $grup = Grup::all();
-        $departemen = Departemen::all();
-        $kantor = Kantor::all();
-
-        return view('pages.user.create', compact('jabatan', 'grup', 'departemen', 'kantor'));
+        return view('pages.user.create');
     }
 
     /**
@@ -82,7 +77,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::with('riwayatJabatan')->findOrFail($id);
         return view('pages.user.show', compact('user'));
     }
 
@@ -91,13 +86,8 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        $user = User::findOrFail($id);
-        $jabatan = Jabatan::all();
-        $grup = Grup::all();
-        $departemen = Departemen::all();
-        $kantor = Kantor::all();
-
-        return view('pages.user.edit', compact('user', 'jabatan', 'grup', 'departemen', 'kantor'));
+        $user = User::with('riwayatJabatan')->findOrFail($id);
+        return view('pages.user.edit', compact('user'));
     }
 
     /**
@@ -177,7 +167,6 @@ class UserController extends Controller
     private function validateUserRequest(Request $request, $user = null)
     {
         $rules = [
-            'id_jabatan' => 'nullable|exists:jabatan,id',
             'id_atasan' => 'nullable|exists:users,id',
             'nama' => 'required|string|max:255',
             'nik' => 'required|string|size:16|unique:users,nik' . ($user ? ",{$user->id}" : ''),

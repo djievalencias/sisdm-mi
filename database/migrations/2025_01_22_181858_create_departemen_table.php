@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('id_kantor')->nullable()->constrained('kantor')->onDelete('set null');
             $table->string('nama');
             $table->timestamps();
+
+            $table->unique(['id_kantor', 'nama']);
         });
     }
 
