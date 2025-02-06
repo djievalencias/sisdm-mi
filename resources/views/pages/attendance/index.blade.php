@@ -1,121 +1,59 @@
-@extends('layouts.app')
+{{-- resources/views/attendance/index.blade.php --}}
+@extends('layouts.app') 
+{{-- layouts.app adalah layout utama Anda, sesuaikan dengan layout yang tersedia --}}
 
 @section('content')
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0 text-dark">Attendance List</h1>
-                </div><!-- /.col -->
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Attendance</li>
-                    </ol>
-                </div><!-- /.col -->
-            </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content-header -->
+<div class="container">
+    <h1>Daftar Attendance</h1>
+    <a href="{{ route('attendance.create') }}" class="btn btn-primary">Buat Attendance Baru</a>
 
-    <section class="content">
-        <div class="container-fluid">
-            <!-- Main row -->
-            <div class="row">
-                <!-- Left col -->
-                <section class="col-lg-12">
+    @if (session('success'))
+        <div class="alert alert-success mt-2">{{ session('success') }}</div>
+    @endif
 
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nama User</th>
+                <th>Tanggal</th>
+                <th>Status (checkout?)</th>
+                <th>Hari Kerja</th>
+                <th>Jam Lembur</th>
+                <th>Tgl Merah?</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($attendances as $attendance)
+                <tr>
+                    <td>{{ $attendance->id }}</td>
+                    <td>{{ $attendance->user->name ?? 'No User' }}</td>
+                    <td>{{ $attendance->tanggal->format('Y-m-d H:i:s') }}</td>
+                    <td>{{ $attendance->status ? 'Sudah Check Out' : 'Belum' }}</td>
+                    <td>{{ $attendance->hari_kerja }}</td>
+                    <td>{{ $attendance->jumlah_jam_lembur }}</td>
+                    <td>{{ $attendance->is_tanggal_merah ? 'Ya' : 'Tidak' }}</td>
+                    <td>
+                        <a href="{{ route('attendance.show', $attendance->id) }}" class="btn btn-sm btn-info">Detail</a>
+                        <a href="{{ route('attendance.edit', $attendance->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{{ route('attendance.destroy', $attendance->id) }}" method="POST" style="display:inline-block">
+                            @csrf 
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-danger" 
+                                onclick="return confirm('Yakin hapus?')">
+                                Hapus
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="8">Belum ada data Attendance.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">
-                                <i class="ion ion-clipboard mr-1"></i>
-                                Attendance
-                            </h3>
-                        </div>
-                        <!-- /.card-header -->
-                        <div class="card-body">
-
-                            <table class="table" id="datatable">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>User</th>
-                                        <th>Status</th>
-                                        <th>Check In Time</th>
-                                        <th>Check Out Time</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                            </table>
-
-                        </div>
-                    </div>
-                    <!-- /.card -->
-                </section>
-                <!-- /.Left col -->
-            </div>
-            <!-- /.row (main row) -->
-        </div><!-- /.container-fluid -->
-    </section>
+</div>
 @endsection
-
-@push('scripts')
-<script>
-    $(document).ready(function() {
-        $('#datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            responsive: true,
-            ajax: '{{ url('attendance') }}',
-            columns: [
-                {
-                    data: 'DT_RowIndex',
-                    name: 'id'
-                },
-                {
-                    data: 'user.nama',
-                    name: 'user.nama'
-                },
-                {
-                    data: function(row) {
-                        return row.status ? "Check Out" : "Check In";
-                    },
-                    name: 'status'
-                },
-                {
-                    data: function(row) {
-                        let date = new Date(row.created_at);
-                        return date.toLocaleString();
-                    },
-                    name: 'created_at'
-                },
-                {
-                    data: function(row) {
-                        if (row.status) {
-                            let date = new Date(row.updated_at);
-                            return date.toLocaleString();
-                        } else {
-                            return "User belum checkout";
-                        }
-                    },
-                    name: 'updated_at'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                }
-            ]
-        });
-    });
-</script>
-
-@endpush
