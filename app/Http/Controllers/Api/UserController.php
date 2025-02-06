@@ -93,7 +93,6 @@ class UserController extends Controller
     private function validateUserRequest(Request $request, $user = null)
     {
         $rules = [
-            'id_jabatan' => 'nullable|exists:jabatan,id',
             'id_atasan' => 'nullable|exists:users,id',
             'nama' => 'required|string|max:255',
             'nik' => 'required|string|size:16|unique:users,nik' . ($user ? ",{$user->id}" : ''),
@@ -146,5 +145,16 @@ class UserController extends Controller
         }
 
         return $data;
+    }
+
+    public function getShiftsByUser($userId)
+    {
+        $user = User::with('shifts')->find($userId);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        return response()->json($user->shifts);
     }
 }

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PengumumanController;
 use App\Http\Controllers\Api\CutiPerizinanController;
 use App\Http\Controllers\Api\KalenderController;
+use App\Http\Controllers\Api\ShiftController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,3 +59,6 @@ Route::get('cuti-perizinan', [CutiPerizinanController::class, 'getAllPermohonan'
 Route::get('cuti-perizinan/{id}', [CutiPerizinanController::class, 'getPermohonanById']);
 
 Route::get('/kalender', [KalenderController::class, 'index']);
+
+Route::get('/shift/{shiftId}/users', [ShiftController::class, 'getUsersByShift']);
+Route::get('/users/{userId}/shifts', [UserController::class, 'getShiftsByUser']);
