@@ -19,12 +19,8 @@ return new class extends Migration
             $table->decimal('upah_lembur', 5, 2)->default(0);
             $table->decimal('gaji_tgl_merah', 5, 2)->default(0);
             $table->decimal('upah_lembur_tgl_merah', 5, 2)->default(0);
-            $table->decimal('bpjs_kes_perusahaan', 5, 2)->default(0);
-            $table->decimal('bpjs_jkk_perusahaan', 5, 2)->default(0);
-            $table->decimal('bpjs_jht_perusahaan', 5, 2)->default(0);
-            $table->decimal('bpjs_jkm_perusahaan', 5, 2)->default(0);
-            $table->decimal('bpjs_jp_perusahaan', 5, 2)->default(0);
-            $table->decimal('bpjs_kes_user', 5, 2)->default(0);
+            $table->decimal('iuran_bpjs_kantor', 5, 2)->default(0);
+            $table->decimal('iuran_bpjs_karyawan', 5, 2)->default(0);
             $table->boolean('is_reviewed')->default(false);
             $table->boolean('status')->default(false); // True: Paid, False: Pending
             $table->unique(['id_user', 'tanggal_payroll']);
