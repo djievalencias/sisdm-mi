@@ -12,6 +12,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\CutiPerizinanController;
 use App\Http\Controllers\KalenderController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\PayrollController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,7 +41,19 @@ Route::patch('user/{id}/restore', [UserController::class, 'restore'])->name('use
 
 Route::resource('user', App\Http\Controllers\UserController::class);
 
-Route::resource('attendance', App\Http\Controllers\AttendanceController::class)->only(['index', 'show']);
+Route::resource('attendance', AttendanceController::class);
+
+// Tampilkan daftar attendance di /attendance
+// Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+
+// // Form create
+// Route::get('attendance/create', [AttendanceController::class, 'create'])->name('attendance.create');
+// // Simpan data baru
+// Route::post('attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+
+
+// sisanya (index, edit, dsb) bisa Anda tambahkan
+
 
 Route::get('shift/{shift}/assign', [ShiftController::class, 'assignForm'])->name('shift.assignForm');
 Route::post('shift/{shift}/assign', [ShiftController::class, 'assign'])->name('shift.assign');
@@ -92,3 +106,4 @@ Route::post('/cuti-perizinan/{cutiPerizinan}/reject', [CutiPerizinanController::
 Route::post('/cuti-perizinan/{cutiPerizinan}/undo', [CutiPerizinanController::class, 'undoApproval'])->name('cuti-perizinan.undo');
 
 Route::resource('kalender', KalenderController::class);
+Route::resource('payroll', PayrollController::class);

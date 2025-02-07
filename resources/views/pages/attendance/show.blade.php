@@ -1,117 +1,60 @@
+{{-- resources/views/attendance/show.blade.php --}}
 @extends('layouts.app')
 
 @section('content')
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0 text-dark">Attendance</h1>
-                </div><!-- /.col -->
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item">Attendance</li>
-                        <li class="breadcrumb-item active">Show</li>
-                    </ol>
-                </div><!-- /.col -->
-            </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
+<div class="container">
+    <h1>Detail Attendance #{{ $attendance->id }}</h1>
+
+    <div class="mb-3">
+        <strong>User: </strong> {{ $attendance->user->name ?? '-' }}
     </div>
-    <!-- /.content-header -->
+    <div class="mb-3">
+        <strong>Tanggal: </strong> {{ $attendance->tanggal }}
+    </div>
+    <div class="mb-3">
+        <strong>Status (checkout?): </strong> 
+        {{ $attendance->status ? 'Sudah Checkout' : 'Belum' }}
+    </div>
+    <div class="mb-3">
+        <strong>Hari Kerja: </strong> {{ $attendance->hari_kerja }}
+    </div>
+    <div class="mb-3">
+        <strong>Jam Lembur: </strong> {{ $attendance->jumlah_jam_lembur }}
+    </div>
+    <div class="mb-3">
+        <strong>Tanggal Merah?: </strong> 
+        {{ $attendance->is_tanggal_merah ? 'Ya' : 'Tidak' }}
+    </div>
 
-    <section class="content">
-        <div class="container-fluid">
-            <!-- Main row -->
-            <div class="row">
-                <!-- Left col -->
-                <section class="col-lg-12">
-                    <!-- Attendance Chart -->
-                    <a href="{{ url()->previous() }}" class="btn btn-sm btn-primary mb-2">Back</a>
+    <hr>
+    <h4>Attendance Details:</h4>
+    @if($attendance->detail->count() > 0)
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Type (in/out)</th>
+                    <th>Long</th>
+                    <th>Lat</th>
+                    <th>Address</th>
+                    <th>Photo (url)</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach($attendance->detail as $dt)
+                <tr>
+                    <td>{{ $dt->type }}</td>
+                    <td>{{ $dt->long }}</td>
+                    <td>{{ $dt->lat }}</td>
+                    <td>{{ $dt->address }}</td>
+                    <td><a href="{{ $dt->photo }}" target="_blank">Lihat</a></td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    @else
+        <p>Tidak ada detail.</p>
+    @endif
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">
-                                <i class="ion ion-clipboard mr-1"></i>
-                                Attendance
-                            </h3>
-                        </div>
-                        <!-- /.card-header -->
-                        <div class="card-body">
-                            <table class="table" id="datatable">
-                                <tbody>
-                                    <tr>
-                                        <th>Name</th>
-                                        <td>{{ $attendance->user->nama }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Status</th>
-                                        <td>{{ $attendance->status ? 'Check Out' : 'Check In' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Check In</th>
-                                        <td>{{ $attendance->created_at }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Check Out</th>
-                                        <td>{{ $attendance->updated_at }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <!-- /.card -->
-
-                    @foreach ($attendance->detail as $detail)
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">
-                                    <i class="ion ion-clipboard mr-1"></i>
-                                    Attendance {{ $detail->type }}
-                                </h3>
-                            </div>
-                            <!-- /.card-header -->
-                            <div class="card-body">
-                                <table class="table" id="datatable">
-                                    <tbody>
-                                        <tr>
-                                            <th>Time</th>
-                                            <td>{{ $detail->created_at }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Long, lat</th>
-                                            <td>{{ $detail->long }}, {{ $detail->lat }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Address</th>
-                                            <td>{{ $detail->address }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Location</th>
-                                            <td>
-                                                <div style="width: 100%">
-                                                    <iframe width="100%" height="300" frameborder="0" scrolling="no"
-                                                        marginheight="0" marginwidth="0"
-                                                        src="https://maps.google.com/maps?q={{ $detail->long }},{{ $detail->lat }}&hl=en&z=14&amp;output=embed">
-                                                    </iframe>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>Photo</th>
-                                            <td><img width="350"
-                                                    src="{{ asset('/storage/attendance/' . $detail->photo) }}"
-                                                    alt=""></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <!-- /.card -->
-                    @endforeach
-                </section>
-                <!-- /.Left col -->
-            </div>
-            <!-- /.row (main row) -->
-        </div><!-- /.container-fluid -->
-    </section>
+    <a href="{{ route('attendance.index') }}" class="btn btn-secondary">Kembali</a>
+</div>
 @endsection
