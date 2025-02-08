@@ -27,22 +27,29 @@ class UserController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = User::where('is_archived', false)->get();
+            try {
+                $data = User::where('is_archived', false);
 
-            return DataTables::eloquent($data)
-                ->addColumn('action', function ($data) {
-                    return view('layouts._action', [
-                        'model' => $data,
-                        'edit_url' => route('user.edit', $data->id),
-                        'show_url' => route('user.show', $data->id),
-                        'archive_url' => route('user.archive', $data->id),
-                        'delete_url' => route('user.destroy', $data->id),
-                    ]);
-                })
-                ->addIndexColumn()
-                ->rawColumns(['action'])
-                ->toJson();
+                return DataTables::of($data)
+                    ->addColumn('action', function ($data) {
+                        return view('layouts._action', [
+                            'model' => $data,
+                            'edit_url' => route('user.edit', $data->id),
+                            'show_url' => route('user.show', $data->id),
+                            'archive_url' => route('user.archive', $data->id),
+                            'delete_url' => route('user.destroy', $data->id),
+                        ]);
+                    })
+                    ->addIndexColumn()
+                    ->rawColumns(['action'])
+                    ->toJson();
+            } catch (\Exception $e) {
+                return response()->json([
+                    'error' => 'Server error: ' . $e->getMessage()
+                ], 500);
+            }
         }
+
 
         $users = User::where('is_archived', false)->get();
 
