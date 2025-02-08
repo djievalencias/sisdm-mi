@@ -28,7 +28,7 @@
             @forelse ($attendances as $attendance)
                 <tr>
                     <td>{{ $attendance->id }}</td>
-                    <td>{{ $attendance->user->name ?? 'No User' }}</td>
+                    <td>{{ $attendance->user->nama ?? 'No User' }}</td>
                     <td>{{ $attendance->tanggal->format('Y-m-d H:i:s') }}</td>
                     <td>{{ $attendance->status ? 'Sudah Check Out' : 'Belum' }}</td>
                     <td>{{ $attendance->hari_kerja }}</td>

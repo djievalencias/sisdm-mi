@@ -89,14 +89,13 @@ class User extends Authenticatable
     }
     
     public function attendances()
-{
-    return $this->hasMany(Attendance::class, 'id_user');
-}
-
-    
-    public function shift()
     {
-        return $this->belongsTo(Shift::class, 'id_shift');
+        return $this->hasMany(Attendance::class, 'id_user');
+    }
+
+    public function shifts()
+    {
+        return $this->belongsToMany(Shift::class, 'penjadwalan_shift', 'id_user', 'id_shift');
     }
 
     public function payroll()

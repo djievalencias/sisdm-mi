@@ -15,7 +15,7 @@
                 @foreach($users as $user)
                     <option value="{{ $user->id }}" 
                         {{ $attendance->id_user == $user->id ? 'selected' : '' }}>
-                        {{ $user->name }}
+                        {{ $user->nama }}
                     </option>
                 @endforeach
             </select>

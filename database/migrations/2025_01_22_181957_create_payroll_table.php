@@ -15,14 +15,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->date('tanggal_payroll');
-            $table->decimal('gaji_pokok', 7, 2)->default(0);
-            $table->decimal('upah_lembur', 5, 2)->default(0);
-            $table->decimal('gaji_tgl_merah', 5, 2)->default(0);
-            $table->decimal('upah_lembur_tgl_merah', 5, 2)->default(0);
-            $table->decimal('iuran_bpjs_kantor', 5, 2)->default(0);
-            $table->decimal('iuran_bpjs_karyawan', 5, 2)->default(0);
+            $table->decimal('gaji_pokok', 9, 2)->default(0);
+            $table->decimal('upah_lembur', 8, 2)->default(0);
+            $table->decimal('gaji_tgl_merah', 8, 2)->default(0);
+            $table->decimal('upah_lembur_tgl_merah', 8, 2)->default(0);
+            $table->decimal('iuran_bpjs_kantor', 8, 2)->default(0);
+            $table->decimal('iuran_bpjs_karyawan', 8, 2)->default(0);
+            $table->decimal('take_home_pay', 10, 2)->default(0);
             $table->boolean('is_reviewed')->default(false);
-            $table->boolean('status')->default(false); // True: Paid, False: Pending
+            $table->boolean('status_pembayaran')->default(false);
             $table->unique(['id_user', 'tanggal_payroll']);
             $table->timestamps();
         });

@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->foreignId('id_shift')->nullable()->constrained('shift')->onDelete('set null');
-            $table->boolean('is_ditampilkan')->default(false);
             $table->timestamps();
         });
     }

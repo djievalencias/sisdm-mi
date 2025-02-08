@@ -9,6 +9,8 @@ class Payroll extends Model
 {
     use HasFactory;
 
+    protected $table = 'payroll';
+
     protected $fillable = [
         'id_user',
         'tanggal_payroll',
@@ -16,12 +18,9 @@ class Payroll extends Model
         'upah_lembur',
         'gaji_tgl_merah',
         'upah_lembur_tgl_merah',
-        'bpjs_kes_perusahaan',
-        'bpjs_jkk_perusahaan',
-        'bpjs_jht_perusahaan',
-        'bpjs_jkm_perusahaan',
-        'bpjs_jp_perusahaan',
-        'bpjs_kes_user',
+        'iuran_bpjs_kantor',
+        'iuran_bpjs_karyawan',
+        'take_home_pay',
         'is_reviewed',
         'status',
     ];
@@ -42,5 +41,15 @@ class Payroll extends Model
         return Attribute::make(
             get: fn (bool $value) => $value ? 'Paid' : 'Pending'
         );
+    }
+
+    public function tunjangan()
+    {
+        return $this->hasMany(Tunjangan::class, 'id_payroll');
+    }
+
+    public function potongan()
+    {
+        return $this->hasMany(Potongan::class, 'id_payroll');
     }
 }
