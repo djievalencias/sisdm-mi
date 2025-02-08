@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
             JabatanSeeder::class,
             UserSeeder::class,
             RiwayatJabatanSeeder::class,
+            ShiftSeeder::class,
+            AttendanceSeeder::class,
         ]);
     }
 }

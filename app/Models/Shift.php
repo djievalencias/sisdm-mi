@@ -68,4 +68,9 @@ class Shift extends Model
 
         return $end->diffInMinutes($start) / 60;
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'penjadwalan_shift', 'id_shift', 'id_user');
+    }
 }

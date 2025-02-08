@@ -137,7 +137,6 @@ class ShiftController extends Controller
                 PenjadwalanShift::create([
                     'id_user' => $userId,
                     'id_shift' => $shift->id,
-                    'is_ditampilkan' => true,
                 ]);
             }
         }
