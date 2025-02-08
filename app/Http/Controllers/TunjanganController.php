@@ -31,7 +31,7 @@ class TunjanganController extends Controller
             'nominal' => $request->nominal,
         ]);
 
-        return redirect()->route('payroll.edit', $id_payroll)->with('success', 'Tunjangan berhasil ditambahkan.');
+        return back()->with('success', 'Tunjangan berhasil ditambahkan.');
     }
 
     public function edit($id)
@@ -64,6 +64,6 @@ class TunjanganController extends Controller
         $tunjangan = Tunjangan::findOrFail($id);
         $tunjangan->delete();
 
-        return redirect()->back()->with('success', 'Tunjangan berhasil dihapus.');
+        return back()->with('success', 'Tunjangan berhasil dihapus.');
     }
 }

@@ -12,28 +12,36 @@ class Payroll extends Model
     protected $table = 'payroll';
 
     protected $fillable = [
-        'id_user',
-        'tanggal_payroll',
-        'gaji_pokok',
-        'upah_lembur',
-        'gaji_tgl_merah',
-        'upah_lembur_tgl_merah',
-        'iuran_bpjs_kantor',
-        'iuran_bpjs_karyawan',
-        'take_home_pay',
-        'is_reviewed',
-        'status',
+        'id_user', 
+        'tanggal_payroll', 
+        'gaji_pokok', 
+        'upah_lembur', 
+        'gaji_tgl_merah', 
+        'upah_lembur_tgl_merah', 
+        'iuran_bpjs_kantor', 
+        'iuran_bpjs_karyawan', 
+        'take_home_pay', 
+        'is_reviewed', 
+        'reviewed_by', 
+        'reviewed_at', 
+        'status_pembayaran',
+        'dibayar_at', 
     ];
 
     protected $casts = [
         'tanggal_payroll' => 'date',
         'is_reviewed' => 'boolean',
-        'status' => 'boolean',
+        'status_pembayaran' => 'boolean',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     protected function statusText(): Attribute

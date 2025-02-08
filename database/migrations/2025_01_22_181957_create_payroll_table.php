@@ -23,7 +23,10 @@ return new class extends Migration
             $table->decimal('iuran_bpjs_karyawan', 8, 2)->default(0);
             $table->decimal('take_home_pay', 10, 2)->default(0);
             $table->boolean('is_reviewed')->default(false);
+            $table->foreignId('reviewed_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->timestamp('reviewed_at')->nullable();
             $table->boolean('status_pembayaran')->default(false);
+            $table->timestamp('dibayar_at')->nullable();
             $table->unique(['id_user', 'tanggal_payroll']);
             $table->timestamps();
         });

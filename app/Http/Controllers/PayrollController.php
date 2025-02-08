@@ -8,41 +8,21 @@ use App\Models\Tunjangan;
 use App\Models\Potongan;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PayrollController extends Controller
 {
-    private function validatePayrollData(Request $request, $isNew = true)
-    {
-        $rules = [
-            'gaji_pokok' => 'numeric',
-            'upah_lembur' => 'numeric',
-            'gaji_tgl_merah' => 'numeric',
-            'upah_lembur_tgl_merah' => 'numeric',
-            'iuran_bpjs_kantor' => 'numeric',
-            'iuran_bpjs_karyawan' => 'numeric',
-        ];
-
-        if ($isNew) {
-            $rules = array_merge($rules, [
-                'id_user' => 'required|exists:users,id',
-                'tanggal_payroll' => 'required|date',
-            ]);
-        }
-
-        return $request->validate($rules);
-    }
-
     public function index()
     {
         $payrolls = Payroll::with('user')->get();
         return view('pages.payroll.index', compact('payrolls'));
     }
 
-    public function show($id)
+    public function review($id)
     {
         $payroll = Payroll::with(['user', 'tunjangan', 'potongan'])->findOrFail($id);
 
-        return view('pages.payroll.show', [
+        return view('pages.payroll.review', [
             'payroll' => $payroll,
             'tunjangan' => $payroll->tunjangan,
             'potongan' => $payroll->potongan,
@@ -57,8 +37,14 @@ class PayrollController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'id_user' => 'required|exists:users,id',
+        $request->validate([
+            'id_user' => [
+                'required',
+                'exists:users,id',
+                Rule::unique('payroll')->where(function ($query) use ($request) {
+                    return $query->where('tanggal_payroll', $request->tanggal_payroll);
+                }),
+            ],
             'tanggal_payroll' => 'required|date',
             'gaji_pokok' => 'required|numeric',
             'upah_lembur' => 'required|numeric',
@@ -66,17 +52,22 @@ class PayrollController extends Controller
             'upah_lembur_tgl_merah' => 'required|numeric',
             'iuran_bpjs_kantor' => 'required|numeric',
             'iuran_bpjs_karyawan' => 'required|numeric',
-            'take_home_pay' => 'required|numeric',
+            'take_home_pay' => 'nullable|numeric',
         ]);
 
-        Payroll::create($data);
+        Payroll::create($request->all());
 
-        return redirect()->route('payroll.index')->with('success', 'Payroll created successfully.');
+        return redirect()->route('payroll.index')->with('success', 'Payroll berhasil dibuat.');
     }
 
     public function edit($id)
     {
         $payroll = Payroll::findOrFail($id);
+
+        if ($payroll->is_reviewed) {
+            return redirect()->route('payroll.index')->with('error', 'Payroll yang sudah direview tidak dapat diedit.');
+        }
+
         $users = User::all();
         $tunjangan = Tunjangan::where('id_payroll', $id)->get();
         $potongan = Potongan::where('id_payroll', $id)->get();
@@ -87,33 +78,58 @@ class PayrollController extends Controller
     {
         $payroll = Payroll::findOrFail($id);
 
-        // Base take-home pay from user input
-        $baseTakeHomePay = $request->input('take_home_pay');
-
-        // Sum of tunjangan
-        $totalTunjangan = $payroll->tunjangan()->sum('nominal');
-
-        // Sum of potongan
-        $totalPotongan = $payroll->potongan()->sum('nominal');
-
-        // Final take-home pay calculation
-        $finalTakeHomePay = $baseTakeHomePay + $totalTunjangan - $totalPotongan;
-
-        // Update payroll with final take-home pay
-        $payroll->update([
-            'take_home_pay' => $finalTakeHomePay,
-            'tanggal_payroll' => $request->tanggal_payroll,
-            'umk' => $request->umk,
+        $request->validate([
+            'id_user' => 'required|exists:users,id',
+            'tanggal_payroll' => [
+                'required',
+                'date',
+                Rule::unique('payroll')->where(function ($query) use ($request) {
+                    return $query->where('id_user', $request->id_user);
+                })->ignore($payroll->id),
+            ],
+            'gaji_pokok' => 'required|numeric',
+            'upah_lembur' => 'required|numeric',
+            'gaji_tgl_merah' => 'required|numeric',
+            'upah_lembur_tgl_merah' => 'required|numeric',
+            'iuran_bpjs_kantor' => 'required|numeric',
+            'iuran_bpjs_karyawan' => 'required|numeric',
+            'take_home_pay' => 'nullable|numeric',
         ]);
 
-        return redirect()->route('payroll.index')->with('success', 'Payroll updated successfully.');
+        // Calculate total tunjangan and potongan
+        $totalTunjangan = $payroll->tunjangan()->sum('nominal');
+        $totalPotongan = $payroll->potongan()->sum('nominal');
+
+        // Calculate final take-home pay
+        $finalTakeHomePay = $request->gaji_pokok
+            + $request->upah_lembur
+            + $request->gaji_tgl_merah
+            + $request->upah_lembur_tgl_merah
+            + $request->iuran_bpjs_kantor
+            + $totalTunjangan
+            - $request->iuran_bpjs_karyawan
+            - $totalPotongan;
+
+        // Update payroll data
+        $payroll->update([
+            'gaji_pokok' => $request->gaji_pokok,
+            'upah_lembur' => $request->upah_lembur,
+            'gaji_tgl_merah' => $request->gaji_tgl_merah,
+            'upah_lembur_tgl_merah' => $request->upah_lembur_tgl_merah,
+            'iuran_bpjs_kantor' => $request->iuran_bpjs_kantor,
+            'iuran_bpjs_karyawan' => $request->iuran_bpjs_karyawan,
+            'tanggal_payroll' => $request->tanggal_payroll,
+            'take_home_pay' => $finalTakeHomePay,
+        ]);
+
+        return redirect()->route('payroll.index')->with('success', 'Payroll berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
         $payroll = Payroll::findOrFail($id);
         $payroll->delete();
-        return redirect()->route('payroll.index')->with('success', 'Payroll deleted successfully');
+        return redirect()->route('payroll.index')->with('success', 'Payroll berhasil dihapus.');
     }
 
     public function calculatePayroll(Request $request)
@@ -122,7 +138,6 @@ class PayrollController extends Controller
         $tanggal_payroll = $request->input('tanggal_payroll');
         $UMK = $request->input('umk');
 
-        // Validate inputs
         if (!$id_user || !$tanggal_payroll || !$UMK) {
             return response()->json(['error' => 'Missing required inputs'], 400);
         }
@@ -173,5 +188,32 @@ class PayrollController extends Controller
             'total_hari_kerja' => $total_hari_kerja,
             'take_home_pay' => $total_pay,
         ]);
+    }
+
+    public function markAsReviewed($id)
+    {
+        $payroll = Payroll::findOrFail($id);
+
+        // Update payroll review status
+        $payroll->update([
+            'is_reviewed' => true,
+            'reviewed_by' => auth()->user()->id,
+            'reviewed_at' => now(),
+        ]);
+
+        return redirect()->route('payroll.index')->with('success', 'Payroll berhasil ditandai sudah direview.');
+    }
+
+    public function markAsPaid($id)
+    {
+        $payroll = Payroll::findOrFail($id);
+
+        // Mark payroll as paid
+        $payroll->update([
+            'status_pembayaran' => true,
+            'dibayar_at' => now(),
+        ]);
+
+        return redirect()->route('payroll.index')->with('success', 'Payroll berhasil ditandai sudah dibayar.');
     }
 }
