@@ -1,7 +1,12 @@
 <template>
     <div class="login-box">
         <div class="login-logo">
-            <a href="#"><b>Attendance</b>Live</a>
+            <div class="lockscreen-logo">
+                <img
+                    src="/public/assets/CVMebelInternational.png"
+                    alt="Attendance Live Logo"
+                />
+            </div>
         </div>
         <!-- /.login-logo -->
         <div class="card">
@@ -170,5 +175,11 @@ export default {
 
 .invalid-feedback {
     display: block;
+}
+
+.lockscreen-logo img {
+    max-width: 100%; /* 3/4 of the full width */
+    height: auto;
+    display: block; /* Ensure the image is a block element */
 }
 </style>

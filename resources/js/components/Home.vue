@@ -2,7 +2,10 @@
     <div class="hold-transition lockscreen">
         <div class="lockscreen-wrapper">
             <div class="lockscreen-logo">
-                <a href="#"><b>Attendance</b>Live</a>
+                <img
+                    src="/public/assets/CVMebelInternational.png"
+                    alt="Attendance Live Logo"
+                />
             </div>
 
             <!-- START LOCK SCREEN ITEM -->
@@ -31,6 +34,22 @@ export default {
 
 <style scoped>
 .hold-transition {
-    /* Add your custom styles here */
+    background-color: white; /* Grey background color */
+    width: 100%;
+    height: 75vh; /* Full height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.lockscreen-wrapper {
+    text-align: center;
+}
+
+.lockscreen-logo img {
+    max-width: 100%; /* 3/4 of the full width */
+    height: auto;
+    margin: 0 auto; /* Center the image */
+    display: block; /* Ensure the image is a block element */
 }
 </style>
