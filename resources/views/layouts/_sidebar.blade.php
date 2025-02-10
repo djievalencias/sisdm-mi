@@ -52,7 +52,19 @@
                         <i class="nav-icon fas fa-calendar-minus"></i>
                         <p>Cuti/Perizinan</p>
                     </a>
-                </li>        
+                </li> 
+                <li class="nav-item">
+                    <a href="{{ url('/kalender') }}" class="nav-link">
+                        <i class="nav-icon fas fa-calendar"></i>
+                        <p>Kalendar Kerja</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/payroll') }}" class="nav-link">
+                        <i class="nav-icon fas fa-money-bill"></i>
+                        <p>Payroll</p>
+                    </a>
+                </li>          
             @endif
 
             <li class="nav-header">LABELS</li>

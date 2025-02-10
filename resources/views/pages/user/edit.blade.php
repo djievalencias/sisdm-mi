@@ -83,9 +83,9 @@
                                 <div class="form-group">
                                     <label for="">Gender</label>
                                     <select name="jenis_kelamin" class="form-control">
-                                        <option value="" {{ old('jenis_kelamin') == '' ? 'selected' : '' }}>Select Gender</option>
-                                        <option value="L" {{ old('jenis_kelamin') == 'L' ? 'selected' : '' }}>Male</option>
-                                        <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Female</option>
+                                        <option value="" {{ (old('jenis_kelamin', $user->jenis_kelamin ?? '') == '') ? 'selected' : '' }}>Select Gender</option>
+                                        <option value="L" {{ (old('jenis_kelamin', $user->jenis_kelamin ?? '') == 'L') ? 'selected' : '' }}>Male</option>
+                                        <option value="P" {{ (old('jenis_kelamin', $user->jenis_kelamin ?? '') == 'P') ? 'selected' : '' }}>Female</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -96,7 +96,7 @@
                                 <div class="form-group">
                                     <label for="">Tanggal Lahir</label>
                                     <input type="date" name="tanggal_lahir" class="form-control"
-                                        value="{{ old('tanggal_lahir', $user->tanggal_lahir) }}">
+                                        value="{{ old('tanggal_lahir', $user->tanggal_lahir->format('Y-m-d')) }}">
                                 </div>
                                 <div class="form-group">
                                     <label for="">Agama</label>
@@ -163,41 +163,24 @@
                                         <label class="form-check-label" for="inlineRadio2">No</label>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label for="">Foto Profil</label>
+                                    <input type="file" name="foto_profil" class="form-control-file">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Foto KTP</label>
+                                    <input type="file" name="foto_ktp" class="form-control-file">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Foto BPJS Kesehatan</label>
+                                    <input type="file" name="foto_bpjs_kesehatan" class="form-control-file">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Foto BPJS Ketenagakerjaan</label>
+                                    <input type="file" name="foto_bpjs_ketenagakerjaan" class="form-control-file">
+                                </div>
                                 <button type="submit" class="btn btn-primary">Update</button>
                             </form>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">
-                                <i class="ion ion-image mr-1"></i>
-                                Photos
-                            </h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="">Foto Profil</label>
-                                <input type="file" name="foto_profil" class="form-control-file">
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="">Foto KTP</label>
-                                <input type="file" name="foto_ktp" class="form-control-file">
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="">Foto BPJS Kesehatan</label>
-                                <input type="file" name="foto_bpjs_kesehatan" class="form-control-file">
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="">Foto BPJS Ketenagakerjaan</label>
-                                <input type="file" name="foto_bpjs_ketenagakerjaan" class="form-control-file">
-                            </div>
                         </div>
                     </div>
 

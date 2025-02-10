@@ -98,7 +98,8 @@ class KalenderController extends Controller
         }
 
         $startDate = $event->tanggal_mulai;
-        $endDate = $event->repeat_until;
+        $endDate = $event->tanggal_selesai;
+        $repeatUntil = $event->repeat_until;
 
         $interval = match ($event->repeat_type) {
             'weekly' => '+1 week',
@@ -116,12 +117,13 @@ class KalenderController extends Controller
                 ->delete();
         }
 
-        $nextDate = strtotime($interval, strtotime($startDate));
+        $nextStartDate = strtotime($interval, strtotime($startDate));
+        $nextEndDate = $endDate ? strtotime($interval, strtotime($endDate)) : null;
 
-        while ($nextDate <= strtotime($endDate)) {
+        while ($nextStartDate <= strtotime($repeatUntil)) {
             Kalender::create([
-                'tanggal_mulai' => date('Y-m-d', $nextDate),
-                'tanggal_selesai' => null,
+                'tanggal_mulai' => date('Y-m-d', $nextStartDate),
+                'tanggal_selesai' => $nextEndDate ? date('Y-m-d', $nextEndDate) : null,
                 'judul' => $event->judul,
                 'tipe' => $event->tipe,
                 'repeat_type' => 'never',
@@ -129,7 +131,8 @@ class KalenderController extends Controller
                 'updated_by' => $event->updated_by,
             ]);
 
-            $nextDate = strtotime($interval, $nextDate);
+            $nextStartDate = strtotime($interval, $nextStartDate);
+            $nextEndDate = $nextEndDate ? strtotime($interval, $nextEndDate) : null;
         }
     }
 }

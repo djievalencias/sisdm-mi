@@ -12,6 +12,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\CutiPerizinanController;
 use App\Http\Controllers\KalenderController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\TunjanganController;
+use App\Http\Controllers\PotonganController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,7 +43,7 @@ Route::patch('user/{id}/restore', [UserController::class, 'restore'])->name('use
 
 Route::resource('user', App\Http\Controllers\UserController::class);
 
-Route::resource('attendance', App\Http\Controllers\AttendanceController::class)->only(['index', 'show']);
+Route::resource('attendance', AttendanceController::class);
 
 Route::get('shift/{shift}/assign', [ShiftController::class, 'assignForm'])->name('shift.assignForm');
 Route::post('shift/{shift}/assign', [ShiftController::class, 'assign'])->name('shift.assign');
@@ -92,3 +96,19 @@ Route::post('/cuti-perizinan/{cutiPerizinan}/reject', [CutiPerizinanController::
 Route::post('/cuti-perizinan/{cutiPerizinan}/undo', [CutiPerizinanController::class, 'undoApproval'])->name('cuti-perizinan.undo');
 
 Route::resource('kalender', KalenderController::class);
+
+Route::put('/payroll/{id}/mark-as-paid', [PayrollController::class, 'markAsPaid'])->name('payroll.markAsPaid');
+Route::get('/payroll/{id}/review', [PayrollController::class, 'Review'])->name('payroll.review');
+Route::put('/payroll/{id}/review', [PayrollController::class, 'markAsReviewed'])->name('payroll.review.submit');
+Route::get('/payroll/calculate', [PayrollController::class, 'calculatePayroll'])->name('payroll.calculate');
+Route::resource('payroll', PayrollController::class);
+
+// Tunjangan Routes
+Route::post('/tunjangan/store/{id_payroll}', [TunjanganController::class, 'store'])->name('tunjangan.store');
+Route::put('/tunjangan/{id}', [TunjanganController::class, 'update'])->name('tunjangan.update');
+Route::delete('/tunjangan/{id}', [TunjanganController::class, 'destroy'])->name('tunjangan.destroy');
+
+// Potongan Routes
+Route::post('/potongan/store/{id_payroll}', [PotonganController::class, 'store'])->name('potongan.store');
+Route::put('/potongan/{id}', [PotonganController::class, 'update'])->name('potongan.update');
+Route::delete('/potongan/{id}', [PotonganController::class, 'destroy'])->name('potongan.destroy');

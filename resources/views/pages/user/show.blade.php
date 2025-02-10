@@ -108,48 +108,6 @@
                         </div>
                     </div>
 
-                    <!-- Riwayat Jabatan Section -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">
-                                <i class="ion ion-briefcase mr-1"></i>
-                                Riwayat Jabatan
-                            </h3>
-                        </div>
-                        <div class="card-body">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Kantor</th>
-                                        <th>Departemen</th>
-                                        <th>Grup</th>
-                                        <th>Jabatan</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if ($user->riwayatJabatan && $user->riwayatJabatan->count())
-                                        @foreach ($user->riwayatJabatan as $riwayatJabatan)
-                                            <tr>
-                                                <td>{{ $riwayatJabatan->jabatan->grup->departemen->kantor->nama ?? '-' }}</td>
-                                                <td>{{ $riwayatJabatan->jabatan->grup->departemen->nama ?? '-' }}</td>
-                                                <td>{{ $riwayatJabatan->jabatan->grup->nama ?? '-' }}</td>
-                                                <td>{{ $riwayatJabatan->jabatan->nama }}</td>
-                                                <td>{{ $riwayatJabatan->tanggal_mulai }}</td>
-                                                <td>{{ $riwayatJabatan->tanggal_selesai ?? 'Present' }}</td>
-                                            </tr>
-                                        @endforeach
-                                    @else
-                                        <tr>
-                                            <td colspan="7" class="text-center"><strong>Belum ada riwayat jabatan</strong></td>
-                                        </tr>
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
                     <!-- Photos Section -->
                     <div class="card">
                         <div class="card-header">
@@ -201,6 +159,47 @@
                         </div>
                     </div>
 
+                    <!-- Riwayat Jabatan Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="ion ion-briefcase mr-1"></i>
+                                Riwayat Jabatan
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Kantor</th>
+                                        <th>Departemen</th>
+                                        <th>Grup</th>
+                                        <th>Jabatan</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if ($user->riwayatJabatan && $user->riwayatJabatan->count())
+                                        @foreach ($user->riwayatJabatan as $riwayatJabatan)
+                                            <tr>
+                                                <td>{{ $riwayatJabatan->jabatan->grup->departemen->kantor->nama ?? '-' }}</td>
+                                                <td>{{ $riwayatJabatan->jabatan->grup->departemen->nama ?? '-' }}</td>
+                                                <td>{{ $riwayatJabatan->jabatan->grup->nama ?? '-' }}</td>
+                                                <td>{{ $riwayatJabatan->jabatan->nama }}</td>
+                                                <td>{{ $riwayatJabatan->tanggal_mulai }}</td>
+                                                <td>{{ $riwayatJabatan->tanggal_selesai ?? 'Present' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="7" class="text-center"><strong>Belum ada riwayat jabatan</strong></td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </section>
             </div>
         </div>
