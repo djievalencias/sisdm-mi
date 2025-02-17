@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\PengumumanController;
 use App\Http\Controllers\Api\CutiPerizinanController;
 use App\Http\Controllers\Api\KalenderController;
 use App\Http\Controllers\Api\ShiftController;
+use App\Http\Controllers\Api\PayrollController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,3 +63,6 @@ Route::get('/kalender', [KalenderController::class, 'index']);
 
 Route::get('/shift/{shiftId}/users', [ShiftController::class, 'getUsersByShift']);
 Route::get('/users/{userId}/shifts', [UserController::class, 'getShiftsByUser']);
+
+Route::get('/users/{userId}/payroll', [PayrollController::class, 'getPayrollByUserId']);
+Route::get('/payroll/{payrollId}', [PayrollController::class, 'getPayrollById']);

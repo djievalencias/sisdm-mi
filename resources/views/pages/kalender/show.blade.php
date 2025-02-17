@@ -25,11 +25,11 @@
                     </tr>
                     <tr>
                         <th>Created By</th>
-                        <td>{{ $kalender->creator->name ?? 'Unknown' }}</td>
+                        <td>{{ $kalender->createdBy->nama ?? 'Unknown' }}</td>
                     </tr>
                     <tr>
                         <th>Last Updated By</th>
-                        <td>{{ $kalender->updater->name ?? 'Unknown' }}</td>
+                        <td>{{ $kalender->updatedBy->nama ?? 'Unknown' }}</td>
                     </tr>
                     <tr>
                         <th>Created At</th>
