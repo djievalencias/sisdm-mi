@@ -28,7 +28,7 @@ class Handler extends ExceptionHandler
         });
     }
 
-    public function render($request, Exception $exception)
+    public function render($request, Throwable $exception)
     {
         if ($exception instanceof \Symfony\Component\HttpFoundation\File\Exception\FileException) {
             // create a validator and validate to throw a new ValidationException
