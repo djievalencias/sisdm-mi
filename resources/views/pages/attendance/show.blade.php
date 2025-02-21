@@ -46,7 +46,13 @@
                     <td>{{ $dt->long }}</td>
                     <td>{{ $dt->lat }}</td>
                     <td>{{ $dt->address }}</td>
-                    <td><a href="{{ $dt->photo }}" target="_blank">Lihat</a></td>
+                    <td>
+                        @if($dt->photo)
+                            <a href="{{ asset('' . $dt->photo) }}" target="_blank">Lihat</a>
+                        @else
+                            Tidak ada foto
+                        @endif
+                    </td>
                 </tr>
             @endforeach
             </tbody>

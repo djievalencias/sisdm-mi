@@ -18,7 +18,8 @@
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.21/r-2.2.5/datatables.min.css"/>
-</head>
+    @vite(['resources/js/app.js'])
+    </head>
 <body class="hold-transition sidebar-mini">
     <!-- Site wrapper -->
 <div class="wrapper">
