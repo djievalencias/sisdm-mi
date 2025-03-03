@@ -19,7 +19,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        config(['app.locale' => 'ko']); // Set locale to Korean
-        \Carbon\Carbon::setLocale('ko'); // Set Carbon's locale to Korean
+        config(['app.locale' => 'id']); // Set locale to Indonesian
+        \Carbon\Carbon::setLocale('id'); // Set Carbon's locale to Indoensian
+        if(config('app.env') !== 'local') {
+            \URL::forceScheme('https');
+        }
     }
 }
