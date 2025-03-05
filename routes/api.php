@@ -51,7 +51,11 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('pengumuman', PengumumanController::class);
+    Route::get('pengumuman', [PengumumanController::class, 'index'])->name('api.pengumuman.index');
+    Route::post('pengumuman', [PengumumanController::class, 'store'])->name('api.pengumuman.store');
+    Route::get('pengumuman/{pengumuman}', [PengumumanController::class, 'show'])->name('api.pengumuman.show');
+    Route::put('pengumuman/{pengumuman}', [PengumumanController::class, 'update'])->name('api.pengumuman.update');
+    Route::delete('pengumuman/{pengumuman}', [PengumumanController::class, 'destroy'])->name('api.pengumuman.destroy');
 });
 
 Route::put('cuti-perizinan/{id}', [CutiPerizinanController::class, 'update']);
