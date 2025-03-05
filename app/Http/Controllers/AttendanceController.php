@@ -50,7 +50,7 @@ class AttendanceController extends Controller
             'lat'     => 'required',
             'address' => 'required',
             'type'    => 'required|in:in,out',
-            'photo'   => 'required|file|image',
+            'photo'   => 'required|file|image|max:5120',
         ]);
 
         $user      = Auth::user(); // User yg login

@@ -20,7 +20,7 @@ class AttendanceController extends Controller
             'lat' => ['required'],
             'address' => ['required'],
             'type' => ['in:in,out,lembur', 'required'],
-            'photo' => ['required'],
+            'photo' => ['required', 'file', 'image', 'max:5120'],
         ]);
 
         $photo = $request->file('photo');
