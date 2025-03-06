@@ -120,6 +120,15 @@ class AttendanceController extends Controller
             ->whereDate('tanggal',$tanggal)
             ->first();
 
+        // Generate Custom Filename
+        $ext = $request->file('photo')->getClientOriginalExtension();
+        $filename = uniqid().'_'.$user->nama.'.'.$ext;
+
+        // Store File in `storage/app/public/attendance_photos/`
+        $photoPath = $request->file('photo')->storeAs('attendance_photos', $filename, 'public');
+
+        // $photoPath = $request->file('photo')->store('attendance_photos', 'public');
+
         if($type=='in')
         {
             // Check-in
@@ -152,7 +161,7 @@ class AttendanceController extends Controller
                     'type'    => 'in',
                     'long'    => $request->long,
                     'lat'     => $request->lat,
-                    'photo'   => $this->uploadImage($request->file('photo'),$user->nama??$user->id,'attendance'),
+                    'photo'   => $photoPath,
                     'address' => $request->address,
                 ]);
 
@@ -181,7 +190,7 @@ class AttendanceController extends Controller
                     'type'    => 'out',
                     'long'    => $request->long,
                     'lat'     => $request->lat,
-                    'photo'   => $this->uploadImage($request->file('photo'),$user->nama??$user->id,'attendance'),
+                    'photo'   => $photoPath,
                     'address' => $request->address,
                 ]);
 
@@ -192,14 +201,6 @@ class AttendanceController extends Controller
                                      : 'Anda belum check-in');
             }
         }
-    }
-
-    private function uploadImage($file, $userName, $dir){
-        // Silakan sesuaikan logic simpan foto
-        $ext = $file->getClientOriginalExtension();
-        $filename = uniqid().'_'.$userName.'.'.$ext;
-        $file->storeAs($dir,$filename,'public');
-        return "storage/$dir/$filename";
     }
 
     /**
