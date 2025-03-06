@@ -119,9 +119,9 @@
                                     <th>Foto Profil</th>
                                     <td>
                                         @if ($user->foto_profil)
-                                            <img src="{{ asset('storage/' .($user->foto_profil) }}" alt="Profile Photo" width="350">
+                                            <img src="{{ asset('storage/' .($user->foto_profil)) }}" alt="Profile Photo" width="100">
                                         @else
-                                            No photo available
+                                            Foto tidak tersedia
                                         @endif
                                     </td>
                                 </tr>
@@ -129,9 +129,9 @@
                                     <th>Foto KTP</th>
                                     <td>
                                         @if ($user->foto_ktp)
-                                            <img src="{{ Storage::url($user->foto_ktp) }}" alt="KTP Photo" width="350">
+                                            <img src="{{ asset('storage/' .($user->foto_ktp)) }}" alt="Foto KTP" width="100">
                                         @else
-                                            No photo available
+                                            Foto tidak tersedia
                                         @endif
                                     </td>
                                 </tr>
@@ -139,9 +139,9 @@
                                     <th>BPJS Kesehatan</th>
                                     <td>
                                         @if ($user->foto_bpjs_kesehatan)
-                                            <img src="{{ Storage::url($user->foto_bpjs_kesehatan) }}" alt="BPJS Kesehatan" width="350">
+                                            <img src="{{ asset('storage/' .($user->foto_bpjs_kesehatan)) }}" alt="Foto BPJS Kesehatan" width="100">
                                         @else
-                                            No photo available
+                                            Foto tidak tersedia
                                         @endif
                                     </td>
                                 </tr>
@@ -149,9 +149,9 @@
                                     <th>BPJS Ketenagakerjaan</th>
                                     <td>
                                         @if ($user->foto_bpjs_ketenagakerjaan)
-                                            <img src="{{ Storage::url($user->foto_bpjs_ketenagakerjaan) }}" alt="BPJS Ketenagakerjaan" width="350">
+                                            <img src="{{ asset('storage/' .($user->foto_bpjs_ketenagakerjaan)) }}" alt="Foto BPJS Ketenagakerjaan" width="100">
                                         @else
-                                            No photo available
+                                            Foto tidak tersedia
                                         @endif
                                     </td>
                                 </tr>
