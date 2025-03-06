@@ -23,7 +23,9 @@ class AttendanceController extends Controller
             'photo' => ['required', 'file', 'image', 'max:5120'],
         ]);
 
-        $photo = $request->file('photo');
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('attendance', 'public');
+        }
         $tanggal = Carbon::now('Asia/Jakarta')->format('Y-m-d');
         $attendanceType = $request->type;
 
@@ -50,7 +52,7 @@ class AttendanceController extends Controller
                     'type' => 'in',
                     'long' => $request->long,
                     'lat' => $request->lat,
-                    'photo' => $this->uploadImage($photo, $request->user()->name, 'attendance'),
+                    'photo' => $photoPath,
                     'address' => $request->address,
                 ]);
 
@@ -67,7 +69,7 @@ class AttendanceController extends Controller
                     'type' => 'out',
                     'long' => $request->long,
                     'lat' => $request->lat,
-                    'photo' => $this->uploadImage($photo, $request->user()->name, 'attendance'),
+                    'photo' => $photoPath,
                     'address' => $request->address,
                 ]);
 

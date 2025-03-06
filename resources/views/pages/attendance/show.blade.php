@@ -50,7 +50,7 @@
                     <td>{{ \Carbon\Carbon::parse($dt->created_at)->format('Y-m-d H:i:s') }}</td> {{-- Format timestamp --}}
                     <td>
                         @if($dt->photo)
-                            <a href="{{ asset($dt->photo) }}" target="_blank">Lihat</a>
+                            <a href="{{ asset('storage/' . $dt->photo) }}" target="_blank">Lihat</a>
                         @else
                             Tidak ada foto
                         @endif

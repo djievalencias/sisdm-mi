@@ -120,14 +120,9 @@ class AttendanceController extends Controller
             ->whereDate('tanggal',$tanggal)
             ->first();
 
-        // Generate Custom Filename
-        $ext = $request->file('photo')->getClientOriginalExtension();
-        $filename = uniqid().'_'.$user->nama.'.'.$ext;
-
-        // Store File in `storage/app/public/attendance_photos/`
-        $photoPath = $request->file('photo')->storeAs('attendance_photos', $filename, 'public');
-
-        // $photoPath = $request->file('photo')->store('attendance_photos', 'public');
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('attendance', 'public');
+        }   
 
         if($type=='in')
         {
