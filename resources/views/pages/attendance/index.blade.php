@@ -11,6 +11,10 @@
         <div class="alert alert-success mt-2">{{ session('success') }}</div>
     @endif
 
+    @if (session('error'))
+        <div class="alert alert-danger mt-2">{{ session('error') }}</div>
+    @endif
+
     <table class="table table-bordered mt-3">
         <thead>
             <tr>

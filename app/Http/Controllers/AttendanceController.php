@@ -50,7 +50,7 @@ class AttendanceController extends Controller
             'lat'     => 'required',
             'address' => 'required',
             'type'    => 'required|in:in,out',
-            'photo'   => 'required|file|image|max:5120',
+            'photo'   => 'required|file|image',
         ]);
 
         $user      = Auth::user(); // User yg login
@@ -73,31 +73,31 @@ class AttendanceController extends Controller
                 ->with('error','Hari ini libur. Tidak bisa absen.');
         }
 
-// 1. Ambil nama hari (bahasa Inggris) dari Carbon
-$dayEnglish = strtolower($now->format('l')); // "monday", "tuesday", dsb
+        // 1. Ambil nama hari (bahasa Inggris) dari Carbon
+        $dayEnglish = strtolower($now->format('l')); // "monday", "tuesday", dsb
 
-// 2. Peta ke bahasa Indonesia (sesuaikan kolom di DB)
-$map = [
-    'monday' => 'senin',
-    'tuesday' => 'selasa',
-    'wednesday' => 'rabu',
-    'thursday' => 'kamis',
-    'friday' => 'jumat',
-    'saturday' => 'sabtu',
-    'sunday' => 'minggu'
-];
+        // 2. Peta ke bahasa Indonesia (sesuaikan kolom di DB)
+        $map = [
+            'monday' => 'senin',
+            'tuesday' => 'selasa',
+            'wednesday' => 'rabu',
+            'thursday' => 'kamis',
+            'friday' => 'jumat',
+            'saturday' => 'sabtu',
+            'sunday' => 'minggu'
+        ];
 
-// 3. Ambil nama hari versi DB
-$hariDb = $map[$dayEnglish];
+        // 3. Ambil nama hari versi DB
+        $hariDb = $map[$dayEnglish];
 
-// 4. Baru jalankan query ke penjadwalan shift
-$shiftAssignment = PenjadwalanShift::where('id_user', $user->id)
-    ->whereHas('shift', function($query) use($hariDb) {
-        // kolom "senin", "selasa", "rabu", "kamis", dll
-        $query->where($hariDb, true);
-    })
-    ->with('shift')
-    ->first();
+        // 4. Baru jalankan query ke penjadwalan shift
+        $shiftAssignment = PenjadwalanShift::where('id_user', $user->id)
+            ->whereHas('shift', function($query) use($hariDb) {
+                // kolom "senin", "selasa", "rabu", "kamis", dll
+                $query->where($hariDb, true);
+            })
+            ->with('shift')
+            ->first();
 
 
         // Cek SHIFT user. Asumsikan penjadwalan shift punya field 'id_user','id_shift'
@@ -156,9 +156,9 @@ $shiftAssignment = PenjadwalanShift::where('id_user', $user->id)
                     'address' => $request->address,
                 ]);
 
-                return redirect()->back()->with('success','Check-in berhasil');
+                return redirect()->route('attendance.index')->with('success','Check-in berhasil');
             } else {
-                return redirect()->back()->with('error','Anda sudah check-in hari ini');
+                return redirect()->route('attendance.index')->with('error','Anda sudah check-in hari ini');
             }
         }
         else {
@@ -185,9 +185,9 @@ $shiftAssignment = PenjadwalanShift::where('id_user', $user->id)
                     'address' => $request->address,
                 ]);
 
-                return redirect()->back()->with('success','Check-out berhasil');
+                return redirect()->route('attendance.index')->with('success','Check-out berhasil');
             } else {
-                return redirect()->back()->with('error',
+                return redirect()->route('attendance.index')->with('error',
                     $attendanceToday ? 'Anda sudah check-out hari ini' 
                                      : 'Anda belum check-in');
             }

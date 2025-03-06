@@ -6,10 +6,10 @@
     <h1>Detail Attendance #{{ $attendance->id }}</h1>
 
     <div class="mb-3">
-        <strong>User: </strong> {{ $attendance->user->name ?? '-' }}
+        <strong>User: </strong> {{ $attendance->user->nama ?? '-' }}
     </div>
     <div class="mb-3">
-        <strong>Tanggal: </strong> {{ $attendance->tanggal }}
+        <strong>Tanggal: </strong> {{ $attendance->tanggal->format('Y-m-d') }}
     </div>
     <div class="mb-3">
         <strong>Status (checkout?): </strong> 
@@ -36,6 +36,7 @@
                     <th>Long</th>
                     <th>Lat</th>
                     <th>Address</th>
+                    <th>Timestamp</th>
                     <th>Photo (url)</th>
                 </tr>
             </thead>
@@ -46,9 +47,10 @@
                     <td>{{ $dt->long }}</td>
                     <td>{{ $dt->lat }}</td>
                     <td>{{ $dt->address }}</td>
+                    <td>{{ \Carbon\Carbon::parse($dt->created_at)->format('Y-m-d H:i:s') }}</td> {{-- Format timestamp --}}
                     <td>
                         @if($dt->photo)
-                            <a href="{{ asset('' . $dt->photo) }}" target="_blank">Lihat</a>
+                            <a href="{{ asset($dt->photo) }}" target="_blank">Lihat</a>
                         @else
                             Tidak ada foto
                         @endif

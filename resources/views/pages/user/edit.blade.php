@@ -166,18 +166,30 @@
                                 <div class="form-group">
                                     <label for="">Foto Profil</label>
                                     <input type="file" name="foto_profil" class="form-control-file">
+                                    @if ($user->foto_profil)
+                                        <img src="{{ asset('storage/' . $user->foto_profil) }}" alt="foto" width="100">
+                                    @endif
                                 </div>
                                 <div class="form-group">
                                     <label for="">Foto KTP</label>
                                     <input type="file" name="foto_ktp" class="form-control-file">
+                                    @if ($user->foto_ktp)
+                                        <img src="{{ asset('storage/' . $user->foto_ktp) }}" alt="foto" width="100">
+                                    @endif
                                 </div>
                                 <div class="form-group">
                                     <label for="">Foto BPJS Kesehatan</label>
                                     <input type="file" name="foto_bpjs_kesehatan" class="form-control-file">
+                                    @if ($user->foto_bpjs_kesehatan)
+                                        <img src="{{ asset('storage/' . $user->foto_bpjs_kesehatan) }}" alt="foto" width="100">
+                                    @endif
                                 </div>
                                 <div class="form-group">
                                     <label for="">Foto BPJS Ketenagakerjaan</label>
                                     <input type="file" name="foto_bpjs_ketenagakerjaan" class="form-control-file">
+                                    @if ($user->foto_bpjs_ketenagakerjaan)
+                                        <img src="{{ asset('storage/' . $user->foto_bpjs_ketenagakerjaan) }}" alt="foto" width="100">
+                                    @endif
                                 </div>
                                 <button type="submit" class="btn btn-primary">Update</button>
                             </form>

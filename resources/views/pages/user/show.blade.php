@@ -119,7 +119,7 @@
                                     <th>Foto Profil</th>
                                     <td>
                                         @if ($user->foto_profil)
-                                            <img src="{{ Storage::url($user->foto_profil) }}" alt="Profile Photo" width="350">
+                                            <img src="{{ asset('storage/' .($user->foto_profil) }}" alt="Profile Photo" width="350">
                                         @else
                                             No photo available
                                         @endif
