@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 class AttendanceDetail extends Model
 {
@@ -19,6 +18,8 @@ class AttendanceDetail extends Model
         'address',
         'photo',
         'type',
+        'distance_m',
+        'is_within_radius',
     ];
 
     public function attendance()

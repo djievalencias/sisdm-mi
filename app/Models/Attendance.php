@@ -41,7 +41,6 @@ class Attendance extends Model
 
     public static function countAttendance(bool $status): int
     {
-        // Assuming 'status' is the column indicating "in" or "out"
-        return self::where('status', $status)->count();
+        return self::whereDate('tanggal', today())->where('status', $status)->count();
     }
 }

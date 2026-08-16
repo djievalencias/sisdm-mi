@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Traits\ImageStorage;
 use App\Models\User;
+use App\Traits\ImageStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
-use App\Models\RiwayatJabatan;
-use App\Models\Grup;
-use App\Models\Departemen;
-use App\Models\Kantor;
 
 class UserController extends Controller
 {
@@ -18,7 +14,7 @@ class UserController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['auth', 'is_admin']);
+        $this->middleware(['auth', 'role:admin']);
     }
 
     /**
@@ -45,15 +41,13 @@ class UserController extends Controller
                     ->toJson();
             } catch (\Exception $e) {
                 return response()->json([
-                    'error' => 'Server error: ' . $e->getMessage()
+                    'error' => 'Server error: '.$e->getMessage(),
                 ], 500);
             }
         }
 
-
-        $users = User::where('is_archived', false)->get();
-
-        return view('pages.user.index', compact('users'));
+        // rows come from the ajax endpoint above; the page itself needs no data
+        return view('pages.user.index');
     }
 
     /**
@@ -61,7 +55,9 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('pages.user.create');
+        $supervisors = User::where('is_archived', false)->orderBy('nama')->get(['id', 'nama']);
+
+        return view('pages.user.create', compact('supervisors'));
     }
 
     /**
@@ -74,7 +70,14 @@ class UserController extends Controller
         $data = $this->handleFileUploads($request, $data);
         $data['password'] = Hash::make($request->password);
 
-        User::create($data);
+        $user = User::create($data);
+        $user->syncRoles($request->boolean('is_admin') ? 'admin' : 'employee');
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->withProperties(['nama' => $user->nama, 'is_admin' => $user->is_admin])
+            ->log('user.created');
 
         return redirect()->route('user.index');
     }
@@ -85,6 +88,7 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::with('riwayatJabatan')->findOrFail($id);
+
         return view('pages.user.show', compact('user'));
     }
 
@@ -94,7 +98,12 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::with('riwayatJabatan')->findOrFail($id);
-        return view('pages.user.edit', compact('user'));
+        $supervisors = User::where('is_archived', false)
+            ->where('id', '!=', $user->id)
+            ->orderBy('nama')
+            ->get(['id', 'nama']);
+
+        return view('pages.user.edit', compact('user', 'supervisors'));
     }
 
     /**
@@ -112,6 +121,14 @@ class UserController extends Controller
         }
 
         $user->update($data);
+        $user->syncRoles($request->boolean('is_admin') ? 'admin' : 'employee');
+
+        // Log only which fields changed — never credential or identity values.
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->withProperties(['changed' => array_keys($user->getChanges())])
+            ->log('user.updated');
 
         return redirect()->route('user.index');
     }
@@ -136,28 +153,21 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $user->update(['is_archived' => true]);
-        return redirect()->route('user.index')->with('status', 'User archived successfully!');
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->withProperties(['nama' => $user->nama])
+            ->log('user.archived');
+
+        return redirect()->route('user.index')->with('status', __('Employee archived successfully.'));
     }
 
     public function archivedUsers(Request $request)
     {
-        if ($request->ajax()) {
-            $data = User::where('is_archived', true)->get();
-
-            return DataTables::of($data)
-                ->addColumn('action', function ($data) {
-                    return view('layouts._action', [
-                        'model' => $data,
-                        'restore_url' => route('user.restore', $data->id),
-                        'delete_url' => route('user.destroy', $data->id),
-                    ]);
-                })
-                ->addIndexColumn()
-                ->rawColumns(['action'])
-                ->toJson();
-        }
-
+        // Rendered as a client-side DataTable; no ajax branch needed.
         $users = User::where('is_archived', true)->get();
+
         return view('pages.user.archived', compact('users'));
     }
 
@@ -165,7 +175,14 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $user->update(['is_archived' => false]);
-        return redirect()->route('user.archived')->with('status', 'User restored successfully!');
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->withProperties(['nama' => $user->nama])
+            ->log('user.restored');
+
+        return redirect()->route('user.archived')->with('status', __('Employee restored successfully.'));
     }
 
     /**
@@ -176,11 +193,11 @@ class UserController extends Controller
         $rules = [
             'id_atasan' => 'nullable|exists:users,id',
             'nama' => 'required|string|max:255',
-            'nik' => 'required|string|size:16|unique:users,nik' . ($user ? ",{$user->id}" : ''),
-            'email' => 'required|email|max:255|unique:users,email' . ($user ? ",{$user->id}" : ''),
-            'npwp' => 'nullable|string|size:16|unique:users,npwp' . ($user ? ",{$user->id}" : ''),
+            'nik' => 'required|string|size:16|unique:users,nik'.($user ? ",{$user->id}" : ''),
+            'email' => 'required|email|max:255|unique:users,email'.($user ? ",{$user->id}" : ''),
+            'npwp' => 'nullable|string|size:16|unique:users,npwp'.($user ? ",{$user->id}" : ''),
             'password' => $user ? 'nullable|min:8' : 'required|min:8',
-            'no_telepon' => 'nullable|string|max:15|unique:users,no_telepon' . ($user ? ",{$user->id}" : ''),
+            'no_telepon' => 'nullable|string|max:15|unique:users,no_telepon'.($user ? ",{$user->id}" : ''),
             'jenis_kelamin' => 'required|in:P,L',
             'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
@@ -206,7 +223,6 @@ class UserController extends Controller
 
         return $request->validate($rules);
     }
-
 
     /**
      * Handle file uploads for the user.

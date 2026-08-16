@@ -31,7 +31,7 @@ class PotonganController extends Controller
             'nominal' => $request->nominal,
         ]);
 
-        return back()->with('success', 'Potongan berhasil ditambahkan.');
+        return back()->with('success', __('Deduction added.'));
     }
 
     public function edit($id)
@@ -55,7 +55,7 @@ class PotonganController extends Controller
             'nominal' => $request->nominal,
         ]);
 
-        return redirect()->route('payroll.edit', $potongan->id_payroll)->with('success', 'Potongan berhasil diperbarui.');
+        return redirect()->route('payroll.edit', $potongan->id_payroll)->with('success', __('Deduction updated.'));
     }
 
     public function destroy($id)
@@ -64,6 +64,6 @@ class PotonganController extends Controller
         $potongan = Potongan::findOrFail($id);
         $potongan->delete();
 
-        return back()->with('success', 'Potongan berhasil dihapus.');
+        return back()->with('success', __('Deduction removed.'));
     }
 }

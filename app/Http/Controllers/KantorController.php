@@ -32,7 +32,7 @@ class KantorController extends Controller
         $validatedData = $this->validateKantor($request);
 
         Kantor::create($validatedData);
-        return redirect()->route('kantor.index')->with('status', 'Kantor created successfully!');
+        return redirect()->route('kantor.index')->with('status', __('Office created successfully.'));
     }
 
     public function edit(Kantor $kantor)
@@ -52,13 +52,13 @@ class KantorController extends Controller
         $validatedData = $this->validateKantor($request, $kantor->id);
 
         $kantor->update($validatedData);
-        return redirect()->route('kantor.index')->with('status', 'Kantor updated successfully!');
+        return redirect()->route('kantor.index')->with('status', __('Office updated successfully.'));
     }
 
     public function destroy(Kantor $kantor)
     {
         $kantor->delete();
-        return redirect()->route('kantor.index')->with('status', 'Kantor deleted successfully!');
+        return redirect()->route('kantor.index')->with('status', __('Office deleted successfully.'));
     }
 
     private function validateKantor(Request $request, $id = null)

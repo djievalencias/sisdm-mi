@@ -28,7 +28,7 @@ class DepartemenController extends Controller
         ]);
 
         Departemen::create($request->all());
-        return redirect()->route('departemen.index')->with('status', 'Departemen created successfully!');
+        return redirect()->route('departemen.index')->with('status', __('Department created successfully.'));
     }
 
     public function edit(Departemen $departemen)
@@ -45,13 +45,13 @@ class DepartemenController extends Controller
         ]);
 
         $departemen->update($request->all());
-        return redirect()->route('departemen.index')->with('status', 'Departemen updated successfully!');
+        return redirect()->route('departemen.index')->with('status', __('Department updated successfully.'));
     }
 
     public function destroy(Departemen $departemen)
     {
         $departemen->delete();
-        return redirect()->route('departemen.index')->with('status', 'Departemen deleted successfully!');
+        return redirect()->route('departemen.index')->with('status', __('Department deleted successfully.'));
     }
 
     public function getByKantor($id)

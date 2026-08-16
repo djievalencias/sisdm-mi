@@ -33,7 +33,7 @@ class KalenderController extends Controller
 
         $this->generateRecurringEvents($event);
 
-        return redirect()->route('kalender.index')->with('success', 'Event berhasil dibuat!');
+        return redirect()->route('kalender.index')->with('success', __('Event created successfully.'));
     }
 
     // Show details of a single event
@@ -66,14 +66,14 @@ class KalenderController extends Controller
             $this->generateRecurringEvents($kalender, true);
         }
 
-        return redirect()->route('kalender.index')->with('success', 'Event berhasil diperbarui!');
+        return redirect()->route('kalender.index')->with('success', __('Event updated successfully.'));
     }
 
     // Delete event
     public function destroy(Kalender $kalender)
     {
         $kalender->delete();
-        return redirect()->route('kalender.index')->with('success', 'Event berhasil dihapus!');
+        return redirect()->route('kalender.index')->with('success', __('Event deleted successfully.'));
     }
 
     /**

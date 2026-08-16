@@ -18,15 +18,17 @@ class AuthController extends Controller
             'nama' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
-            'device_name' => ['required']
+            'device_name' => ['required'],
         ]);
 
         $data['password'] = Hash::make($request->password);
-        $data['is_admin'] = $request->is_admin ?? false;
+        // public registration can never grant admin
+        $data['is_admin'] = false;
 
         $user = User::create($data);
+        $user->assignRole('employee');
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        if (! Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'message' => 'Email/password salah.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -38,8 +40,8 @@ class AuthController extends Controller
             'message' => 'success',
             'data' => $user,
             'meta' => [
-                'token' => $accessToken
-            ]
+                'token' => $accessToken,
+            ],
         ], Response::HTTP_CREATED);
     }
 
@@ -53,14 +55,13 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if(!$user)
-        {
+        if (! $user) {
             throw ValidationException::withMessages([
                 'message' => ['Email tidak terdaftar.'],
             ]);
         }
 
-        if (empty($user) || !Hash::check($request->password, $user->password)) {
+        if (empty($user) || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'message' => ['Email/password salah.'],
             ]);
@@ -72,16 +73,17 @@ class AuthController extends Controller
             'message' => 'success',
             'data' => $user,
             'meta' => [
-                'token' => $accessToken
-            ]
+                'token' => $accessToken,
+            ],
         ], Response::HTTP_CREATED);
     }
 
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
+
         return response()->json([
-            'message' => 'Log out berhasil.'
+            'message' => 'Log out berhasil.',
         ], Response::HTTP_OK);
     }
 }

@@ -1,32 +1,84 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1 class="text-center mb-4">Detail Permohonan Izin</h1>
-    
-    <div class="card shadow-lg">
-        <div class="card-body">
-            <h5><strong>Nama:</strong> {{ $cutiPerizinan->user->nama }}</h5>
-            <p><strong>Tanggal Mulai:</strong> {{ $cutiPerizinan->tanggal_mulai }}</p>
-            <p><strong>Tanggal Selesai:</strong> {{ $cutiPerizinan->tanggal_selesai }}</p>
-            <p><strong>Keterangan:</strong> {{ $cutiPerizinan->keterangan }}</p>
-            <p><strong>Jenis:</strong> {{ ucfirst($cutiPerizinan->jenis) }}</p>
-            <p><strong>Status Pengajuan:</strong>
-                <span class="badge {{ $cutiPerizinan->status_pengajuan == 'diajukan' ? 'bg-warning' : ($cutiPerizinan->status_pengajuan == 'disetujui' ? 'bg-success' : 'bg-danger') }}">
-                    {{ ucfirst($cutiPerizinan->status_pengajuan) }}
-                </span>
-            </p>
-            <p><strong>Disetujui Oleh:</strong> {{ $cutiPerizinan->disetujuiOleh->nama ?? 'Belum disetujui' }}</p>
-            <p><strong>Surat Izin:</strong> 
-                @if ($cutiPerizinan->surat_izin)
-                    <a href="{{ asset('storage/'.$cutiPerizinan->surat_izin) }}" target="_blank" class="btn btn-primary">Lihat File</a>
-                @else
-                    <span class="text-muted">Tidak ada file</span>
-                @endif
-            </p>
+    <x-page :title="__('Leave Request Details')" :breadcrumb="__('Leave Requests')">
+        <div class="card">
+            <div class="card-body">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>{{ __('Name') }}</th>
+                            <td>{{ $cutiPerizinan->user->nama }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ __('Start Date') }}</th>
+                            <td>{{ $cutiPerizinan->tanggal_mulai }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ __('End Date') }}</th>
+                            <td>{{ $cutiPerizinan->tanggal_selesai }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ __('Notes') }}</th>
+                            <td>{{ $cutiPerizinan->keterangan }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ __('Type') }}</th>
+                            <td>{{ __(ucfirst($cutiPerizinan->jenis)) }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ __('Status') }}</th>
+                            <td>
+                                <span class="si-pill {{ $cutiPerizinan->status_pengajuan == 'diajukan' ? 'amber' : ($cutiPerizinan->status_pengajuan == 'disetujui' ? 'green' : 'red') }}">
+                                    {{ __(ucfirst($cutiPerizinan->status_pengajuan)) }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{{ __('Approved By') }}</th>
+                            <td>{{ $cutiPerizinan->disetujuiOleh->nama ?? __('Not yet approved') }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ __('Supporting Document') }}</th>
+                            <td>
+                                @if ($cutiPerizinan->surat_izin)
+                                    <a href="{{ asset('storage/' . $cutiPerizinan->surat_izin) }}" target="_blank" class="btn btn-sm btn-primary">{{ __('View File') }}</a>
+                                @else
+                                    <span class="text-muted">{{ __('No file') }}</span>
+                                @endif
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <a href="{{ route('cuti-perizinan.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i> {{ __('Back') }}</a>
+                @role('admin')
+                    <a href="{{ route('cuti-perizinan.edit', $cutiPerizinan->id) }}" class="btn btn-warning">{{ __('Edit') }}</a>
+                    <form action="{{ route('cuti-perizinan.destroy', $cutiPerizinan->id) }}" method="POST" class="d-inline"
+                        onsubmit="return confirm('{{ __('Are you sure you want to delete this data?') }}');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">{{ __('Delete') }}</button>
+                    </form>
+                @endrole
+                @can('approve', $cutiPerizinan)
+                    <form action="{{ route('cuti-perizinan.approve', $cutiPerizinan->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-success">{{ __('Approve') }}</button>
+                    </form>
+                    <form action="{{ route('cuti-perizinan.reject', $cutiPerizinan->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-secondary">{{ __('Reject') }}</button>
+                    </form>
+                @endcan
+                @can('undo', $cutiPerizinan)
+                    <form action="{{ route('cuti-perizinan.undo', $cutiPerizinan->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-warning">{{ __('Undo') }}</button>
+                    </form>
+                @endcan
+            </div>
         </div>
-    </div>
-
-    <a href="{{ route('cuti-perizinan.index') }}" class="btn btn-secondary mt-3">Kembali</a>
-</div>
+    </x-page>
 @endsection

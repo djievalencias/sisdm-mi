@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pengumuman;
 use App\Models\DistribusiPengumuman;
+use App\Models\Pengumuman;
 use Illuminate\Http\Request;
 
 class PengumumanController extends Controller
@@ -12,6 +12,7 @@ class PengumumanController extends Controller
     {
         // Ambil data pengumuman dengan distribusi dan creator
         $pengumuman = Pengumuman::with(['distribusi', 'creator', 'updater'])->get();
+
         return view('pages.pengumuman.index', compact('pengumuman'));
     }
 
@@ -19,6 +20,7 @@ class PengumumanController extends Controller
     {
         // Load semua departemen untuk pilihan distribusi
         $departemen = \App\Models\Departemen::all();
+
         return view('pages.pengumuman.create', compact('departemen'));
     }
 
@@ -41,6 +43,12 @@ class PengumumanController extends Controller
         // Buat pengumuman baru
         $pengumuman = Pengumuman::create($validated);
 
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($pengumuman)
+            ->withProperties(['judul' => $pengumuman->judul])
+            ->log('pengumuman.created');
+
         // Tambahkan distribusi ke departemen yang dipilih
         foreach ($validated['departemen'] as $id_departemen) {
             DistribusiPengumuman::create([
@@ -49,7 +57,7 @@ class PengumumanController extends Controller
             ]);
         }
 
-        return redirect()->route('pengumuman.index')->with('success', 'Pengumuman berhasil dibuat.');
+        return redirect()->route('pengumuman.index')->with('success', __('Announcement created successfully.'));
     }
 
     public function edit(Pengumuman $pengumuman)
@@ -89,17 +97,23 @@ class PengumumanController extends Controller
             ]);
         }
 
-        return redirect()->route('pengumuman.index')->with('success', 'Pengumuman berhasil diperbarui.');
+        return redirect()->route('pengumuman.index')->with('success', __('Announcement updated successfully.'));
     }
 
     public function destroy(Pengumuman $pengumuman)
     {
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($pengumuman)
+            ->withProperties(['judul' => $pengumuman->judul])
+            ->log('pengumuman.deleted');
+
         // Hapus distribusi terkait
         DistribusiPengumuman::where('id_pengumuman', $pengumuman->id)->delete();
 
         // Hapus pengumuman
         $pengumuman->delete();
 
-        return redirect()->route('pengumuman.index')->with('success', 'Pengumuman berhasil dihapus.');
+        return redirect()->route('pengumuman.index')->with('success', __('Announcement deleted successfully.'));
     }
 }

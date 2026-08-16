@@ -4,19 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\CutiPerizinan;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\Notifications\LeaveRequestSubmitted;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Storage;
 
 class CutiPerizinanController extends Controller
 {
-
     public function getAllPermohonan()
     {
         $cutiPerizinans = CutiPerizinan::with('user')->orderBy('created_at', 'desc')->get();
+
         return response()->json($cutiPerizinans);
     }
 
@@ -24,27 +23,26 @@ class CutiPerizinanController extends Controller
     {
         $cutiPerizinan = CutiPerizinan::with('user')->find($id);
 
-        if (!$cutiPerizinan) {
+        if (! $cutiPerizinan) {
             return response()->json(['message' => 'Permohonan tidak ditemukan'], 404);
         }
 
         return response()->json($cutiPerizinan);
     }
 
-
     //  TASK: API BELOM BISA UPDATE TOLONG PERBAIKI!
-    public function update(Request $request, $id): JsonResponse 
+    public function update(Request $request, $id): JsonResponse
     {
         // Debug untuk melihat data yang diterima
         Log::info('Raw request:', $request->all());
-        
+
         $cutiPerizinan = CutiPerizinan::find($id);
-        if (!$cutiPerizinan) {
+        if (! $cutiPerizinan) {
             return response()->json([
                 'message' => 'Data permohonan izin tidak ditemukan.',
             ], 404);
         }
-    
+
         // Ambil data yang ada dari request
         $updateData = array_filter([
             'id_user' => $request->input('id_user', $cutiPerizinan->id_user),
@@ -52,32 +50,30 @@ class CutiPerizinanController extends Controller
             'tanggal_selesai' => $request->input('tanggal_selesai', $cutiPerizinan->tanggal_selesai),
             'keterangan' => $request->input('keterangan', $cutiPerizinan->keterangan),
             'jenis' => $request->input('jenis', $cutiPerizinan->jenis),
-        ], function($value) {
-            return !is_null($value);
+        ], function ($value) {
+            return ! is_null($value);
         });
-    
+
         // Update data
         $cutiPerizinan->update($updateData);
-    
+
         // Handle file upload jika ada
         if ($request->hasFile('surat_izin')) {
             // Hapus file lama jika ada
             if ($cutiPerizinan->surat_izin) {
                 Storage::disk('public')->delete($cutiPerizinan->surat_izin);
             }
-            
+
             $filePath = $request->file('surat_izin')->store('surat_izin', 'public');
             $cutiPerizinan->surat_izin = $filePath;
             $cutiPerizinan->save();
         }
-    
+
         return response()->json([
             'message' => 'Data permohonan izin berhasil diperbarui.',
-            'data' => $cutiPerizinan->fresh()
+            'data' => $cutiPerizinan->fresh(),
         ], 200);
     }
-
-
 
     public function store(Request $request)
     {
@@ -106,6 +102,12 @@ class CutiPerizinanController extends Controller
             'status_pengajuan' => 'diajukan',
             'surat_izin' => $filePath, // Simpan path file dalam database
         ]);
+
+        // Beri tahu atasan pemohon (jika ada) bahwa ada permohonan baru
+        $atasan = $cutiPerizinan->user->atasan;
+        if ($atasan?->email) {
+            $atasan->notify(new LeaveRequestSubmitted($cutiPerizinan));
+        }
 
         return response()->json($cutiPerizinan, 201);
     }

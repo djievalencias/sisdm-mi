@@ -2,23 +2,38 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class GrupSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        $departemenMap = DB::table('departemen')->pluck('id', 'nama');
-        $grupData = [
-            ['nama' => 'F. Putih', 'id_departemen' => $departemenMap['Produksi'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['nama' => 'Preparation', 'id_departemen' => $departemenMap['PPIC'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['nama' => 'Staff', 'id_departemen' => $departemenMap['Produksi'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['nama' => 'Amplas', 'id_departemen' => $departemenMap['Produksi'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['nama' => 'Staff', 'id_departemen' => $departemenMap['QC'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+        $departemen = DB::table('departemen')->pluck('id', 'nama');
+        $now = Carbon::now();
+
+        $rows = [
+            ['Produksi',   'Rangka'],
+            ['Produksi',   'Amplas'],
+            ['Produksi',   'Perakitan'],
+            ['Finishing',  'F. Putih'],
+            ['Finishing',  'F. Warna'],
+            ['QC',         'Inspeksi'],
+            ['PPIC',       'Preparation'],
+            ['PPIC',       'Penjadwalan'],
+            ['Gudang',     'Bahan Baku'],
+            ['Gudang',     'Barang Jadi'],
+            ['HRGA',       'Staff HRGA'],
+            ['Marketing',  'Staff Marketing'],
+            ['Purchasing', 'Staff Purchasing'],
         ];
-        
-        DB::table('grup')->insert($grupData);
+
+        DB::table('grup')->insert(array_map(fn ($r) => [
+            'id_departemen' => $departemen[$r[0]],
+            'nama'          => $r[1],
+            'created_at'    => $now,
+            'updated_at'    => $now,
+        ], $rows));
     }
 }

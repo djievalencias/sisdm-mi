@@ -2,8 +2,12 @@
 
 @section('content')
     <div class="login-box">
-        <div class="login-logo">
-            <a href="#"><b>Attendance</b>Live</a>
+        <div class="si-login-brand">
+            <img src="{{ asset('assets/img/logo-full.png') }}" alt="Mebel International" class="si-login-logo">
+            <div>
+                <p class="si-login-title">{{ __('HRIS') }}</p>
+                <p class="si-login-sub">{{ __('Human Resource Information System') }}</p>
+            </div>
         </div>
         <!-- /.login-logo -->
         <div class="card">
@@ -13,7 +17,7 @@
             </div>
             @endif
             <div class="card-body login-card-body">
-                <p class="login-box-msg">You forgot your password? Here you can easily retrieve a new password.</p>
+                <p class="login-box-msg">{{ __('Forgot your password? Enter your email and we will send you a reset link.') }}</p>
 
                 <form method="POST" action="{{ route('password.email') }}">
                     @csrf
@@ -33,14 +37,14 @@
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            <button type="submit" class="btn btn-primary btn-block">Request new password</button>
+                            <button type="submit" class="btn btn-primary btn-block">{{ __('Send password reset link') }}</button>
                         </div>
                         <!-- /.col -->
                     </div>
                 </form>
 
                 <p class="mt-3 mb-1">
-                    <a href="{{ url('login') }}">Login</a>
+                    <a href="{{ route('login') }}">{{ __('Back to sign in') }}</a>
                 </p>
             </div>
             <!-- /.login-card-body -->

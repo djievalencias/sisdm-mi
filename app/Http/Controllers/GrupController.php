@@ -28,7 +28,7 @@ class GrupController extends Controller
         ]);
 
         Grup::create($request->all());
-        return redirect()->route('grup.index')->with('status', 'Grup created successfully!');
+        return redirect()->route('grup.index')->with('status', __('Group created successfully.'));
     }
 
     public function edit(Grup $grup)
@@ -45,13 +45,13 @@ class GrupController extends Controller
         ]);
 
         $grup->update($request->all());
-        return redirect()->route('grup.index')->with('status', 'Grup updated successfully!');
+        return redirect()->route('grup.index')->with('status', __('Group updated successfully.'));
     }
 
     public function destroy(Grup $grup)
     {
         $grup->delete();
-        return redirect()->route('grup.index')->with('status', 'Grup deleted successfully!');
+        return redirect()->route('grup.index')->with('status', __('Group deleted successfully.'));
     }
 
     public function getByDepartemen($id)

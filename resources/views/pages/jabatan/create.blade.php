@@ -1,41 +1,38 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="content-header">
-    <div class="container-fluid">
-        <h1>Add Jabatan</h1>
-    </div>
-</div>
-
-<section class="content">
-    <div class="container-fluid">
-        <a href="{{ route('jabatan.index') }}" class="btn btn-secondary mb-3">Back</a>
-
+    <x-page :title="__('Add Position')" :breadcrumb="__('Positions')">
         <div class="card">
-            <div class="card-body">
-                <form action="{{ route('jabatan.store') }}" method="POST">
-                    @csrf
+            <form action="{{ route('jabatan.store') }}" method="POST">
+                @csrf
+                <div class="card-body">
                     <div class="form-group">
-                        <label for="nama">Nama</label>
-                        <input type="text" name="nama" class="form-control" required>
+                        <label for="nama">{{ __('Name') }} <span class="text-danger">*</span></label>
+                        <input type="text" name="nama" id="nama" class="form-control @error('nama') is-invalid @enderror"
+                            value="{{ old('nama') }}" required>
+                        @error('nama')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="form-group">
-                        <label for="id_grup">Grup</label>
-                        <select name="id_grup" class="form-control">
-                            <option value="">Select Grup</option>
+                        <label for="id_grup">{{ __('Group') }}</label>
+                        <select name="id_grup" id="id_grup" class="form-control @error('id_grup') is-invalid @enderror">
+                            <option value="">{{ __('Select Group') }}</option>
                             @foreach ($grup as $g)
-                            <option value="{{ $g->id }}">{{ $g->nama }}</option>
+                                <option value="{{ $g->id }}" {{ old('id_grup') == $g->id ? 'selected' : '' }}>{{ $g->nama }}</option>
                             @endforeach
                         </select>
+                        @error('id_grup')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="form-group">
-                        <label for="description">Description</label>
-                        <textarea name="description" class="form-control"></textarea>
+                        <label for="description">{{ __('Description') }}</label>
+                        <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror">{{ old('description') }}</textarea>
+                        @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-            </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
+                    <a href="{{ route('jabatan.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                </div>
+            </form>
         </div>
-    </div>
-</section>
+    </x-page>
 @endsection

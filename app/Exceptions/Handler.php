@@ -26,6 +26,29 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+
+        // spatie's role middleware throws 403 where the old IsAdmin middleware
+        // redirected; keep the redirect behavior for browser requests
+        $this->renderable(function (\Spatie\Permission\Exceptions\UnauthorizedException $e, $request) {
+            if (! $request->expectsJson()) {
+                return redirect('/home');
+            }
+        });
+
+        // Policy denials (e.g. CutiPerizinanPolicy) flash an error instead of
+        // rendering a bare 403 page in the browser.
+        $this->renderable(function (\Illuminate\Auth\Access\AuthorizationException $e, $request) {
+            if (! $request->expectsJson()) {
+                // Never bounce back to the URL that was just denied — that
+                // would loop. Otherwise back() (falls through to "/" → /home
+                // when there is no referer).
+                $target = url()->previous() === $request->fullUrl()
+                    ? redirect('/home')
+                    : redirect()->back();
+
+                return $target->with('error', __('You are not allowed to perform this action.'));
+            }
+        });
     }
 
     public function render($request, Throwable $exception)

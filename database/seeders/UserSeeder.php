@@ -91,5 +91,13 @@ class UserSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
         ]);
+
+        // ---- bulk demo employees (ids 4+) ----
+        \App\Models\User::factory()->count(30)->create();
+        \App\Models\User::factory()->count(2)->archived()->create();
+
+        // light org realism: everyone reports to one of the three named users
+        \App\Models\User::where('id', '>', 3)->get()
+            ->each(fn ($u) => $u->update(['id_atasan' => [1, 2, 3][$u->id % 3]]));
     }
 }

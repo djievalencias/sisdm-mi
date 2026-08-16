@@ -1,60 +1,50 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="content-header">
-        <div class="container-fluid">
-            <h1>Kantor</h1>
-        </div>
-    </div>
+    <x-page :title="__('Offices')">
 
-    <section class="content">
-        <div class="container-fluid">
-            <a href="{{ route('user.index') }}" class="btn btn-sm btn-primary mb-2">Back</a>
-            <a href="{{ route('kantor.create') }}" class="btn btn-sm btn-primary mb-2">Add Kantor</a>
+        @include('layouts._toolbar', ['tabs' => 'user_cluster', 'create_url' => route('kantor.create'), 'create_label' => __('Add Office')])
 
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">List of Kantor</h3>
-                </div>
-                <div class="card-body">
-                    <table class="table table-bordered">
-                        <thead>
+        <div class="card">
+            <div class="card-body">
+                <table class="table si-datatable">
+                    <thead>
+                        <tr>
+                            <th>{{ __('ID') }}</th>
+                            <th>{{ __('Name') }}</th>
+                            <th>{{ __('Address') }}</th>
+                            <th>{{ __('Coordinates') }}</th>
+                            <th>{{ __('Radius') }}</th>
+                            <th>{{ __('Manager') }}</th>
+                            <th class="no-sort">{{ __('Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($kantor as $item)
                             <tr>
-                                <th>ID</th>
-                                <th>Nama</th>
-                                <th>Alamat</th>
-                                <th>Koordinat</th>
-                                <th>Radius</th>
-                                <th>Manager</th>
-                                <th>Action</th>
+                                <td>{{ $item->id }}</td>
+                                <td>{{ $item->nama }}</td>
+                                <td>{{ $item->alamat }}</td>
+                                <td>{{ $item->koordinat_x }}, {{ $item->koordinat_y }}</td>
+                                <td>{{ $item->radius }}</td>
+                                <td>{{ $item->manager->nama ?? '-' }}</td>
+                                <td>
+                                    <a href="{{ route('kantor.edit', $item->id) }}"
+                                        class="btn btn-sm btn-warning">{{ __('Edit') }}</a>
+                                    <form action="{{ route('kantor.destroy', $item->id) }}" method="POST"
+                                        style="display: inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('{{ __('Are you sure you want to delete this data?') }}')">{{ __('Delete') }}</button>
+                                    </form>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($kantor as $item)
-                                <tr>
-                                    <td>{{ $item->id }}</td>
-                                    <td>{{ $item->nama }}</td>
-                                    <td>{{ $item->alamat }}</td>
-                                    <td>{{ $item->koordinat_x }}, {{ $item->koordinat_y }}</td>
-                                    <td>{{ $item->radius }}</td>
-                                    <td>{{ $item->manager->nama ?? '-' }}</td> <!-- Display manager name -->
-                                    <td>
-                                        <a href="{{ route('kantor.edit', $item->id) }}"
-                                            class="btn btn-sm btn-warning">Edit</a>
-                                        <form action="{{ route('kantor.destroy', $item->id) }}" method="POST"
-                                            style="display: inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Delete this Kantor?')">Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
-    </section>
+
+    </x-page>
 @endsection

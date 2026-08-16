@@ -3,111 +3,77 @@
 namespace Database\Seeders;
 
 use App\Models\Attendance;
+use App\Models\Kalender;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 class AttendanceSeeder extends Seeder
 {
-    public function run()
+    /**
+     * ~2 months of weekday history for every active employee, plus today:
+     * 20 present, 8 of whom have not clocked out — so the dashboard stats
+     * are non-zero on any calendar day.
+     */
+    public function run(): void
     {
-        $this->seedUser1();
-        $this->seedUser2();
-    }
+        mt_srand(20260101);
 
-    private function seedUser1()
-    {
-        $userId = 1;
-        $shiftStartTime = Carbon::createFromTimeString('07:00:00');
-        $shiftEndTime = Carbon::createFromTimeString('15:00:00');
-        $workHours = $shiftEndTime->diffInHours($shiftStartTime);
+        $holidaySet = Kalender::where('tipe', 'hari_libur')
+            ->pluck('tanggal_mulai')
+            ->map(fn ($d) => Carbon::parse($d)->toDateString())
+            ->flip();
 
-        $workDays = 0;
-        $currentDate = Carbon::now()->startOfMonth();
+        $userIds = User::where('is_admin', false)->where('is_archived', false)->pluck('id');
+        $now = Carbon::now();
+        $rows = [];
 
-        while ($workDays < 25) {
-            if (!$currentDate->isWeekend()) {
-                Attendance::updateOrCreate(
-                    [
-                        'id_user' => $userId,
-                        'tanggal' => $currentDate->toDateString(),
-                    ],
-                    [
-                        'status' => true,
-                        'hari_kerja' => $workHours / 8,
-                        'jumlah_jam_lembur' => 0,
-                        'is_tanggal_merah' => false,
-                    ]
-                );
-                $workDays++;
+        $row = function (int $uid, Carbon $date, bool $status, float $hariKerja, int $lembur, bool $merah) use ($now) {
+            return [
+                'id_user'           => $uid,
+                'tanggal'           => $date->toDateString(),
+                'status'            => $status,
+                'hari_kerja'        => $hariKerja,
+                'jumlah_jam_lembur' => $lembur,
+                'is_tanggal_merah'  => $merah,
+                'created_at'        => $now,
+                'updated_at'        => $now,
+            ];
+        };
+
+        // 1) history: weekdays up to YESTERDAY
+        $date = Carbon::today()->subDays(62);
+        while ($date->lt(Carbon::today())) {
+            if (!$date->isWeekend()) {
+                $isHoliday = $holidaySet->has($date->toDateString());
+
+                foreach ($userIds as $uid) {
+                    if ($isHoliday) {
+                        if (rand(1, 100) <= 20) { // some work the holiday, with the holiday-pay flag
+                            $rows[] = $row($uid, $date->copy(), true, 1.00, rand(2, 4), true);
+                        }
+                        continue;
+                    }
+                    if (rand(1, 100) <= 8) { // absent
+                        continue;
+                    }
+                    $lembur = rand(1, 100) <= 15 ? rand(1, 3) : 0;
+                    $hariKerja = rand(1, 100) <= 90 ? 1.00 : 0.75; // occasional late clock-in
+                    $rows[] = $row($uid, $date->copy(), true, $hariKerja, $lembur, false);
+                }
             }
-            $currentDate->addDay();
-        }
-    }
-
-    private function seedUser2()
-    {
-        $userId = 2;
-        $shiftStartTime = Carbon::createFromTimeString('15:00:00');
-        $shiftEndTime = Carbon::createFromTimeString('23:00:00');
-        $workHours = $shiftEndTime->diffInHours($shiftStartTime);
-
-        $currentDate = Carbon::now()->startOfMonth()->addWeek(); // Start a week into the month
-
-        // Seed 5 holiday working days with random overtime
-        for ($i = 0; $i < 5; $i++) {
-            $randomOvertime = rand(2, 4);
-
-            // Ensure no duplicate entry by using updateOrCreate
-            Attendance::updateOrCreate(
-                [
-                    'id_user' => $userId,
-                    'tanggal' => $currentDate->toDateString(),
-                ],
-                [
-                    'status' => true,
-                    'hari_kerja' => $workHours / 8,
-                    'jumlah_jam_lembur' => $randomOvertime,
-                    'is_tanggal_merah' => true,
-                ]
-            );
-
-            // Move to the next working day (skip weekends)
-            do {
-                $currentDate->addDay();
-            } while ($currentDate->isWeekend());
+            $date->addDay();
         }
 
-        // Seed 20 regular working days on her shift (no overtime or holidays)
-        $regularWorkDays = 0;
-        $currentDate = Carbon::now()->startOfMonth(); // Reset to the start of the month
-
-        while ($regularWorkDays < 20) {
-            if (!$currentDate->isWeekend() && !$this->isHoliday($currentDate)) {
-                Attendance::updateOrCreate(
-                    [
-                        'id_user' => $userId,
-                        'tanggal' => $currentDate->toDateString(),
-                    ],
-                    [
-                        'status' => true,
-                        'hari_kerja' => $workHours / 8,
-                        'jumlah_jam_lembur' => 0,
-                        'is_tanggal_merah' => false,
-                    ]
-                );
-                $regularWorkDays++;
-            }
-            $currentDate->addDay();
+        // 2) today: 20 present, first 12 already clocked out, 8 still in
+        $today = Carbon::today();
+        $todayMerah = $today->isWeekend() || $holidaySet->has($today->toDateString());
+        foreach ($userIds->take(20)->values() as $i => $uid) {
+            $rows[] = $row($uid, $today, $i < 12, 1.00, 0, $todayMerah);
         }
-    }
 
-    // Helper function to simulate holidays
-    private function isHoliday(Carbon $date)
-    {
-        $holidays = [
-            Carbon::now()->startOfMonth()->addDays(10)->toDateString(), // Example holiday
-            Carbon::now()->startOfMonth()->addDays(15)->toDateString(), // Example holiday
-        ];
-        return in_array($date->toDateString(), $holidays);
+        foreach (array_chunk($rows, 500) as $chunk) {
+            Attendance::insert($chunk);
+        }
     }
 }

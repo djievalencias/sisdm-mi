@@ -1,63 +1,62 @@
-{{-- resources/views/attendance/index.blade.php --}}
-@extends('layouts.app') 
-{{-- layouts.app adalah layout utama Anda, sesuaikan dengan layout yang tersedia --}}
+@extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1>Daftar Attendance</h1>
-    <a href="{{ route('attendance.create') }}" class="btn btn-primary">Buat Attendance Baru</a>
+    <x-page :title="__('Attendance')">
 
-    @if (session('success'))
-        <div class="alert alert-success mt-2">{{ session('success') }}</div>
-    @endif
+        @include('layouts._toolbar', [
+            'create_url' => route('attendance.create'),
+            'create_label' => __('Add Attendance'),
+            'filter_action' => route('attendance.index'),
+            'filters' => [
+                ['type' => 'select', 'name' => 'id_user', 'label' => __('Employee'), 'options' => $users->pluck('nama', 'id')],
+                ['type' => 'date', 'name' => 'from', 'label' => __('From')],
+                ['type' => 'date', 'name' => 'to', 'label' => __('To')],
+                ['type' => 'select', 'name' => 'status', 'label' => __('Clocked out?'), 'options' => ['0' => __('Not yet'), '1' => __('Checked out')]],
+                ['type' => 'select', 'name' => 'is_tanggal_merah', 'label' => __('Holiday?'), 'options' => ['0' => __('No'), '1' => __('Yes')]],
+            ],
+        ])
 
-    @if (session('error'))
-        <div class="alert alert-danger mt-2">{{ session('error') }}</div>
-    @endif
+        <div class="card">
+            <div class="card-body">
+                <table class="table si-datatable">
+                    <thead>
+                        <tr>
+                            <th>{{ __('ID') }}</th>
+                            <th>{{ __('Employee') }}</th>
+                            <th>{{ __('Date') }}</th>
+                            <th>{{ __('Clocked out?') }}</th>
+                            <th>{{ __('Workdays') }}</th>
+                            <th>{{ __('Overtime Hours') }}</th>
+                            <th>{{ __('Holiday?') }}</th>
+                            <th class="no-sort">{{ __('Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($attendances as $attendance)
+                            <tr>
+                                <td>{{ $attendance->id }}</td>
+                                <td>{{ $attendance->user->nama ?? __('No User') }}</td>
+                                <td>{{ $attendance->tanggal->format('Y-m-d H:i:s') }}</td>
+                                <td>{{ $attendance->status ? __('Checked out') : __('Not yet') }}</td>
+                                <td>{{ $attendance->hari_kerja }}</td>
+                                <td>{{ $attendance->jumlah_jam_lembur }}</td>
+                                <td>{{ $attendance->is_tanggal_merah ? __('Yes') : __('No') }}</td>
+                                <td>
+                                    <a href="{{ route('attendance.show', $attendance->id) }}" class="btn btn-sm btn-info">{{ __('Detail') }}</a>
+                                    <a href="{{ route('attendance.edit', $attendance->id) }}" class="btn btn-sm btn-warning">{{ __('Edit') }}</a>
+                                    <form action="{{ route('attendance.destroy', $attendance->id) }}" method="POST" style="display:inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('{{ __('Are you sure you want to delete this data?') }}')">{{ __('Delete') }}</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-    <table class="table table-bordered mt-3">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nama User</th>
-                <th>Tanggal</th>
-                <th>Status (checkout?)</th>
-                <th>Hari Kerja</th>
-                <th>Jam Lembur</th>
-                <th>Tgl Merah?</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($attendances as $attendance)
-                <tr>
-                    <td>{{ $attendance->id }}</td>
-                    <td>{{ $attendance->user->nama ?? 'No User' }}</td>
-                    <td>{{ $attendance->tanggal->format('Y-m-d H:i:s') }}</td>
-                    <td>{{ $attendance->status ? 'Sudah Check Out' : 'Belum' }}</td>
-                    <td>{{ $attendance->hari_kerja }}</td>
-                    <td>{{ $attendance->jumlah_jam_lembur }}</td>
-                    <td>{{ $attendance->is_tanggal_merah ? 'Ya' : 'Tidak' }}</td>
-                    <td>
-                        <a href="{{ route('attendance.show', $attendance->id) }}" class="btn btn-sm btn-info">Detail</a>
-                        <a href="{{ route('attendance.edit', $attendance->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                        <form action="{{ route('attendance.destroy', $attendance->id) }}" method="POST" style="display:inline-block">
-                            @csrf 
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger" 
-                                onclick="return confirm('Yakin hapus?')">
-                                Hapus
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="8">Belum ada data Attendance.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-
-</div>
+    </x-page>
 @endsection

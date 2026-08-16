@@ -51,16 +51,12 @@ class ShiftController extends Controller
 
         Shift::create($validated);
 
-        return redirect()->route('shift.index')->with('success', 'Shift created successfully.');
+        return redirect()->route('shift.index')->with('success', __('Shift created successfully.'));
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Shift $shift)
-    {
-        return view('pages.shift.show', compact('shift'));
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -93,7 +89,7 @@ class ShiftController extends Controller
 
         $shift->update($validated);
 
-        return redirect()->route('shift.index')->with('success', 'Shift updated successfully.');
+        return redirect()->route('shift.index')->with('success', __('Shift updated successfully.'));
     }
 
     /**
@@ -103,7 +99,7 @@ class ShiftController extends Controller
     {
         $shift->delete();
 
-        return redirect()->route('shift.index')->with('success', 'Shift deleted successfully.');
+        return redirect()->route('shift.index')->with('success', __('Shift deleted successfully.'));
     }
 
     /**
@@ -112,7 +108,7 @@ class ShiftController extends Controller
     public function assignForm($shiftId)
     {
         $shift = Shift::findOrFail($shiftId);
-        $users = User::all(); // Fetch all users to select from
+        $users = User::where('is_archived', false)->orderBy('nama')->get();
         $assignedUsers = PenjadwalanShift::where('id_shift', $shiftId)->pluck('id_user')->toArray();
 
         return view('pages.shift.assign', compact('shift', 'users', 'assignedUsers'));
@@ -159,9 +155,9 @@ class ShiftController extends Controller
 
         if ($assignment) {
             $assignment->delete();
-            return redirect()->back()->with('success', 'User unassigned from shift successfully.');
+            return redirect()->back()->with('success', __('Employee removed from shift.'));
         }
 
-        return redirect()->back()->with('error', 'User is not assigned to this shift.');
+        return redirect()->back()->with('error', __('Employee is not assigned to this shift.'));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,26 +13,28 @@ class Payroll extends Model
     protected $table = 'payroll';
 
     protected $fillable = [
-        'id_user', 
-        'tanggal_payroll', 
-        'gaji_pokok', 
-        'upah_lembur', 
-        'gaji_tgl_merah', 
-        'upah_lembur_tgl_merah', 
-        'iuran_bpjs_kantor', 
-        'iuran_bpjs_karyawan', 
-        'take_home_pay', 
-        'is_reviewed', 
-        'reviewed_by', 
-        'reviewed_at', 
+        'id_user',
+        'tanggal_payroll',
+        'gaji_pokok',
+        'upah_lembur',
+        'gaji_tgl_merah',
+        'upah_lembur_tgl_merah',
+        'iuran_bpjs_kantor',
+        'iuran_bpjs_karyawan',
+        'take_home_pay',
+        'is_reviewed',
+        'reviewed_by',
+        'reviewed_at',
         'status_pembayaran',
-        'dibayar_at', 
+        'dibayar_at',
     ];
 
     protected $casts = [
         'tanggal_payroll' => 'date',
         'is_reviewed' => 'boolean',
         'status_pembayaran' => 'boolean',
+        'reviewed_at' => 'datetime',
+        'dibayar_at' => 'datetime',
     ];
 
     public function user()

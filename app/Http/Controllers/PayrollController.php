@@ -4,18 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Payroll;
-use App\Models\Tunjangan;
 use App\Models\Potongan;
+use App\Models\Tunjangan;
 use App\Models\User;
+use App\Notifications\PayslipPaid;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class PayrollController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $payrolls = Payroll::with('user')->get();
-        return view('pages.payroll.index', compact('payrolls'));
+        $payrolls = Payroll::with('user')
+            ->when($request->filled('id_user'), fn ($q) => $q->where('id_user', $request->input('id_user')))
+            ->when($request->filled('is_reviewed'), fn ($q) => $q->where('is_reviewed', (bool) $request->input('is_reviewed')))
+            ->when($request->filled('status_pembayaran'), fn ($q) => $q->where('status_pembayaran', (bool) $request->input('status_pembayaran')))
+            ->when(preg_match('/^\d{4}-\d{2}$/', (string) $request->input('month')), function ($q) use ($request) {
+                [$year, $month] = explode('-', $request->input('month'));
+                $q->whereYear('tanggal_payroll', $year)->whereMonth('tanggal_payroll', $month);
+            })
+            ->get();
+
+        $users = User::where('is_archived', false)->orderBy('nama')->get(['id', 'nama']);
+
+        return view('pages.payroll.index', compact('payrolls', 'users'));
     }
 
     public function review($id)
@@ -31,7 +45,8 @@ class PayrollController extends Controller
 
     public function create()
     {
-        $users = User::all();
+        $users = User::where('is_archived', false)->orderBy('nama')->get();
+
         return view('pages.payroll.create', compact('users'));
     }
 
@@ -55,9 +70,15 @@ class PayrollController extends Controller
             'take_home_pay' => 'nullable|numeric',
         ]);
 
-        Payroll::create($request->all());
+        $payroll = Payroll::create($request->all());
 
-        return redirect()->route('payroll.index')->with('success', 'Payroll berhasil dibuat.');
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($payroll)
+            ->withProperties(['id_user' => $payroll->id_user, 'tanggal_payroll' => $payroll->tanggal_payroll->format('Y-m-d'), 'take_home_pay' => $payroll->take_home_pay])
+            ->log('payroll.created');
+
+        return redirect()->route('payroll.index')->with('success', __('Payroll created successfully.'));
     }
 
     public function edit($id)
@@ -65,12 +86,13 @@ class PayrollController extends Controller
         $payroll = Payroll::findOrFail($id);
 
         if ($payroll->is_reviewed) {
-            return redirect()->route('payroll.index')->with('error', 'Payroll yang sudah direview tidak dapat diedit.');
+            return redirect()->route('payroll.index')->with('error', __('A reviewed payroll can no longer be edited.'));
         }
 
-        $users = User::all();
+        $users = User::where('is_archived', false)->orderBy('nama')->get();
         $tunjangan = Tunjangan::where('id_payroll', $id)->get();
         $potongan = Potongan::where('id_payroll', $id)->get();
+
         return view('pages.payroll.edit', compact('payroll', 'users', 'tunjangan', 'potongan'));
     }
 
@@ -122,14 +144,29 @@ class PayrollController extends Controller
             'take_home_pay' => $finalTakeHomePay,
         ]);
 
-        return redirect()->route('payroll.index')->with('success', 'Payroll berhasil diperbarui.');
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($payroll)
+            ->withProperties(['changed' => array_keys($payroll->getChanges())])
+            ->log('payroll.updated');
+
+        return redirect()->route('payroll.index')->with('success', __('Payroll updated successfully.'));
     }
 
     public function destroy($id)
     {
         $payroll = Payroll::findOrFail($id);
+
+        // Log before deleting so the properties capture what is being removed.
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($payroll)
+            ->withProperties(['id_user' => $payroll->id_user, 'tanggal_payroll' => $payroll->tanggal_payroll->format('Y-m-d'), 'take_home_pay' => $payroll->take_home_pay])
+            ->log('payroll.deleted');
+
         $payroll->delete();
-        return redirect()->route('payroll.index')->with('success', 'Payroll berhasil dihapus.');
+
+        return redirect()->route('payroll.index')->with('success', __('Payroll deleted successfully.'));
     }
 
     public function calculatePayroll(Request $request)
@@ -138,7 +175,7 @@ class PayrollController extends Controller
         $tanggal_payroll = $request->input('tanggal_payroll');
         $UMK = $request->input('umk');
 
-        if (!$id_user || !$tanggal_payroll || !$UMK) {
+        if (! $id_user || ! $tanggal_payroll || ! $UMK) {
             return response()->json(['error' => 'Missing required inputs'], 400);
         }
 
@@ -158,7 +195,7 @@ class PayrollController extends Controller
             $total_hari_kerja += $attendance->hari_kerja;
 
             if ($attendance->jumlah_jam_lembur) {
-                if ($attendance->is_tanggal_merah || !$attendance->status) {
+                if ($attendance->is_tanggal_merah || ! $attendance->status) {
                     $total_upah_lembur_tgl_merah += ($gaji_per_hari / 7) * 2 * $attendance->jumlah_jam_lembur;
                 } else {
                     $total_jam_lembur += $attendance->jumlah_jam_lembur;
@@ -194,26 +231,65 @@ class PayrollController extends Controller
     {
         $payroll = Payroll::findOrFail($id);
 
-        // Update payroll review status
+        if ($payroll->is_reviewed) {
+            return redirect()->route('payroll.index')->with('error', __('Payroll is already reviewed.'));
+        }
+
         $payroll->update([
             'is_reviewed' => true,
             'reviewed_by' => auth()->user()->id,
             'reviewed_at' => now(),
         ]);
 
-        return redirect()->route('payroll.index')->with('success', 'Payroll berhasil ditandai sudah direview.');
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($payroll)
+            ->withProperties(['id_user' => $payroll->id_user, 'tanggal_payroll' => $payroll->tanggal_payroll->format('Y-m-d')])
+            ->log('payroll.reviewed');
+
+        return redirect()->route('payroll.index')->with('success', __('Payroll marked as reviewed.'));
     }
 
     public function markAsPaid($id)
     {
-        $payroll = Payroll::findOrFail($id);
+        $payroll = Payroll::with(['user', 'reviewer', 'tunjangan', 'potongan'])->findOrFail($id);
 
-        // Mark payroll as paid
+        if (! $payroll->is_reviewed) {
+            return redirect()->route('payroll.index')->with('error', __('Payroll must be reviewed before it can be marked as paid.'));
+        }
+
+        if ($payroll->status_pembayaran) {
+            return redirect()->route('payroll.index')->with('error', __('Payroll is already marked as paid.'));
+        }
+
         $payroll->update([
             'status_pembayaran' => true,
             'dibayar_at' => now(),
         ]);
 
-        return redirect()->route('payroll.index')->with('success', 'Payroll berhasil ditandai sudah dibayar.');
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($payroll)
+            ->withProperties(['id_user' => $payroll->id_user, 'tanggal_payroll' => $payroll->tanggal_payroll->format('Y-m-d'), 'take_home_pay' => $payroll->take_home_pay])
+            ->log('payroll.paid');
+
+        if ($payroll->user->email) {
+            $payroll->user->notify(new PayslipPaid($payroll));
+        }
+
+        return redirect()->route('payroll.index')->with('success', __('Payroll marked as paid.'));
+    }
+
+    public function downloadSlip($id)
+    {
+        $payroll = Payroll::with(['user', 'reviewer', 'tunjangan', 'potongan'])->findOrFail($id);
+
+        if (! $payroll->is_reviewed) {
+            return redirect()->route('payroll.index')->with('error', __('Payslip is only available after review.'));
+        }
+
+        $filename = 'payslip-'.Str::slug($payroll->user->nama).'-'.$payroll->tanggal_payroll->format('Y-m').'.pdf';
+
+        return Pdf::loadView('pages.payroll.slip', compact('payroll'))->download($filename);
     }
 }

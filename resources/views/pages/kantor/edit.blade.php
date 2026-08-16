@@ -1,55 +1,59 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="content-header">
-    <div class="container-fluid">
-        <h1>Edit Kantor</h1>
-    </div>
-</div>
-
-<section class="content">
-    <div class="container-fluid">
-        <a href="{{ route('kantor.index') }}" class="btn btn-secondary mb-3">Back</a>
-
+    <x-page :title="__('Edit Office')" :breadcrumb="__('Offices')">
         <div class="card">
-            <div class="card-body">
-                <form action="{{ route('kantor.update', $kantor->id) }}" method="POST">
-                    @csrf
-                    @method('PUT')
+            <form action="{{ route('kantor.update', $kantor->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="card-body">
                     <div class="form-group">
-                        <label for="nama">Nama</label>
-                        <input type="text" name="nama" class="form-control" value="{{ $kantor->nama }}" required>
+                        <label for="nama">{{ __('Name') }} <span class="text-danger">*</span></label>
+                        <input type="text" name="nama" id="nama" class="form-control @error('nama') is-invalid @enderror"
+                            value="{{ old('nama', $kantor->nama) }}" required>
+                        @error('nama')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="form-group">
-                        <label for="alamat">Alamat</label>
-                        <textarea name="alamat" class="form-control" required>{{ $kantor->alamat }}</textarea>
+                        <label for="alamat">{{ __('Address') }} <span class="text-danger">*</span></label>
+                        <textarea name="alamat" id="alamat" class="form-control @error('alamat') is-invalid @enderror" required>{{ old('alamat', $kantor->alamat) }}</textarea>
+                        @error('alamat')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="koordinat_x">{{ __('Longitude (X)') }} <span class="text-danger">*</span></label>
+                            <input type="number" name="koordinat_x" id="koordinat_x" step="any" min="-180" max="180"
+                                class="form-control @error('koordinat_x') is-invalid @enderror" value="{{ old('koordinat_x', $kantor->koordinat_x) }}" required>
+                            @error('koordinat_x')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="koordinat_y">{{ __('Latitude (Y)') }} <span class="text-danger">*</span></label>
+                            <input type="number" name="koordinat_y" id="koordinat_y" step="any" min="-90" max="90"
+                                class="form-control @error('koordinat_y') is-invalid @enderror" value="{{ old('koordinat_y', $kantor->koordinat_y) }}" required>
+                            @error('koordinat_y')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="radius">{{ __('Radius (meters)') }} <span class="text-danger">*</span></label>
+                            <input type="number" name="radius" id="radius" min="0" step="any"
+                                class="form-control @error('radius') is-invalid @enderror" value="{{ old('radius', $kantor->radius) }}" required>
+                            @error('radius')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="koordinat_x">Koordinat X</label>
-                        <input type="number" name="koordinat_x" class="form-control" step="any" value="{{ $kantor->koordinat_x }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="koordinat_y">Koordinat Y</label>
-                        <input type="number" name="koordinat_y" class="form-control" step="any" value="{{ $kantor->koordinat_y }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="radius">Radius</label>
-                        <input type="number" name="radius" class="form-control" value="{{ $kantor->radius }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="id_manager">Manager</label>
-                        <select name="id_manager" class="form-control">
-                            <option value="">Pilih Manager</option>
+                        <label for="id_manager">{{ __('Manager') }}</label>
+                        <select name="id_manager" id="id_manager" class="form-control @error('id_manager') is-invalid @enderror">
+                            <option value="">{{ __('Select Manager') }}</option>
                             @foreach ($managers as $manager)
-                                <option value="{{ $manager->id }}">{{ $manager->nama }}</option>
+                                <option value="{{ $manager->id }}" {{ old('id_manager', $kantor->id_manager) == $manager->id ? 'selected' : '' }}>{{ $manager->nama }}</option>
                             @endforeach
                         </select>
+                        @error('id_manager')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                    
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </form>
-            </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
+                    <a href="{{ route('kantor.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                </div>
+            </form>
         </div>
-    </div>
-</section>
+    </x-page>
 @endsection

@@ -24,6 +24,8 @@ class ShiftSeeder extends Seeder
                 'tanggal_mulai' => null,
                 'tanggal_berakhir' => null,
                 'description' => 'Shift Pagi: 7 AM to 3 PM',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'nama' => 'Siang',
@@ -39,6 +41,8 @@ class ShiftSeeder extends Seeder
                 'tanggal_mulai' => null,
                 'tanggal_berakhir' => null,
                 'description' => 'Shift Siang: 3 PM to 11 PM',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'nama' => 'Malam',
@@ -54,6 +58,8 @@ class ShiftSeeder extends Seeder
                 'tanggal_mulai' => null,
                 'tanggal_berakhir' => null,
                 'description' => 'Shift Malam: 11 PM to 7 AM',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
         ]);
     }

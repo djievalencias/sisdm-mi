@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
     public function index()
     {
         $users = User::where('is_archived', false)->get();
+
         return response()->json($users);
     }
 
@@ -18,24 +21,29 @@ class UserController extends Controller
     {
         $user = User::where('is_archived', false)->find($id);
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
-                'message' => 'User not found or is archived'
+                'message' => 'User not found or is archived',
             ], 404);
         }
-    
+
         return response()->json($user);
     }
 
     public function update(Request $request, $id)
     {
+        // users may only update themselves; admins may update anyone
+        if ((int) $id !== $request->user()->id && ! $request->user()->hasRole('admin')) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
         try {
             // Fetch the user, ensuring it's not archived
             $user = User::where('is_archived', false)->find($id);
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json([
-                    'message' => 'User not found or is archived'
+                    'message' => 'User not found or is archived',
                 ], 404);
             }
 
@@ -58,18 +66,18 @@ class UserController extends Controller
             // Handle validation errors
             return response()->json([
                 'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             // Handle other exceptions
             Log::error('Update Error:', ['message' => $e->getMessage()]);
+
             return response()->json([
                 'message' => 'An error occurred during update',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
-
 
     // public function destroy($id)
     // {
@@ -84,7 +92,7 @@ class UserController extends Controller
     //     if ($user->photo) {
     //         $this->deleteImage($user->photo, 'profile');
     //     }
-        
+
     //     $user->delete();
 
     //     return response()->json(['message' => 'User deleted']);
@@ -95,11 +103,11 @@ class UserController extends Controller
         $rules = [
             'id_atasan' => 'nullable|exists:users,id',
             'nama' => 'required|string|max:255',
-            'nik' => 'required|string|size:16|unique:users,nik' . ($user ? ",{$user->id}" : ''),
-            'email' => 'required|email|max:255|unique:users,email' . ($user ? ",{$user->id}" : ''),
-            'npwp' => 'nullable|string|size:16|unique:users,npwp' . ($user ? ",{$user->id}" : ''),
+            'nik' => 'required|string|size:16|unique:users,nik'.($user ? ",{$user->id}" : ''),
+            'email' => 'required|email|max:255|unique:users,email'.($user ? ",{$user->id}" : ''),
+            'npwp' => 'nullable|string|size:16|unique:users,npwp'.($user ? ",{$user->id}" : ''),
             'password' => $user ? 'nullable|min:8' : 'required|min:8',
-            'no_telepon' => 'nullable|string|max:15|unique:users,no_telepon' . ($user ? ",{$user->id}" : ''),
+            'no_telepon' => 'nullable|string|max:15|unique:users,no_telepon'.($user ? ",{$user->id}" : ''),
             'jenis_kelamin' => 'required|in:P,L',
             'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
@@ -117,8 +125,6 @@ class UserController extends Controller
             'foto_bpjs_kesehatan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'foto_bpjs_ketenagakerjaan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'is_aktif' => 'nullable|boolean',
-            'is_admin' => 'nullable|boolean',
-            'is_archived' => 'nullable|boolean',
             'is_remote' => 'nullable|boolean',
             'email_verified_at' => 'nullable|date',
         ];
@@ -151,7 +157,7 @@ class UserController extends Controller
     {
         $user = User::with('shifts')->find($userId);
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'User not found'], 404);
         }
 

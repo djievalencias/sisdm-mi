@@ -1,66 +1,94 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SISDM-MI (HRIS)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+An HR information system for CV Mebel International, built on Laravel 10. It covers attendance with GPS geofencing, leave requests with supervisor approval, payroll with downloadable/emailed payslip PDFs, shift scheduling, announcements, and an admin audit log. The UI is bilingual — English (**HRIS**) and Indonesian (**SISDM**), switchable from the navbar.
 
-## About Laravel
+## Requirements
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP ≥ 8.1 with the usual Laravel extensions plus `gd` (payslip PDF rendering via dompdf)
+- Composer
+- MySQL or MariaDB
+- Redis (queue backend) — `brew install redis` on macOS
+- [Mailpit](https://mailpit.axllent.org) for local email testing — `brew install mailpit`
+- **No Node/npm needed** — all frontend assets (AdminLTE, Bootstrap 4, jQuery, DataTables, Chart.js) are vendored under `public/assets/`; there is no build step.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```bash
+git clone <repository-url> sisdm-mi
+cd sisdm-mi
+composer install
+cp .env.example .env
+php artisan key:generate
+```
 
-## Learning Laravel
+Set your database credentials in `.env` (`DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`), then:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```bash
+php artisan storage:link      # required — uploads (photos, documents) use the public disk
+php artisan migrate --seed    # schema + demo data (users, shifts, attendance, roles)
+brew services start redis     # queue backend
+brew services start mailpit   # local mail inbox at http://localhost:8025
+php artisan serve             # http://localhost:8000
+php artisan queue:work --tries=3   # queue worker (separate terminal) — required for emails
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Mail/queue `.env` values for local dev:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=127.0.0.1
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+QUEUE_CONNECTION=redis
+REDIS_CLIENT=predis
+```
 
-## Laravel Sponsors
+> On PHP 8.5 some dependencies pin `php 8.1–8.4`; if `composer install` refuses, use `composer install --ignore-platform-req=php`.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Default accounts
 
-### Premium Partners
+Seeded by `database/seeders/UserSeeder.php` — all passwords are `password123`:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+| Name | Email | Role |
+|---|---|---|
+| John Doe | `johndoe@example.com` | Admin |
+| Jane Smith | `janesmith@example.com` | Employee (also a supervisor of seeded staff) |
+| Michael Johnson | `michaelj@example.com` | Employee (also a supervisor of seeded staff) |
 
-## Contributing
+The seeder also generates ~32 factory employees and assigns each a supervisor (`id_atasan`) among the three users above.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Roles & access
 
-## Code of Conduct
+Authorization uses spatie/laravel-permission (`admin` / `employee` roles on the web guard):
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **Admin** — the full web app (all modules in the sidebar).
+- **Supervisor** — any user with direct reports (`id_atasan` pointing at them): dashboard + Leave Requests, scoped to their own team, with approve/reject/undo powers (`app/Policies/CutiPerizinanPolicy.php`). Self-approval is blocked for everyone, admins included.
+- **Employee** — dashboard only on the web; self-service (attendance check-in, leave submission) goes through the Sanctum API (`routes/api.php`).
 
-## Security Vulnerabilities
+Roles are synced from the `is_admin` flag on every user create/edit. On an existing database, re-sync with:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+php artisan db:seed --class=RoleSeeder
+```
 
-## License
+## Key flows
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Attendance geofence** — check-in/out (web and API) validates the GPS position against the employee's office (`kantor.koordinat_x/y` = lng/lat, `radius` in meters, resolved via their current position → group → department → office). Users flagged `is_remote` are exempt. Lateness reduces `hari_kerja` (−0.25 up to 2h late, −0.5 beyond); checkout past shift end records overtime hours. Logic lives in `app/Services/AttendanceService.php`.
+- **Payroll** — calculate (AJAX on the create/edit forms) → review (`/payroll/{id}/review`) → mark as paid. Marking paid requires a completed review, emails the employee their payslip PDF, and the slip is downloadable at `/payroll/{id}/slip` once reviewed.
+- **Leave** — employees submit via the API (their supervisor is notified by email); supervisors/admins decide on the web; the requester is emailed the decision. Processed requests can be undone from the "Processed Requests" page.
+- **Audit log** — admin-visible trail at `/activity-log` (spatie/laravel-activitylog) recording leave decisions, payroll lifecycle, employee create/update/archive/restore, and more.
+
+## Development
+
+```bash
+php artisan test                    # run tests
+php artisan test --filter=TestName  # run a single test
+vendor/bin/pint                     # code style (Laravel Pint)
+```
+
+- **Locale**: switch via the navbar or `GET /lang/{en|id}`. English strings are the translation keys; Indonesian lives in `lang/id.json`.
+- **Mail in dev**: emails (leave submissions/decisions, payslips, password resets) are sent through Mailpit — open the inbox at `http://localhost:8025`. Notifications are **queued on Redis**, so a `php artisan queue:work` worker must be running (restart it with `php artisan queue:restart` after code changes).
+- **Failed jobs (DLQ)**: jobs that exhaust their retries (3 tries, 10s/60s/5m backoff) land in the `failed_jobs` table and are visible at `/failed-jobs` (admin sidebar → Failed Jobs) with per-job Retry/Delete and Retry All.
+- **Uploads** (attendance photos, employee documents, announcement images) are stored on the `public` disk and served through the `storage/` symlink — don't skip `php artisan storage:link`.

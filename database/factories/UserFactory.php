@@ -11,34 +11,57 @@ use Illuminate\Support\Str;
  */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
+    protected static ?string $password = null;
 
     /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
+     * Realistic Indonesian employee data (faker_locale = id_ID).
      */
     public function definition(): array
     {
+        $gender = fake()->randomElement(['male', 'female']);
+        $birth  = fake()->dateTimeBetween('-52 years', '-20 years');
+        $hired  = fake()->dateTimeBetween('-6 years', '-4 months');
+
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'id_atasan'          => null, // backfilled in UserSeeder
+            'nama'               => fake()->name($gender),
+            'nik'                => fake()->unique()->nik($gender, $birth), // exactly 16 digits
+            'email'              => fake()->unique()->userName() . '@mebelinternational.co.id',
+            'npwp'               => fake()->unique()->numerify('################'),
+            'password'           => static::$password ??= Hash::make('password123'),
+            'no_telepon'         => fake()->unique()->numerify('08##########'),
+            'jenis_kelamin'      => $gender === 'male' ? 'L' : 'P',
+            'tempat_lahir'       => fake()->city(),
+            'tanggal_lahir'      => $birth->format('Y-m-d'),
+            'tanggal_perekrutan' => $hired->format('Y-m-d'),
+            'agama'              => fake()->randomElement(['Islam', 'Islam', 'Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha']),
+            'pendidikan'         => fake()->randomElement(['SMA', 'SMK Teknik Mesin', 'SMK Teknik Furnitur', 'D3 Teknik Industri', 'S1 Teknik Industri', 'S1 Manajemen', 'S1 Akuntansi']),
+            'status_perkawinan'  => fake()->randomElement(['Menikah', 'Belum menikah']),
+            'alamat'             => fake()->streetAddress(),
+            'rt'                 => sprintf('%03d', fake()->numberBetween(1, 12)),
+            'rw'                 => sprintf('%03d', fake()->numberBetween(1, 8)),
+            'kelurahan'          => fake()->randomElement(['Kranggan', 'Sidomulyo', 'Tahunan', 'Mulyoharjo', 'Panggang', 'Bapangan', 'Demaan', 'Saripan']),
+            'kecamatan'          => fake()->randomElement(['Jepara', 'Tahunan', 'Mlonggo', 'Batealit', 'Pecangaan']),
+            'kabupaten_kota'     => fake()->randomElement(['Jepara', 'Kudus', 'Semarang', 'Demak']),
+            'is_aktif'           => true,
+            'is_admin'           => false,
+            'is_archived'        => false,
+            'is_remote'          => fake()->boolean(10),
+            'email_verified_at'  => now(),
+            'remember_token'     => Str::random(10),
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
+    public function archived(): static
+    {
+        return $this->state(fn () => [
+            'is_archived' => true,
+            'is_aktif'    => false,
+        ]);
+    }
+
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        return $this->state(fn () => ['email_verified_at' => null]);
     }
 }

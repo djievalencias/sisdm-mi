@@ -1,60 +1,67 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h1 class="mb-4">Review Payroll</h1>
+    <x-page :title="__('Review Payroll')">
 
         <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">{{ __('Employee Information') }}</h3>
+            </div>
             <div class="card-body">
-                <h4>Employee Information</h4>
-                <p><strong>Name:</strong> {{ $payroll->user->nama }}</p>
-                <p><strong>Payroll Date:</strong> {{ $payroll->tanggal_payroll }}</p>
-                <p><strong>Take Home Pay:</strong> IDR {{ number_format($payroll->take_home_pay, 2) }}</p>
+                <p><strong>{{ __('Name') }}:</strong> {{ $payroll->user->nama }}</p>
+                <p><strong>{{ __('Payroll Date:') }}</strong> {{ $payroll->tanggal_payroll }}</p>
+                <p><strong>{{ __('Take Home Pay:') }}</strong> IDR {{ number_format($payroll->take_home_pay, 2) }}</p>
             </div>
         </div>
 
         <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">{{ __('Review and Payment Status') }}</h3>
+            </div>
             <div class="card-body">
-                <h4>Review and Payment Status</h4>
-                <p><strong>Reviewed Status:</strong> 
+                <p><strong>{{ __('Reviewed:') }}</strong>
                     @if($payroll->is_reviewed)
-                        <span class="badge bg-success">Reviewed</span> by {{ $payroll->reviewer->nama }} on {{ \Carbon\Carbon::parse($payroll->reviewed_at)->format('d M Y, H:i') }}
+                        <span class="badge badge-success">{{ __('Reviewed') }}</span> {{ __('by') }} {{ $payroll->reviewer->nama }} — {{ \Carbon\Carbon::parse($payroll->reviewed_at)->format('d M Y, H:i') }}
                     @else
-                        <span class="badge bg-secondary">Not Reviewed</span>
+                        <span class="badge badge-secondary">{{ __('Not Reviewed') }}</span>
                     @endif
                 </p>
 
-                <p><strong>Payment Status:</strong> 
+                <p><strong>{{ __('Payment:') }}</strong>
                     @if($payroll->status_pembayaran)
-                        <span class="badge bg-success">Paid</span> on {{ \Carbon\Carbon::parse($payroll->dibayar_at)->format('d M Y, H:i') }}
+                        <span class="badge badge-success">{{ __('Paid') }}</span> — {{ \Carbon\Carbon::parse($payroll->dibayar_at)->format('d M Y, H:i') }}
                     @else
-                        <span class="badge bg-danger">Unpaid</span>
+                        <span class="badge badge-danger">{{ __('Unpaid') }}</span>
                     @endif
                 </p>
             </div>
         </div>
 
         <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">{{ __('Payroll Details') }}</h3>
+            </div>
             <div class="card-body">
-                <h4>Payroll Details</h4>
-                <p><strong>Gaji Pokok:</strong> IDR {{ number_format($payroll->gaji_pokok, 2) }}</p>
-                <p><strong>Upah Lembur:</strong> IDR {{ number_format($payroll->upah_lembur, 2) }}</p>
-                <p><strong>Gaji Tanggal Merah:</strong> IDR {{ number_format($payroll->gaji_tgl_merah, 2) }}</p>
-                <p><strong>Upah Lembur Tanggal Merah:</strong> IDR {{ number_format($payroll->upah_lembur_tgl_merah, 2) }}</p>
-                <p><strong>BPJS Kantor:</strong> IDR {{ number_format($payroll->iuran_bpjs_kantor, 2) }}</p>
-                <p><strong>BPJS Karyawan:</strong> IDR {{ number_format($payroll->iuran_bpjs_karyawan, 2) }}</p>
+                <p><strong>{{ __('Base Salary:') }}</strong> IDR {{ number_format($payroll->gaji_pokok, 2) }}</p>
+                <p><strong>{{ __('Overtime Pay:') }}</strong> IDR {{ number_format($payroll->upah_lembur, 2) }}</p>
+                <p><strong>{{ __('Holiday Pay:') }}</strong> IDR {{ number_format($payroll->gaji_tgl_merah, 2) }}</p>
+                <p><strong>{{ __('Holiday Overtime Pay:') }}</strong> IDR {{ number_format($payroll->upah_lembur_tgl_merah, 2) }}</p>
+                <p><strong>{{ __('Company BPJS:') }}</strong> IDR {{ number_format($payroll->iuran_bpjs_kantor, 2) }}</p>
+                <p><strong>{{ __('Employee BPJS:') }}</strong> IDR {{ number_format($payroll->iuran_bpjs_karyawan, 2) }}</p>
             </div>
         </div>
 
         <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">{{ __('Allowances') }}</h3>
+            </div>
             <div class="card-body">
-                <h4>Tunjangan</h4>
                 @if ($payroll->tunjangan->count())
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Nominal (IDR)</th>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Amount (IDR)') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -67,20 +74,22 @@
                         </tbody>
                     </table>
                 @else
-                    <p>No tunjangan added.</p>
+                    <p>{{ __('No allowances added.') }}</p>
                 @endif
             </div>
         </div>
 
         <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">{{ __('Deductions') }}</h3>
+            </div>
             <div class="card-body">
-                <h4>Potongan</h4>
                 @if ($payroll->potongan->count())
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Nominal (IDR)</th>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Amount (IDR)') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -93,23 +102,37 @@
                         </tbody>
                     </table>
                 @else
-                    <p>No potongan added.</p>
+                    <p>{{ __('No deductions added.') }}</p>
                 @endif
             </div>
         </div>
 
-        <div class="d-flex justify-content-between">
-            <!-- Review Form -->
-            @if (!$payroll->is_reviewed)
-                <a href="{{ route('payroll.edit', $payroll->id) }}" class="btn btn-warning">Edit Payroll</a>
-                <form action="{{ route('payroll.review.submit', $payroll->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin telah memeriksa seluruh rincian payroll dengan teliti? Tindakan ini bersifat final dan tidak dapat diubah.');">
-                    @csrf
-                    @method('PUT')
-                    <button type="submit" class="btn btn-success">Review dan Finalisasi</button>
-                </form>
-            @else
-                <span class="text-muted">Payroll sudah direview.</span>
-            @endif
+        <div class="card">
+            <div class="card-body d-flex align-items-center flex-wrap" style="gap: .5rem;">
+                <a href="{{ route('payroll.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i> {{ __('Back') }}</a>
+                @if (!$payroll->is_reviewed)
+                    <a href="{{ route('payroll.edit', $payroll->id) }}" class="btn btn-warning">{{ __('Edit Payroll') }}</a>
+                    <form action="{{ route('payroll.review.submit', $payroll->id) }}" method="POST" class="d-inline"
+                        onsubmit="return confirm('{{ __('Are you sure you have carefully reviewed all payroll details? This action is final and cannot be undone.') }}');">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" class="btn btn-success">{{ __('Review and Finalize') }}</button>
+                    </form>
+                @else
+                    <a href="{{ route('payroll.slip', $payroll->id) }}" class="btn btn-info">{{ __('Payslip') }}</a>
+                    @if (!$payroll->status_pembayaran)
+                        <form action="{{ route('payroll.markAsPaid', $payroll->id) }}" method="POST" class="d-inline"
+                            onsubmit="return confirm('{{ __('Are you sure you want to mark this salary as paid? This action cannot be undone.') }}');">
+                            @csrf
+                            @method('PUT')
+                            <button type="submit" class="btn btn-success">{{ __('Mark as Paid') }}</button>
+                        </form>
+                    @else
+                        <span class="text-muted ml-2">{{ __('Paid on') }} {{ optional($payroll->dibayar_at)->format('d M Y, H:i') }}</span>
+                    @endif
+                @endif
+            </div>
         </div>
-    </div>
+
+    </x-page>
 @endsection

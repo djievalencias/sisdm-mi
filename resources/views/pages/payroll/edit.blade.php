@@ -1,284 +1,309 @@
 @extends('layouts.app')
 
 @section('content')
+    <x-page :title="__('Edit Payroll')" :breadcrumb="__('Payroll')">
+        <form method="POST" action="{{ route('payroll.update', $payroll->id) }}" id="payrollForm">
+            @csrf
+            @method('PUT')
 
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
-<div class="container">
-    <h1 class="mb-4">Edit Payroll</h1>
-
-    <form method="POST" action="{{ route('payroll.update', $payroll->id) }}" id="payrollForm">
-        @csrf
-        @method('PUT')
-
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label for="id_user" class="form-label">ID Karyawan:</label>
-                <input type="number" name="id_user" id="id_user" class="form-control" value="{{ old('id_user', $payroll->id_user) }}" required>
-            </div>
-
-            <div class="col-md-4">
-                <label for="tanggal_payroll" class="form-label">Tanggal Payroll:</label>
-                <input type="date" name="tanggal_payroll" id="tanggal_payroll" class="form-control" value="{{ old('tanggal_payroll', optional($payroll->tanggal_payroll)->format('Y-m-d')) }}" required>
-            </div>
-
-            <div class="col-md-4">
-                <label for="umk" class="form-label">UMK (Upah Minimum Kota):</label>
-                <input type="number" step="0.01" name="umk" id="umk" class="form-control" value="3454827" required>
-            </div>
-        </div>
-
-        <h3 class="mt-4">Perhitungan Gaji (Dengan Rincian Rumus)</h3>
-        <div class="row">
-            <div class="col-md-4">
-                <label for="gaji_per_hari" class="form-label">Gaji Per Hari (IDR):</label>
-                <input type="text" id="gaji_per_hari" class="form-control" readonly>
-                <small class="text-muted">Rumus: UMK / 25</small>
-            </div>
-        </div>
-
-        <hr>
-
-        <h4>Gaji Pokok dan Lembur</h4>
-        <div class="row">
-            <div class="col-md-4">
-                <label for="total_hari_kerja" class="form-label">Total Hari Kerja:</label>
-                <input type="text" id="total_hari_kerja" name="total_hari_kerja" class="form-control" readonly>
-                <small class="text-muted">Berdasarkan kehadiran karyawan dalam satu bulan</small>
-            </div>
-
-            <div class="col-md-4">
-                <label for="gaji_pokok" class="form-label">Gaji Pokok (IDR):</label>
-                <input type="text" name="gaji_pokok" id="gaji_pokok" class="form-control" readonly>
-                <small class="text-muted">Rumus: Total Hari Kerja × Gaji Per Hari</small>
-            </div>
-
-            <div class="col-md-4">
-                <label for="upah_lembur" class="form-label">Upah Lembur (IDR):</label>
-                <input type="text" name="upah_lembur" id="upah_lembur" class="form-control" readonly>
-                <small class="text-muted">Rumus: Total Jam Lembur × 1.5 × (Gaji Per Hari / 7)</small>
-            </div>
-        </div>
-
-        <hr>
-
-        <h4>Gaji dan Lembur pada Hari Libur</h4>
-        <div class="row">
-            <div class="col-md-6">
-                <label for="gaji_tgl_merah" class="form-label">Gaji Tanggal Merah (IDR):</label>
-                <input type="text" name="gaji_tgl_merah" id="gaji_tgl_merah" class="form-control" readonly>
-                <small class="text-muted">Rumus: Hari Kerja di Tanggal Merah × 2 × Gaji Per Hari</small>
-            </div>
-
-            <div class="col-md-6">
-                <label for="upah_lembur_tgl_merah" class="form-label">Upah Lembur Tanggal Merah (IDR):</label>
-                <input type="text" name="upah_lembur_tgl_merah" id="upah_lembur_tgl_merah" class="form-control" readonly>
-                <small class="text-muted">Rumus: Jam Lembur di Tanggal Merah × 2 × (Gaji Per Hari / 7)</small>
-            </div>
-        </div>
-
-        <hr>
-
-        <h4>Rincian BPJS</h4>
-        <h5><strong>BPJS yang Dibayarkan Perusahaan</strong></h5>
-        <div class="row">
-            <div class="col-md-4">
-                <label for="bpjs_kesehatan_perusahaan" class="form-label">BPJS Kesehatan (4% UMK):</label>
-                <input type="text" id="bpjs_kesehatan_perusahaan" class="form-control" readonly>
-            </div>
-            <div class="col-md-4">
-                <label for="bpjs_jkk" class="form-label">BPJS JKK (0.89% UMK):</label>
-                <input type="text" id="bpjs_jkk" class="form-control" readonly>
-            </div>
-            <div class="col-md-4">
-                <label for="bpjs_jht_perusahaan" class="form-label">BPJS JHT (3.7% UMK):</label>
-                <input type="text" id="bpjs_jht_perusahaan" class="form-control" readonly>
-            </div>
-        </div>
-
-        <div class="row mt-3">
-            <div class="col-md-4">
-                <label for="bpjs_jkm" class="form-label">BPJS JKM (0.3% UMK):</label>
-                <input type="text" id="bpjs_jkm" class="form-control" readonly>
-            </div>
-            <div class="col-md-4">
-                <label for="bpjs_jp_perusahaan" class="form-label">BPJS JP (2% UMK):</label>
-                <input type="text" id="bpjs_jp_perusahaan" class="form-control" readonly>
-            </div>
-            <div class="col-md-4">
-                <label for="iuran_bpjs_kantor" class="form-label">Total Iuran BPJS Perusahaan:</label>
-                <input type="text" name="iuran_bpjs_kantor" id="iuran_bpjs_kantor" class="form-control" readonly>
-            </div>
-        </div>
-
-        <h5 class="mt-4"><strong>BPJS yang Dibayarkan Karyawan</strong></h5>
-        <div class="row">
-            <div class="col-md-4">
-                <label for="bpjs_kesehatan_karyawan" class="form-label">BPJS Kesehatan (1% UMK):</label>
-                <input type="text" id="bpjs_kesehatan_karyawan" class="form-control" readonly>
-            </div>
-            <div class="col-md-4">
-                <label for="bpjs_jht_karyawan" class="form-label">BPJS JHT (2% UMK):</label>
-                <input type="text" id="bpjs_jht_karyawan" class="form-control" readonly>
-            </div>
-            <div class="col-md-4">
-                <label for="bpjs_jp_karyawan" class="form-label">BPJS JP (1% UMK):</label>
-                <input type="text" id="bpjs_jp_karyawan" class="form-control" readonly>
-            </div>
-        </div>
-
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <label for="iuran_bpjs_karyawan" class="form-label">Total Iuran BPJS Karyawan:</label>
-                <input type="text" name="iuran_bpjs_karyawan" id="iuran_bpjs_karyawan" class="form-control" readonly>
-            </div>
-        </div>
-
-        <hr>
-
-        <h4>Tunjangan dan Potongan</h4>
-        <div class="row">
-            <div class="col-md-6">
-                <label for="tunjangan" class="form-label">Total Tunjangan (IDR):</label>
-                <input type="text" name="tunjangan" id="tunjangan" class="form-control" readonly>
-            </div>
-            <div class="col-md-6">
-                <label for="potongan" class="form-label">Total Potongan (IDR):</label>
-                <input type="text" name="potongan" id="potongan" class="form-control" readonly>
-            </div>
-        </div>
-
-        <hr>
-
-        <h4>Total Take Home Pay</h4>
-        <div class="row">
-            <div class="col-md-9">
-                <label for="take_home_pay" class="form-label">Total Take Home Pay (IDR):</label>
-                <input type="text" name="take_home_pay" id="take_home_pay" class="form-control" readonly>
-                <small class="text-muted">Rumus: Gaji Pokok + Upah Lembur + Gaji Tanggal Merah + Upah Lembur Tanggal Merah + BPJS Perusahaan + Tunjangan - BPJS Karyawan - Potongan</small>
-            </div>
-        </div>
-
-        <div class="mt-4">
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-    </form>
-
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <h4>Tunjangan</h4>
-            <button class="btn btn-success mb-2" id="openCreateTunjanganModal">Tambah Tunjangan</button>
-            <table class="table tunjangan-table">
-                <thead>
-                    <tr>
-                        <th>Nama</th>
-                        <th>Nominal (IDR)</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($tunjangan as $item)
-                        <tr>
-                            <td>{{ $item->nama }}</td>
-                            <td class="tunjangan-nominal">{{ number_format($item->nominal, 2) }}</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm editTunjanganButton" 
-                                        data-id="{{ $item->id }}" 
-                                        data-nama="{{ $item->nama }}" 
-                                        data-nominal="{{ $item->nominal }}">Edit</button>
-                                <form action="{{ route('tunjangan.destroy', $item->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-        <div class="col-md-6">
-            <h4>Potongan</h4>
-            <button class="btn btn-success mb-2" id="openCreatePotonganModal">Tambah Potongan</button>
-            <table class="table potongan-table">
-                <thead>
-                    <tr>
-                        <th>Nama</th>
-                        <th>Nominal (IDR)</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($potongan as $item)
-                        <tr>
-                            <td>{{ $item->nama }}</td>
-                            <td class="potongan-nominal">{{ number_format($item->nominal, 2) }}</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm editPotonganButton" 
-                                        data-id="{{ $item->id }}" 
-                                        data-nama="{{ $item->nama }}" 
-                                        data-nominal="{{ $item->nominal }}">Edit</button>
-                                <form action="{{ route('potongan.destroy', $item->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Create/Edit Modal (Shared for both Tunjangan and Potongan) -->
-    <div class="modal fade" id="tunjanganPotonganModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="tunjanganPotonganForm" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalLabel">Tambah/Edit Tunjangan/Potongan</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="_method" id="methodField" value="POST">
-                        <div class="mb-3">
-                            <label for="modalNama" class="form-label">Nama</label>
-                            <input type="text" name="nama" id="modalNama" class="form-control" required>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ __('Payroll Information') }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="id_user">{{ __('Employee') }} <span class="text-danger">*</span></label>
+                            <select name="id_user" id="id_user" class="form-control @error('id_user') is-invalid @enderror" required>
+                                <option value="">{{ __('Select employee') }}</option>
+                                @foreach ($users as $u)
+                                    <option value="{{ $u->id }}" {{ old('id_user', $payroll->id_user) == $u->id ? 'selected' : '' }}>{{ $u->nama }}</option>
+                                @endforeach
+                            </select>
+                            @error('id_user')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                        <div class="mb-3">
-                            <label for="modalNominal" class="form-label">Nominal (IDR)</label>
-                            <input type="number" name="nominal" id="modalNominal" class="form-control" required>
+                        <div class="form-group col-md-4">
+                            <label for="tanggal_payroll">{{ __('Payroll Date:') }} <span class="text-danger">*</span></label>
+                            <input type="date" name="tanggal_payroll" id="tanggal_payroll" class="form-control @error('tanggal_payroll') is-invalid @enderror"
+                                value="{{ old('tanggal_payroll', optional($payroll->tanggal_payroll)->format('Y-m-d')) }}" required>
+                            @error('tanggal_payroll')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="umk">{{ __('UMK (City Minimum Wage):') }} <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" name="umk" id="umk" class="form-control @error('umk') is-invalid @enderror"
+                                value="{{ old('umk', 3454827) }}" required>
+                            <small class="text-muted">{{ __('Changing the employee, date, or UMK recalculates the fields below.') }}</small>
+                            @error('umk')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ __('Salary Calculation (With Formula Details)') }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="gaji_per_hari">{{ __('Daily Wage (IDR):') }}</label>
+                            <input type="text" id="gaji_per_hari" class="form-control" readonly>
+                            <small class="text-muted">{{ __('Formula: UMK / 25') }}</small>
+                        </div>
                     </div>
-                </form>
+
+                    <hr>
+
+                    <h5>{{ __('Base Salary and Overtime') }}</h5>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="total_hari_kerja">{{ __('Total Workdays:') }}</label>
+                            <input type="text" id="total_hari_kerja" name="total_hari_kerja" class="form-control" readonly>
+                            <small class="text-muted">{{ __("Based on the employee's attendance in one month") }}</small>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="gaji_pokok">{{ __('Base Salary (IDR):') }}</label>
+                            <input type="text" name="gaji_pokok" id="gaji_pokok" class="form-control" readonly
+                                value="{{ $payroll->gaji_pokok }}">
+                            <small class="text-muted">{{ __('Formula: Total Workdays × Daily Wage') }}</small>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="upah_lembur">{{ __('Overtime Pay (IDR):') }}</label>
+                            <input type="text" name="upah_lembur" id="upah_lembur" class="form-control" readonly
+                                value="{{ $payroll->upah_lembur }}">
+                            <small class="text-muted">{{ __('Formula: Total Overtime Hours × 1.5 × (Daily Wage / 7)') }}</small>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5>{{ __('Holiday Pay and Overtime') }}</h5>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="gaji_tgl_merah">{{ __('Holiday Pay (IDR):') }}</label>
+                            <input type="text" name="gaji_tgl_merah" id="gaji_tgl_merah" class="form-control" readonly
+                                value="{{ $payroll->gaji_tgl_merah }}">
+                            <small class="text-muted">{{ __('Formula: Holiday Workdays × 2 × Daily Wage') }}</small>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="upah_lembur_tgl_merah">{{ __('Holiday Overtime Pay (IDR):') }}</label>
+                            <input type="text" name="upah_lembur_tgl_merah" id="upah_lembur_tgl_merah" class="form-control" readonly
+                                value="{{ $payroll->upah_lembur_tgl_merah }}">
+                            <small class="text-muted">{{ __('Formula: Holiday Overtime Hours × 2 × (Daily Wage / 7)') }}</small>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5>{{ __('BPJS Details') }}</h5>
+                    <h6><strong>{{ __('BPJS Paid by the Company') }}</strong></h6>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="bpjs_kesehatan_perusahaan">{{ __('BPJS Health (4% UMK):') }}</label>
+                            <input type="text" id="bpjs_kesehatan_perusahaan" class="form-control" readonly>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="bpjs_jkk">{{ __('BPJS JKK (0.89% UMK):') }}</label>
+                            <input type="text" id="bpjs_jkk" class="form-control" readonly>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="bpjs_jht_perusahaan">{{ __('BPJS JHT (3.7% UMK):') }}</label>
+                            <input type="text" id="bpjs_jht_perusahaan" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="bpjs_jkm">{{ __('BPJS JKM (0.3% UMK):') }}</label>
+                            <input type="text" id="bpjs_jkm" class="form-control" readonly>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="bpjs_jp_perusahaan">{{ __('BPJS JP (2% UMK):') }}</label>
+                            <input type="text" id="bpjs_jp_perusahaan" class="form-control" readonly>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="iuran_bpjs_kantor">{{ __('Total Company BPJS Contribution:') }}</label>
+                            <input type="text" name="iuran_bpjs_kantor" id="iuran_bpjs_kantor" class="form-control" readonly
+                                value="{{ $payroll->iuran_bpjs_kantor }}">
+                        </div>
+                    </div>
+
+                    <h6 class="mt-3"><strong>{{ __('BPJS Paid by the Employee') }}</strong></h6>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label for="bpjs_kesehatan_karyawan">{{ __('BPJS Health (1% UMK):') }}</label>
+                            <input type="text" id="bpjs_kesehatan_karyawan" class="form-control" readonly>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="bpjs_jht_karyawan">{{ __('BPJS JHT (2% UMK):') }}</label>
+                            <input type="text" id="bpjs_jht_karyawan" class="form-control" readonly>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="bpjs_jp_karyawan">{{ __('BPJS JP (1% UMK):') }}</label>
+                            <input type="text" id="bpjs_jp_karyawan" class="form-control" readonly>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="iuran_bpjs_karyawan">{{ __('Total Employee BPJS Contribution:') }}</label>
+                            <input type="text" name="iuran_bpjs_karyawan" id="iuran_bpjs_karyawan" class="form-control" readonly
+                                value="{{ $payroll->iuran_bpjs_karyawan }}">
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5>{{ __('Allowances and Deductions') }}</h5>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="tunjangan">{{ __('Total Allowances (IDR):') }}</label>
+                            <input type="text" name="tunjangan" id="tunjangan" class="form-control" readonly>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="potongan">{{ __('Total Deductions (IDR):') }}</label>
+                            <input type="text" name="potongan" id="potongan" class="form-control" readonly>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5>{{ __('Total Take Home Pay') }}</h5>
+                    <div class="form-row">
+                        <div class="form-group col-md-9">
+                            <label for="take_home_pay">{{ __('Total Take Home Pay (IDR):') }}</label>
+                            <input type="text" name="take_home_pay" id="take_home_pay" class="form-control" readonly
+                                value="{{ $payroll->take_home_pay }}">
+                            <small class="text-muted">{{ __('Formula: Base Salary + Overtime + Holiday Pay + Holiday Overtime + Company BPJS + Allowances - Employee BPJS - Deductions') }}</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
+                    <a href="{{ route('payroll.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                </div>
+            </div>
+        </form>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ __('Allowances') }}</h3>
+                        <button class="btn btn-sm btn-success float-right" id="openCreateTunjanganModal">{{ __('Add Allowance') }}</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="table tunjangan-table">
+                            <thead>
+                                <tr>
+                                    <th>{{ __('Name') }}</th>
+                                    <th>{{ __('Amount (IDR)') }}</th>
+                                    <th>{{ __('Actions') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($tunjangan as $item)
+                                    <tr>
+                                        <td>{{ $item->nama }}</td>
+                                        <td class="tunjangan-nominal">{{ number_format($item->nominal, 2) }}</td>
+                                        <td>
+                                            <button class="btn btn-warning btn-sm editTunjanganButton"
+                                                    data-id="{{ $item->id }}"
+                                                    data-nama="{{ $item->nama }}"
+                                                    data-nominal="{{ $item->nominal }}">{{ __('Edit') }}</button>
+                                            <form action="{{ route('tunjangan.destroy', $item->id) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm"
+                                                    onclick="return confirm('{{ __('Are you sure you want to delete this data?') }}')">{{ __('Delete') }}</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ __('Deductions') }}</h3>
+                        <button class="btn btn-sm btn-success float-right" id="openCreatePotonganModal">{{ __('Add Deduction') }}</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="table potongan-table">
+                            <thead>
+                                <tr>
+                                    <th>{{ __('Name') }}</th>
+                                    <th>{{ __('Amount (IDR)') }}</th>
+                                    <th>{{ __('Actions') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($potongan as $item)
+                                    <tr>
+                                        <td>{{ $item->nama }}</td>
+                                        <td class="potongan-nominal">{{ number_format($item->nominal, 2) }}</td>
+                                        <td>
+                                            <button class="btn btn-warning btn-sm editPotonganButton"
+                                                    data-id="{{ $item->id }}"
+                                                    data-nama="{{ $item->nama }}"
+                                                    data-nominal="{{ $item->nominal }}">{{ __('Edit') }}</button>
+                                            <form action="{{ route('potongan.destroy', $item->id) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm"
+                                                    onclick="return confirm('{{ __('Are you sure you want to delete this data?') }}')">{{ __('Delete') }}</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- Create/Edit Modal (Shared for both Tunjangan and Potongan) -->
+        <div class="modal fade" id="tunjanganPotonganModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form id="tunjanganPotonganForm" method="POST">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalLabel">{{ __('Add/Edit Allowance/Deduction') }}</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="_method" id="methodField" value="POST">
+                            <div class="form-group">
+                                <label for="modalNama">{{ __('Name') }}</label>
+                                <input type="text" name="nama" id="modalNama" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="modalNominal">{{ __('Amount (IDR)') }}</label>
+                                <input type="number" step="0.01" name="nominal" id="modalNominal" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                            <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </x-page>
+@endsection
+
+@push('scripts')
 <script>
     $(document).ready(function () {
-        calculatePayroll(); // Trigger the calculation on page load.
-        updateTotalTunjanganAndPotongan(); // Update totals when the page loads.
+        // Totals come from the persisted rows on load; the calculate endpoint
+        // only runs when employee/date/UMK change, so saved values are not clobbered.
+        updateTotalTunjanganAndPotongan();
 
         $('#id_user, #tanggal_payroll, #umk').on('change', function () {
-            calculatePayroll(); // Recalculate when inputs are changed.
+            calculatePayroll();
         });
 
         function calculatePayroll() {
@@ -299,32 +324,22 @@
                         const gajiPerHari = (umk / 25).toFixed(2);
                         $('#gaji_per_hari').val(gajiPerHari);
 
-                        $('#total_hari_kerja').val(response.total_hari_kerja + " hari");
+                        $('#total_hari_kerja').val(response.total_hari_kerja + " {{ __('days') }}");
                         $('#gaji_pokok').val(response.gaji_pokok.toFixed(2));
                         $('#upah_lembur').val(response.upah_lembur.toFixed(2));
                         $('#gaji_tgl_merah').val(response.gaji_tgl_merah.toFixed(2));
                         $('#upah_lembur_tgl_merah').val(response.upah_lembur_tgl_merah.toFixed(2));
 
-                        const bpjsKesehatanPerusahaan = (umk * 0.04).toFixed(2);
-                        const bpjsJkk = (umk * 0.0089).toFixed(2);
-                        const bpjsJhtPerusahaan = (umk * 0.037).toFixed(2);
-                        const bpjsJkm = (umk * 0.003).toFixed(2);
-                        const bpjsJpPerusahaan = (umk * 0.02).toFixed(2);
-
-                        $('#bpjs_kesehatan_perusahaan').val(bpjsKesehatanPerusahaan);
-                        $('#bpjs_jkk').val(bpjsJkk);
-                        $('#bpjs_jht_perusahaan').val(bpjsJhtPerusahaan);
-                        $('#bpjs_jkm').val(bpjsJkm);
-                        $('#bpjs_jp_perusahaan').val(bpjsJpPerusahaan);
+                        $('#bpjs_kesehatan_perusahaan').val((umk * 0.04).toFixed(2));
+                        $('#bpjs_jkk').val((umk * 0.0089).toFixed(2));
+                        $('#bpjs_jht_perusahaan').val((umk * 0.037).toFixed(2));
+                        $('#bpjs_jkm').val((umk * 0.003).toFixed(2));
+                        $('#bpjs_jp_perusahaan').val((umk * 0.02).toFixed(2));
                         $('#iuran_bpjs_kantor').val(response.iuran_bpjs_kantor.toFixed(2));
 
-                        const bpjsKesehatanKaryawan = (umk * 0.01).toFixed(2);
-                        const bpjsJhtKaryawan = (umk * 0.02).toFixed(2);
-                        const bpjsJpKaryawan = (umk * 0.01).toFixed(2);
-
-                        $('#bpjs_kesehatan_karyawan').val(bpjsKesehatanKaryawan);
-                        $('#bpjs_jht_karyawan').val(bpjsJhtKaryawan);
-                        $('#bpjs_jp_karyawan').val(bpjsJpKaryawan);
+                        $('#bpjs_kesehatan_karyawan').val((umk * 0.01).toFixed(2));
+                        $('#bpjs_jht_karyawan').val((umk * 0.02).toFixed(2));
+                        $('#bpjs_jp_karyawan').val((umk * 0.01).toFixed(2));
                         $('#iuran_bpjs_karyawan').val(response.iuran_bpjs_karyawan.toFixed(2));
 
                         updateTotalTakeHomePay();
@@ -340,23 +355,16 @@
             let totalTunjangan = 0;
             let totalPotongan = 0;
 
-            // Sum tunjangan
             $('table.tunjangan-table tbody tr').each(function () {
-                const nominal = parseFloat($(this).find('.tunjangan-nominal').text().replace(/,/g, '')) || 0;
-                totalTunjangan += nominal;
+                totalTunjangan += parseFloat($(this).find('.tunjangan-nominal').text().replace(/,/g, '')) || 0;
             });
 
-            // Sum potongan
             $('table.potongan-table tbody tr').each(function () {
-                const nominal = parseFloat($(this).find('.potongan-nominal').text().replace(/,/g, '')) || 0;
-                totalPotongan += nominal;
+                totalPotongan += parseFloat($(this).find('.potongan-nominal').text().replace(/,/g, '')) || 0;
             });
 
-            // Update the fields
             $('#tunjangan').val(totalTunjangan.toFixed(2));
             $('#potongan').val(totalPotongan.toFixed(2));
-
-            updateTotalTakeHomePay(); // Recalculate take-home pay after updating totals
         }
 
         function updateTotalTakeHomePay() {
@@ -381,68 +389,50 @@
 
             $('#take_home_pay').val(takeHomePay.toFixed(2));
         }
-
-        // Trigger total updates when tunjangan or potongan are added or removed
-        $('form').on('submit', function () {
-            setTimeout(updateTotalTunjanganAndPotongan, 500); // Allow time for database to update before recalculation
-        });
     });
 </script>
 
 <script>
     $(document).ready(function () {
-        // Initialize variables for modal and form
-        const modal = new bootstrap.Modal($('#tunjanganPotonganModal')[0]);
+        // Bootstrap 4 modal API — the page ships BS4 assets, so no `bootstrap` global exists.
+        const $modal = $('#tunjanganPotonganModal');
         const form = $('#tunjanganPotonganForm');
-        let isEditing = false;
 
-        // Create new Tunjangan
         $('#openCreateTunjanganModal').click(function () {
             form.attr('action', "{{ route('tunjangan.store', ['id_payroll' => $payroll->id]) }}");
-            $('#methodField').val('POST'); // Reset to POST method for new entries
-            $('#modalLabel').text('Tambah Tunjangan');
+            $('#methodField').val('POST');
+            $('#modalLabel').text("{{ __('Add Allowance') }}");
             $('#modalNama').val('');
             $('#modalNominal').val('');
-            modal.show();
+            $modal.modal('show');
         });
 
-        // Create new Potongan
         $('#openCreatePotonganModal').click(function () {
             form.attr('action', "{{ route('potongan.store', ['id_payroll' => $payroll->id]) }}");
             $('#methodField').val('POST');
-            $('#modalLabel').text('Tambah Potongan');
+            $('#modalLabel').text("{{ __('Add Deduction') }}");
             $('#modalNama').val('');
             $('#modalNominal').val('');
-            modal.show();
+            $modal.modal('show');
         });
 
-        // Edit Tunjangan
         $('.editTunjanganButton').click(function () {
-            const id = $(this).data('id');
-            const nama = $(this).data('nama');
-            const nominal = $(this).data('nominal');
-
-            form.attr('action', `/tunjangan/${id}`);
-            $('#methodField').val('PUT'); // Set method for updating
-            $('#modalLabel').text('Edit Tunjangan');
-            $('#modalNama').val(nama);
-            $('#modalNominal').val(nominal);
-            modal.show();
+            form.attr('action', `/tunjangan/${$(this).data('id')}`);
+            $('#methodField').val('PUT');
+            $('#modalLabel').text("{{ __('Edit Allowance') }}");
+            $('#modalNama').val($(this).data('nama'));
+            $('#modalNominal').val($(this).data('nominal'));
+            $modal.modal('show');
         });
 
-        // Edit Potongan
         $('.editPotonganButton').click(function () {
-            const id = $(this).data('id');
-            const nama = $(this).data('nama');
-            const nominal = $(this).data('nominal');
-
-            form.attr('action', `/potongan/${id}`);
+            form.attr('action', `/potongan/${$(this).data('id')}`);
             $('#methodField').val('PUT');
-            $('#modalLabel').text('Edit Potongan');
-            $('#modalNama').val(nama);
-            $('#modalNominal').val(nominal);
-            modal.show();
+            $('#modalLabel').text("{{ __('Edit Deduction') }}");
+            $('#modalNama').val($(this).data('nama'));
+            $('#modalNominal').val($(this).data('nominal'));
+            $modal.modal('show');
         });
     });
 </script>
-@endsection
+@endpush

@@ -121,7 +121,9 @@ return [
 
     'redis' => [
 
-        'client' => env('REDIS_CLIENT', 'phpredis'),
+        // predis is the composer-installed client; the phpredis extension is
+        // not part of this project's toolchain. Override via REDIS_CLIENT.
+        'client' => env('REDIS_CLIENT', 'predis'),
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),

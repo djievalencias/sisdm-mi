@@ -2,22 +2,33 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class DepartemenSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        $kantorMap = DB::table('kantor')->pluck('id', 'nama');
-        
-        $departemenData = [
-            ['nama' => 'Produksi', 'id_kantor' => $kantorMap['Kantor Pusat'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['nama' => 'PPIC', 'id_kantor' => $kantorMap['Kantor Cabang Bandung'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['nama' => 'QC', 'id_kantor' => $kantorMap['Kantor Cabang Surabaya'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+        $kantor = DB::table('kantor')->pluck('id', 'nama');
+        $now = Carbon::now();
+
+        $rows = [
+            ['Kantor Pusat', 'Produksi'],
+            ['Kantor Pusat', 'Finishing'],
+            ['Kantor Pusat', 'QC'],
+            ['Kantor Pusat', 'PPIC'],
+            ['Kantor Pusat', 'Gudang'],
+            ['Kantor Pusat', 'HRGA'],
+            ['Kantor Cabang Bandung', 'Marketing'],
+            ['Kantor Cabang Surabaya', 'Purchasing'],
         ];
-        
-        DB::table('departemen')->insert($departemenData);
+
+        DB::table('departemen')->insert(array_map(fn ($r) => [
+            'id_kantor'  => $kantor[$r[0]],
+            'nama'       => $r[1],
+            'created_at' => $now,
+            'updated_at' => $now,
+        ], $rows));
     }
 }

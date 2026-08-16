@@ -2,9 +2,13 @@
 
 @section('content')
 <div class="login-box">
-    <div class="login-logo">
-        <a href="#"><b>Attendance</b>Live</a>
-    </div>
+    <div class="si-login-brand">
+            <img src="{{ asset('assets/img/logo-full.png') }}" alt="Mebel International" class="si-login-logo">
+            <div>
+                <p class="si-login-title">{{ __('HRIS') }}</p>
+                <p class="si-login-sub">{{ __('Human Resource Information System') }}</p>
+            </div>
+        </div>
     <!-- /.login-logo -->
     <div class="card">
         <div class="card-body login-card-body">

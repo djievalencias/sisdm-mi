@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -77,17 +78,36 @@ class User extends Authenticatable
     {
         return $this->hasMany(RiwayatJabatan::class, 'id_user');
     }
-    
+
+    /**
+     * The user's current position record (no end date yet).
+     */
+    public function currentRiwayatJabatan()
+    {
+        return $this->hasOne(RiwayatJabatan::class, 'id_user')
+            ->whereNull('tanggal_selesai')
+            ->latest('tanggal_mulai');
+    }
+
+    /**
+     * The office the user belongs to, resolved through the current position:
+     * riwayat_jabatan -> jabatan -> grup -> departemen -> kantor.
+     */
+    public function kantor(): ?Kantor
+    {
+        return $this->currentRiwayatJabatan?->jabatan?->grup?->departemen?->kantor;
+    }
+
     public function atasan()
     {
         return $this->belongsTo(self::class, 'id_atasan');
     }
-    
+
     public function bawahan()
     {
         return $this->hasMany(self::class, 'id_atasan');
     }
-    
+
     public function attendances()
     {
         return $this->hasMany(Attendance::class, 'id_user');

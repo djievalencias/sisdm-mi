@@ -33,7 +33,7 @@ class RiwayatJabatanController extends Controller
 
         RiwayatJabatan::create($validatedData);
 
-        return redirect()->route('user.edit', $user_id)->with('status', 'Riwayat Jabatan added successfully!');
+        return redirect()->route('user.edit', $user_id)->with('status', __('Job history added successfully.'));
     }
 
     public function edit($user_id, $id)
@@ -61,7 +61,7 @@ class RiwayatJabatanController extends Controller
 
         $riwayatJabatan->update($validatedData);
 
-        return redirect()->route('user.edit', $user_id)->with('status', 'Riwayat Jabatan updated successfully!');
+        return redirect()->route('user.edit', $user_id)->with('status', __('Job history updated successfully.'));
     }
 
     public function destroy($user_id, $id)
@@ -69,7 +69,7 @@ class RiwayatJabatanController extends Controller
         $riwayatJabatan = RiwayatJabatan::findOrFail($id);
         $riwayatJabatan->delete();
 
-        return redirect()->route('user.edit', $user_id)->with('status', 'Riwayat Jabatan deleted successfully!');
+        return redirect()->route('user.edit', $user_id)->with('status', __('Job history deleted successfully.'));
     }
 
     private function validateData(Request $request)

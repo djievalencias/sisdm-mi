@@ -1,0 +1,373 @@
+:root {
+  --si-navy: #2B3990;
+  --si-navy-dark: #232E75;
+  --si-navy-soft: #E9EBF7;
+  --si-green: #3FAE49;
+  --si-green-dark: #2E8A38;
+  --si-green-soft: #E7F5E9;
+  --si-accent: var(--si-navy);
+  --si-accent-dark: var(--si-navy-dark);
+  --si-accent-soft: var(--si-navy-soft);
+  --si-ink: #1D2733;
+  --si-ink-2: #5B6B7B;
+  --si-ink-3: #8895A3;
+  --si-rule: #E3E8EE;
+  --si-ground: #F6F8FA;
+  --si-surface: #FFFFFF;
+  --si-amber: #B45309;
+  --si-amber-soft: #FDF3E3;
+  --si-red: #B42334;
+  --si-red-soft: #FBEAEC;
+  --si-radius: 10px;
+}
+
+/* ---------- base ---------- */
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Source Sans Pro", sans-serif;
+  color: var(--si-ink);
+  font-size: 14.5px;
+}
+.wrapper, .content-wrapper { background: var(--si-ground) !important; }
+
+.content-header h1 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--si-ink) !important;
+}
+.breadcrumb { background: transparent; font-size: 12.5px; }
+.breadcrumb a { color: var(--si-ink-3); }
+.breadcrumb-item.active { color: var(--si-ink-2); }
+
+/* ---------- sidebar ---------- */
+.main-sidebar, .main-sidebar::before, .main-sidebar *,
+.main-header, .content-wrapper, .main-footer, .brand-link {
+  transition: none !important;
+  animation: none !important; /* AdminLTE fadeIn w/ fill-mode:both can pin text at opacity 0 */
+  opacity: 1;
+}
+body.sidebar-mini:not(.sidebar-collapse) .main-sidebar { width: 250px !important; }
+
+.main-sidebar {
+  background: var(--si-surface) !important;
+  border-right: 1px solid var(--si-rule);
+  box-shadow: none !important;
+}
+.si-brand {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 14px 14px;
+  border-bottom: 1px solid var(--si-rule);
+}
+.si-brand-logo { height: 34px; width: auto; flex: none; }
+.si-login-logo { height: 56px; width: auto; }
+.si-brand-name { font-weight: 700; font-size: 14.5px; color: var(--si-ink); line-height: 1.15; }
+.si-brand-sub { font-size: 11px; color: var(--si-ink-3); }
+
+.si-user {
+  display: flex; align-items: center; gap: 10px;
+  margin: 12px 10px; padding: 10px;
+  background: var(--si-ground); border-radius: var(--si-radius);
+}
+.si-avatar {
+  width: 34px; height: 34px; border-radius: 50%; flex: none;
+  background: var(--si-accent-soft); color: var(--si-accent);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 12.5px;
+}
+.si-user-name { font-weight: 600; font-size: 13px; color: var(--si-ink); line-height: 1.2; }
+.si-user-role { font-size: 11px; color: var(--si-ink-3); }
+
+.main-sidebar .nav-header {
+  font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--si-ink-3) !important; background: transparent;
+  padding: 14px 16px 4px;
+}
+.main-sidebar .nav-sidebar > .nav-item > .nav-link {
+  color: var(--si-ink-2);
+  border-radius: 8px;
+  margin: 1px 8px;
+  font-weight: 500;
+  font-size: 13.5px;
+}
+.main-sidebar .nav-sidebar > .nav-item > .nav-link p { color: inherit; }
+.main-sidebar .nav-sidebar > .nav-item > .nav-link .nav-icon {
+  color: var(--si-ink-3); font-size: 15px;
+}
+.main-sidebar .nav-sidebar > .nav-item > .nav-link:hover {
+  background: var(--si-ground); color: var(--si-ink);
+}
+.main-sidebar .nav-sidebar > .nav-item > .nav-link.active {
+  background: var(--si-accent-soft) !important;
+  color: var(--si-accent-dark) !important;
+  box-shadow: none !important;
+  font-weight: 600;
+}
+.main-sidebar .nav-sidebar > .nav-item > .nav-link.active .nav-icon { color: var(--si-accent-dark); }
+
+.si-logout {
+  margin: 10px 8px 16px;
+}
+.si-logout .nav-link {
+  color: var(--si-red) !important; font-weight: 500;
+  border-radius: 8px; margin: 0 8px;
+}
+.si-logout .nav-link:hover { background: var(--si-red-soft); }
+
+body.sidebar-mini.sidebar-collapse .main-sidebar,
+body.sidebar-mini.sidebar-collapse .main-sidebar::before,
+body.sidebar-mini.sidebar-collapse .main-sidebar:hover,
+body.sidebar-mini.sidebar-collapse .main-sidebar.sidebar-focused {
+  width: 4.6rem !important;
+}
+
+body.sidebar-mini.sidebar-collapse .si-brand {
+  justify-content: center;
+  gap: 0;
+  padding: 14px 6px;
+}
+body.sidebar-mini.sidebar-collapse .si-brand > div { display: none; }
+body.sidebar-mini.sidebar-collapse .si-brand-logo { height: 26px; }
+
+/* no user card in the rail */
+body.sidebar-mini.sidebar-collapse .si-user { display: none; }
+
+/* group headers stay hidden */
+body.sidebar-mini.sidebar-collapse .main-sidebar .nav-sidebar .nav-header {
+  display: none !important;
+}
+
+/* nav links become centered icon tiles */
+body.sidebar-mini.sidebar-collapse .main-sidebar .nav-sidebar .nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1px 6px;
+  padding: 0.5rem 0;
+}
+body.sidebar-mini.sidebar-collapse .main-sidebar .nav-sidebar .nav-link .nav-icon {
+  margin: 0 !important;
+  width: 1.6rem;
+  text-align: center;
+}
+
+/* labels: display:none outranks AdminLTE's hover-restore (no !important there) */
+body.sidebar-mini.sidebar-collapse .main-sidebar .nav-sidebar .nav-link p {
+  display: none !important;
+}
+
+/* logout tile centers like the nav icons */
+body.sidebar-mini.sidebar-collapse .si-logout { margin: 10px 0 16px; }
+
+/* ---------- top navbar ---------- */
+.main-header.navbar {
+  background: var(--si-surface) !important;
+  border-bottom: 1px solid var(--si-rule);
+  box-shadow: none;
+}
+.main-header .nav-link { color: var(--si-ink-2) !important; }
+.si-topdate { font-size: 12.5px; color: var(--si-ink-3); align-self: center; }
+.si-userchip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 8px; border-radius: 8px;
+}
+.si-userchip:hover { background: var(--si-ground); }
+.si-userchip .si-avatar { width: 28px; height: 28px; font-size: 11px; }
+.si-userchip-name { font-size: 13px; font-weight: 600; color: var(--si-ink); }
+
+/* ---------- page toolbar & tabs ---------- */
+.si-toolbar { row-gap: 8px; }
+.si-toolbar-title { font-weight: 650; color: var(--si-ink); }
+.si-tabs .nav-link {
+  color: var(--si-ink-2); border-radius: 8px;
+  padding: 6px 14px; font-weight: 500; font-size: 13.5px;
+}
+.si-tabs .nav-link:hover { background: var(--si-accent-soft); color: var(--si-navy); }
+.si-tabs .nav-link.active { background: var(--si-navy); color: #fff; }
+
+/* ---------- cards ---------- */
+.card {
+  border: 1px solid var(--si-rule);
+  border-radius: var(--si-radius);
+  box-shadow: none;
+}
+.card-header {
+  background: transparent;
+  border-bottom: 1px solid var(--si-rule);
+  padding: 12px 16px;
+}
+.card-header .card-title { font-weight: 600; font-size: 14.5px; color: var(--si-ink); }
+
+/* positive (green) variants — logo green */
+.si-stat-icon.green { background: var(--si-green-soft); color: var(--si-green-dark); }
+.si-pill.green { background: var(--si-green-soft) !important; color: var(--si-green-dark) !important; }
+.alert-success { background: var(--si-green-soft) !important; color: var(--si-green-dark) !important; border-color: #CBE8CF !important; }
+
+/* AdminLTE's clearfix ::after becomes a third flex item and steals
+   justify-content-between's right edge — kill it on flex headers */
+.card-header.d-flex::after { content: none; }
+
+/* stat cards */
+.si-stat {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--si-surface);
+  border: 1px solid var(--si-rule);
+  border-radius: var(--si-radius);
+  padding: 14px 16px;
+  height: 100%;
+}
+.si-stat-icon {
+  width: 40px; height: 40px; border-radius: 10px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  background: var(--si-accent-soft); color: var(--si-accent);
+}
+.si-stat-icon.amber { background: var(--si-amber-soft); color: var(--si-amber); }
+.si-stat-icon.red   { background: var(--si-red-soft);   color: var(--si-red); }
+.si-stat-num  { font-size: 1.45rem; font-weight: 700; line-height: 1.1; color: var(--si-ink); font-variant-numeric: tabular-nums; }
+.si-stat-label{ font-size: 12px; color: var(--si-ink-2); }
+
+/* status pills */
+.si-pill {
+  display: inline-block; padding: 3px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 600;
+}
+.si-pill.green { background: var(--si-accent-soft); color: var(--si-accent-dark); }
+.si-pill.amber { background: var(--si-amber-soft); color: var(--si-amber); }
+.si-pill.red   { background: var(--si-red-soft);   color: var(--si-red); }
+.si-pill.grey  { background: var(--si-surface-2);  color: var(--si-ink-2); }
+
+/* announcement list */
+.si-list { list-style: none; margin: 0; padding: 0; }
+.si-list li { padding: 10px 0; border-bottom: 1px solid var(--si-rule); }
+.si-list li:last-child { border-bottom: none; }
+.si-list .t { font-weight: 600; font-size: 13.5px; color: var(--si-ink); margin: 0; }
+.si-list .m { font-size: 12px; color: var(--si-ink-3); margin: 0; }
+
+/* ---------- buttons ---------- */
+.btn { border-radius: 8px; font-weight: 500; }
+.btn-primary {
+  background: var(--si-accent); border-color: var(--si-accent);
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+  background: var(--si-accent-dark) !important; border-color: var(--si-accent-dark) !important;
+}
+.btn-info, .btn-info:hover {
+  background: var(--si-surface); border-color: var(--si-rule);
+  color: var(--si-ink-2);
+}
+.btn-info:hover { background: var(--si-ground); color: var(--si-ink); }
+.btn-secondary { background: var(--si-surface); border-color: var(--si-rule); color: var(--si-ink-2); }
+.btn-secondary:hover { background: var(--si-ground); border-color: var(--si-rule); color: var(--si-ink); }
+.btn-warning, .btn-warning:hover { background: var(--si-amber-soft); border-color: var(--si-amber-soft); color: var(--si-amber) !important; }
+.btn-danger { background: var(--si-red-soft); border-color: var(--si-red-soft); color: var(--si-red); }
+.btn-danger:hover { background: var(--si-red); border-color: var(--si-red); color: #fff; }
+
+/* ---------- tables / datatables ---------- */
+table.dataTable { width: 100% !important; }
+.table thead th {
+  border-top: none; border-bottom: 1px solid var(--si-rule);
+  font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--si-ink-3); font-weight: 600;
+}
+.table td { border-top: 1px solid var(--si-rule); vertical-align: middle; font-size: 13.5px; }
+.table tbody tr:hover { background: var(--si-ground); }
+.dataTables_wrapper .dataTables_filter input {
+  border: 1px solid var(--si-rule); border-radius: 8px; padding: 4px 8px;
+}
+.dataTables_wrapper .dataTables_length select {
+  border: 1px solid var(--si-rule); border-radius: 8px;
+  /* keep right padding clear of the appearance:none caret glyph */
+  padding: 4px 28px 4px 10px;
+  min-width: 64px;
+}
+.dataTables_wrapper .dataTables_info { color: var(--si-ink-3); font-size: 12.5px; }
+.page-item.active .page-link { background: var(--si-accent); border-color: var(--si-accent); }
+.page-link { color: var(--si-accent); }
+
+/* ---------- forms ---------- */
+.form-control { border: 1px solid var(--si-rule); border-radius: 8px; }
+.form-control:focus {
+  border-color: var(--si-accent);
+  box-shadow: 0 0 0 3px var(--si-accent-soft);
+}
+label { font-weight: 600; font-size: 13px; color: var(--si-ink); }
+
+/* ---------- form validation ---------- */
+/* no green "valid" styling: empty optional fields should stay neutral */
+.was-validated .form-control:valid,
+.was-validated select.form-control:valid,
+.was-validated textarea.form-control:valid,
+.was-validated .custom-select:valid {
+  border-color: var(--si-rule) !important;
+  background-image: none !important;
+  padding-right: inherit;
+}
+.was-validated .form-control:valid:focus,
+.was-validated .custom-select:valid:focus {
+  border-color: var(--si-accent) !important;
+  box-shadow: 0 0 0 3px var(--si-accent-soft) !important;
+}
+.valid-feedback, .valid-tooltip { display: none !important; }
+
+.was-validated .form-control:invalid,
+.was-validated select.form-control:invalid,
+.was-validated .custom-select:invalid,
+.form-control.is-invalid, .custom-select.is-invalid {
+  border-color: var(--si-red);
+}
+.was-validated .form-control:invalid:focus,
+.form-control.is-invalid:focus {
+  border-color: var(--si-red);
+  box-shadow: 0 0 0 3px var(--si-red-soft);
+}
+.invalid-feedback { color: var(--si-red); display: none; font-size: 12.5px; margin-top: 4px; }
+.was-validated :invalid ~ .invalid-feedback,
+.is-invalid ~ .invalid-feedback { display: block; }
+
+/* ---------- alerts ---------- */
+.alert { border-radius: var(--si-radius); border: 1px solid transparent; }
+.alert-success { background: var(--si-accent-soft); color: var(--si-accent-dark); border-color: #CBE5D8; }
+.alert-warning { background: var(--si-amber-soft); color: var(--si-amber); border-color: #F3E2C0; }
+
+/* ---------- footer ---------- */
+.main-footer {
+  background: transparent; border-top: 1px solid var(--si-rule);
+  color: var(--si-ink-3); font-size: 12.5px;
+}
+
+/* ============================================================
+   LOGIN PAGE
+   ============================================================ */
+body.login-page {
+  background: var(--si-ground);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Source Sans Pro", sans-serif;
+}
+.si-login-brand {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  margin-bottom: 22px; text-align: center;
+}
+.si-login-title { font-weight: 700; font-size: 1.25rem; color: var(--si-ink); margin: 0; }
+.si-login-sub { font-size: 13px; color: var(--si-ink-2); margin: 0; }
+.login-box .card {
+  border: 1px solid var(--si-rule); border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(29, 39, 51, 0.06);
+}
+.login-card-body { border-radius: 12px; padding: 26px; }
+.login-box .btn-primary { width: 100%; padding: 9px; font-weight: 600; }
+.si-login-foot { text-align: center; font-size: 12px; color: var(--si-ink-3); margin-top: 18px; }
+.login-page a:not(.btn) { color: var(--si-navy); }
+
+/* ============================================================
+   FIXED LAYOUT
+   ============================================================ */
+/* AdminLTE's fixed-layout rules assume an external .brand-link above .sidebar
+   and a navbar spanning the sidebar column: they shorten the rail by the navbar
+   height and push it down with a margin. Our brand lives inside .sidebar and the
+   rail overlays the navbar's left edge, so it must span the full viewport —
+   otherwise the bottom-pinned logout lands off-screen. */
+.layout-fixed .wrapper .sidebar,
+.layout-navbar-fixed .wrapper .sidebar,
+.layout-navbar-fixed.layout-fixed .wrapper .sidebar {
+  height: 100vh;
+  margin-top: 0;
+}

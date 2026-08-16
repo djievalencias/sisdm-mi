@@ -1,67 +1,68 @@
-{{-- resources/views/attendance/edit.blade.php --}}
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1>Edit Attendance #{{ $attendance->id }}</h1>
-    <form action="{{ route('attendance.update', $attendance->id) }}" method="POST">
-        @csrf
-        @method('PUT')
-
-        <div class="mb-3">
-            <label for="id_user" class="form-label">User</label>
-            <select name="id_user" id="id_user" class="form-control">
-                <option value="">--Pilih User--</option>
-                @foreach($users as $user)
-                    <option value="{{ $user->id }}" 
-                        {{ $attendance->id_user == $user->id ? 'selected' : '' }}>
-                        {{ $user->nama }}
-                    </option>
-                @endforeach
-            </select>
-            @error('id_user') <small class="text-danger">{{ $message }}</small> @enderror
+    <x-page :title="__('Edit Attendance') . ' #' . $attendance->id" :breadcrumb="__('Attendance')">
+        <div class="card">
+            <form action="{{ route('attendance.update', $attendance->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="id_user">{{ __('Employee') }} <span class="text-danger">*</span></label>
+                        <select name="id_user" id="id_user" class="form-control @error('id_user') is-invalid @enderror" required>
+                            <option value="">{{ __('Select employee') }}</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}" {{ old('id_user', $attendance->id_user) == $user->id ? 'selected' : '' }}>{{ $user->nama }}</option>
+                            @endforeach
+                        </select>
+                        @error('id_user')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="tanggal">{{ __('Date') }} <span class="text-danger">*</span></label>
+                            <input type="date" name="tanggal" id="tanggal" class="form-control @error('tanggal') is-invalid @enderror"
+                                value="{{ old('tanggal', $attendance->tanggal->format('Y-m-d')) }}" required>
+                            @error('tanggal')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="status">{{ __('Clocked out?') }}</label>
+                            <select name="status" id="status" class="form-control @error('status') is-invalid @enderror">
+                                <option value="0" {{ !old('status', $attendance->status) ? 'selected' : '' }}>{{ __('Not clocked out') }}</option>
+                                <option value="1" {{ old('status', $attendance->status) ? 'selected' : '' }}>{{ __('Clocked out') }}</option>
+                            </select>
+                            @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="hari_kerja">{{ __('Workdays') }}</label>
+                            <input type="number" step="0.01" name="hari_kerja" id="hari_kerja"
+                                class="form-control @error('hari_kerja') is-invalid @enderror"
+                                value="{{ old('hari_kerja', $attendance->hari_kerja) }}">
+                            @error('hari_kerja')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="jumlah_jam_lembur">{{ __('Overtime Hours') }}</label>
+                            <input type="number" step="0.01" name="jumlah_jam_lembur" id="jumlah_jam_lembur"
+                                class="form-control @error('jumlah_jam_lembur') is-invalid @enderror"
+                                value="{{ old('jumlah_jam_lembur', $attendance->jumlah_jam_lembur) }}">
+                            @error('jumlah_jam_lembur')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="is_tanggal_merah">{{ __('Holiday?') }}</label>
+                            <select name="is_tanggal_merah" id="is_tanggal_merah" class="form-control @error('is_tanggal_merah') is-invalid @enderror">
+                                <option value="0" {{ !old('is_tanggal_merah', $attendance->is_tanggal_merah) ? 'selected' : '' }}>{{ __('No') }}</option>
+                                <option value="1" {{ old('is_tanggal_merah', $attendance->is_tanggal_merah) ? 'selected' : '' }}>{{ __('Yes') }}</option>
+                            </select>
+                            @error('is_tanggal_merah')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
+                    <a href="{{ route('attendance.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                </div>
+            </form>
         </div>
-
-        <div class="mb-3">
-            <label for="tanggal" class="form-label">Tanggal</label>
-            <input type="date" name="tanggal" id="tanggal" class="form-control" 
-                   value="{{ old('tanggal',$attendance->tanggal->format('Y-m-d')) }}">
-            @error('tanggal') <small class="text-danger">{{ $message }}</small> @enderror
-        </div>
-
-        <div class="mb-3">
-            <label for="status" class="form-label">Status (Checkout?)</label>
-            <select name="status" id="status" class="form-control">
-                <option value="0" {{ !$attendance->status ? 'selected' : '' }}>Belum Checkout (false)</option>
-                <option value="1" {{ $attendance->status ? 'selected' : '' }}>Sudah Checkout (true)</option>
-            </select>
-            @error('status') <small class="text-danger">{{ $message }}</small> @enderror
-        </div>
-
-        <div class="mb-3">
-            <label for="hari_kerja" class="form-label">Hari Kerja</label>
-            <input type="number" step="0.01" name="hari_kerja" id="hari_kerja" class="form-control" 
-                   value="{{ old('hari_kerja',$attendance->hari_kerja) }}">
-            @error('hari_kerja') <small class="text-danger">{{ $message }}</small> @enderror
-        </div>
-
-        <div class="mb-3">
-            <label for="jumlah_jam_lembur" class="form-label">Jumlah Jam Lembur</label>
-            <input type="number" step="0.01" name="jumlah_jam_lembur" id="jumlah_jam_lembur" class="form-control" 
-                   value="{{ old('jumlah_jam_lembur',$attendance->jumlah_jam_lembur) }}">
-            @error('jumlah_jam_lembur') <small class="text-danger">{{ $message }}</small> @enderror
-        </div>
-
-        <div class="mb-3">
-            <label for="is_tanggal_merah" class="form-label">Tanggal Merah?</label>
-            <select name="is_tanggal_merah" id="is_tanggal_merah" class="form-control">
-                <option value="0" {{ !$attendance->is_tanggal_merah ? 'selected' : '' }}>Tidak</option>
-                <option value="1" {{ $attendance->is_tanggal_merah ? 'selected' : '' }}>Ya</option>
-            </select>
-            @error('is_tanggal_merah') <small class="text-danger">{{ $message }}</small> @enderror
-        </div>
-
-        <button type="submit" class="btn btn-primary">Perbarui</button>
-    </form>
-</div>
+    </x-page>
 @endsection
