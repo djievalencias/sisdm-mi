@@ -18,59 +18,50 @@
 
         <div class="card">
             <div class="card-body">
-                <table class="table si-datatable">
-                    <thead>
-                        <tr>
-                            <th>{{ __('Name') }}</th>
-                            <th>{{ __('Start Date') }}</th>
-                            <th>{{ __('End Date') }}</th>
-                            <th>{{ __('Notes') }}</th>
-                            <th>{{ __('Type') }}</th>
-                            <th>{{ __('Status') }}</th>
-                            <th class="no-sort">{{ __('Actions') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($cutiPerizinans as $izin)
+                <div class="table-responsive">
+                    {{-- serverSide table: rows come from the ajax endpoint, so the body stays empty --}}
+                    <table class="table" id="leave-table">
+                        <thead>
                             <tr>
-                                <td>{{ $izin->user->nama }}</td>
-                                <td>{{ $izin->tanggal_mulai }}</td>
-                                <td>{{ $izin->tanggal_selesai }}</td>
-                                <td>{{ $izin->keterangan }}</td>
-                                <td>{{ __(ucfirst($izin->jenis)) }}</td>
-                                <td>
-                                    <span class="si-pill {{ $izin->status_pengajuan == 'diajukan' ? 'amber' : ($izin->status_pengajuan == 'disetujui' ? 'green' : 'red') }}">
-                                        {{ __(ucfirst($izin->status_pengajuan)) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="{{ route('cuti-perizinan.show', $izin->id) }}" class="btn btn-info btn-sm">{{ __('Detail') }}</a>
-                                    @role('admin')
-                                        <a href="{{ route('cuti-perizinan.edit', $izin->id) }}" class="btn btn-warning btn-sm">{{ __('Edit') }}</a>
-                                        <form action="{{ route('cuti-perizinan.destroy', $izin->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm"
-                                                onclick="return confirm('{{ __('Are you sure you want to delete this data?') }}')">{{ __('Delete') }}</button>
-                                        </form>
-                                    @endrole
-                                    @can('approve', $izin)
-                                        <form action="{{ route('cuti-perizinan.approve', $izin->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-success btn-sm">{{ __('Approve') }}</button>
-                                        </form>
-                                        <form action="{{ route('cuti-perizinan.reject', $izin->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-secondary btn-sm">{{ __('Reject') }}</button>
-                                        </form>
-                                    @endcan
-                                </td>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Start Date') }}</th>
+                                <th>{{ __('End Date') }}</th>
+                                <th>{{ __('Notes') }}</th>
+                                <th>{{ __('Type') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th class="no-sort">{{ __('Actions') }}</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
     </x-page>
 @endsection
+
+@push('scripts')
+    <script>
+        $(function () {
+            $('#leave-table').DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                language: window.SISDM.dtLang,
+                lengthMenu: [10, 25, 50, 100],
+                order: [[1, 'desc']],
+                ajax: '{{ route('cuti-perizinan.index', request()->query()) }}',
+                columns: [
+                    { data: 'user_nama', name: 'user_nama' },
+                    { data: 'tanggal_mulai', name: 'cuti_perizinan.tanggal_mulai' },
+                    { data: 'tanggal_selesai', name: 'cuti_perizinan.tanggal_selesai' },
+                    { data: 'keterangan', name: 'cuti_perizinan.keterangan' },
+                    { data: 'jenis', name: 'cuti_perizinan.jenis' },
+                    { data: 'status', name: 'cuti_perizinan.status_pengajuan', searchable: false },
+                    { data: 'action', name: 'action', orderable: false, searchable: false },
+                ],
+            });
+        });
+    </script>
+@endpush

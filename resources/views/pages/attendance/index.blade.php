@@ -18,45 +18,52 @@
 
         <div class="card">
             <div class="card-body">
-                <table class="table si-datatable">
-                    <thead>
-                        <tr>
-                            <th>{{ __('ID') }}</th>
-                            <th>{{ __('Employee') }}</th>
-                            <th>{{ __('Date') }}</th>
-                            <th>{{ __('Clocked out?') }}</th>
-                            <th>{{ __('Workdays') }}</th>
-                            <th>{{ __('Overtime Hours') }}</th>
-                            <th>{{ __('Holiday?') }}</th>
-                            <th class="no-sort">{{ __('Actions') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($attendances as $attendance)
+                <div class="table-responsive">
+                    <table class="table" id="attendance-table">
+                        <thead>
                             <tr>
-                                <td>{{ $attendance->id }}</td>
-                                <td>{{ $attendance->user->nama ?? __('No User') }}</td>
-                                <td>{{ $attendance->tanggal->format('Y-m-d H:i:s') }}</td>
-                                <td>{{ $attendance->status ? __('Checked out') : __('Not yet') }}</td>
-                                <td>{{ $attendance->hari_kerja }}</td>
-                                <td>{{ $attendance->jumlah_jam_lembur }}</td>
-                                <td>{{ $attendance->is_tanggal_merah ? __('Yes') : __('No') }}</td>
-                                <td>
-                                    <a href="{{ route('attendance.show', $attendance->id) }}" class="btn btn-sm btn-info">{{ __('Detail') }}</a>
-                                    <a href="{{ route('attendance.edit', $attendance->id) }}" class="btn btn-sm btn-warning">{{ __('Edit') }}</a>
-                                    <form action="{{ route('attendance.destroy', $attendance->id) }}" method="POST" style="display:inline-block">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('{{ __('Are you sure you want to delete this data?') }}')">{{ __('Delete') }}</button>
-                                    </form>
-                                </td>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Employee') }}</th>
+                                <th>{{ __('Date') }}</th>
+                                <th>{{ __('Clocked out?') }}</th>
+                                <th>{{ __('Workdays') }}</th>
+                                <th>{{ __('Overtime Hours') }}</th>
+                                <th>{{ __('Holiday?') }}</th>
+                                <th class="no-sort">{{ __('Actions') }}</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
     </x-page>
 @endsection
+
+@push('scripts')
+    <script>
+        $(function () {
+            $('#attendance-table').DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                language: window.SISDM.dtLang,
+                lengthMenu: [10, 25, 50, 100],
+                order: [[2, 'desc']],
+                // Current filter values ride along so the ajax result matches the toolbar.
+                ajax: '{{ route('attendance.index', request()->query()) }}',
+                columns: [
+                    { data: 'id', name: 'attendances.id' },
+                    { data: 'user_nama', name: 'user_nama' },
+                    { data: 'tanggal', name: 'attendances.tanggal' },
+                    { data: 'status', name: 'attendances.status' },
+                    { data: 'hari_kerja', name: 'attendances.hari_kerja' },
+                    { data: 'jumlah_jam_lembur', name: 'attendances.jumlah_jam_lembur' },
+                    { data: 'is_tanggal_merah', name: 'attendances.is_tanggal_merah' },
+                    { data: 'action', name: 'action', orderable: false, searchable: false },
+                ],
+            });
+        });
+    </script>
+@endpush

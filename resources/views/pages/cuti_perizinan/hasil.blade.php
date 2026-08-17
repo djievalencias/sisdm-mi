@@ -16,51 +16,50 @@
 
         <div class="card">
             <div class="card-body">
-                <table class="table si-datatable">
-                    <thead>
-                        <tr>
-                            <th>{{ __('Name') }}</th>
-                            <th>{{ __('Start Date') }}</th>
-                            <th>{{ __('End Date') }}</th>
-                            <th>{{ __('Notes') }}</th>
-                            <th>{{ __('Status') }}</th>
-                            <th>{{ __('Approved By') }}</th>
-                            <th class="no-sort">{{ __('Actions') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($cutiPerizinans as $izin)
+                <div class="table-responsive">
+                    {{-- serverSide table: rows come from the ajax endpoint, so the body stays empty --}}
+                    <table class="table" id="processed-leave-table">
+                        <thead>
                             <tr>
-                                <td>{{ $izin->user->nama }}</td>
-                                <td>{{ $izin->tanggal_mulai }}</td>
-                                <td>{{ $izin->tanggal_selesai }}</td>
-                                <td>{{ $izin->keterangan }}</td>
-                                <td>
-                                    <span class="si-pill {{ $izin->status_pengajuan == 'disetujui' ? 'green' : 'red' }}">
-                                        {{ __(ucfirst($izin->status_pengajuan)) }}
-                                    </span>
-                                </td>
-                                <td>{{ $izin->disetujuiOleh->nama ?? 'Admin' }}</td>
-                                <td>
-                                    @can('undo', $izin)
-                                        <form action="{{ route('cuti-perizinan.undo', $izin->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-warning btn-sm">{{ __('Undo') }}</button>
-                                        </form>
-                                    @else
-                                        -
-                                    @endcan
-                                </td>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Start Date') }}</th>
+                                <th>{{ __('End Date') }}</th>
+                                <th>{{ __('Notes') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Approved By') }}</th>
+                                <th class="no-sort">{{ __('Actions') }}</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-muted">{{ __('No processed requests yet.') }}</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
     </x-page>
 @endsection
+
+@push('scripts')
+    <script>
+        $(function () {
+            $('#processed-leave-table').DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                language: window.SISDM.dtLang,
+                lengthMenu: [10, 25, 50, 100],
+                order: [[1, 'desc']],
+                ajax: '{{ route('cuti-perizinan.hasil', request()->query()) }}',
+                columns: [
+                    { data: 'user_nama', name: 'user_nama' },
+                    { data: 'tanggal_mulai', name: 'cuti_perizinan.tanggal_mulai' },
+                    { data: 'tanggal_selesai', name: 'cuti_perizinan.tanggal_selesai' },
+                    { data: 'keterangan', name: 'cuti_perizinan.keterangan' },
+                    { data: 'status', name: 'cuti_perizinan.status_pengajuan', searchable: false },
+                    { data: 'approver', name: 'approver_nama' },
+                    { data: 'action', name: 'action', orderable: false, searchable: false },
+                ],
+            });
+        });
+    </script>
+@endpush

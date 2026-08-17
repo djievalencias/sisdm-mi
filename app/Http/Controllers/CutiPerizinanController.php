@@ -6,6 +6,7 @@ use App\Models\CutiPerizinan;
 use App\Models\User;
 use App\Notifications\LeaveRequestDecided;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class CutiPerizinanController extends Controller
 {
@@ -13,22 +14,43 @@ class CutiPerizinanController extends Controller
     {
         $this->authorize('viewAny', CutiPerizinan::class);
 
-        $user = auth()->user();
-        $query = CutiPerizinan::with('user');
-
-        // Supervisors only see their direct reports' requests; admins see all.
-        if (! $user->hasRole('admin')) {
-            $query->whereIn('id_user', $user->bawahan()->pluck('id'));
+        if ($request->ajax()) {
+            return $this->datatable($request, route('cuti-perizinan.index'));
         }
 
-        $cutiPerizinans = $query
-            ->when($request->filled('status'), fn ($q) => $q->where('status_pengajuan', $request->input('status')))
-            ->when($request->filled('jenis'), fn ($q) => $q->where('jenis', $request->input('jenis')))
-            ->when($request->filled('from'), fn ($q) => $q->whereDate('tanggal_mulai', '>=', $request->input('from')))
-            ->when($request->filled('to'), fn ($q) => $q->whereDate('tanggal_mulai', '<=', $request->input('to')))
-            ->get();
+        return view('pages.cuti_perizinan.index');
+    }
 
-        return view('pages.cuti_perizinan.index', compact('cutiPerizinans'));
+    /**
+     * Shared server-side table for the pending and processed leave lists.
+     * Supervisor scoping is applied here too — it must never be bypassed by
+     * hitting the ajax endpoint directly.
+     */
+    private function datatable(Request $request, string $source, ?array $onlyStatuses = null)
+    {
+        $user = auth()->user();
+
+        $query = CutiPerizinan::query()
+            ->with('user:id,nama,id_atasan')
+            ->join('users', 'users.id', '=', 'cuti_perizinan.id_user')
+            ->leftJoin('users as approvers', 'approvers.id', '=', 'cuti_perizinan.disetujui_oleh')
+            ->select('cuti_perizinan.*', 'users.nama as user_nama', 'users.id_atasan as user_id_atasan', 'approvers.nama as approver_nama')
+            ->when($onlyStatuses, fn ($q) => $q->whereIn('cuti_perizinan.status_pengajuan', $onlyStatuses))
+            ->when(! $user->hasRole('admin'), fn ($q) => $q->whereIn('cuti_perizinan.id_user', $user->bawahan()->pluck('id')))
+            ->when($request->filled('status'), fn ($q) => $q->where('cuti_perizinan.status_pengajuan', $request->input('status')))
+            ->when($request->filled('jenis'), fn ($q) => $q->where('cuti_perizinan.jenis', $request->input('jenis')))
+            ->when($request->filled('from'), fn ($q) => $q->whereDate('cuti_perizinan.tanggal_mulai', '>=', $request->input('from')))
+            ->when($request->filled('to'), fn ($q) => $q->whereDate('cuti_perizinan.tanggal_mulai', '<=', $request->input('to')));
+
+        return DataTables::eloquent($query)
+            ->filterColumn('user_nama', fn ($q, $keyword) => $q->where('users.nama', 'like', "%{$keyword}%"))
+            ->orderColumn('user_nama', 'users.nama $1')
+            ->editColumn('jenis', fn ($row) => __(ucfirst($row->jenis)))
+            ->addColumn('status', fn ($row) => view('pages.cuti_perizinan._status_pill', ['row' => $row])->render())
+            ->addColumn('approver', fn ($row) => $row->approver_nama ?? '-')
+            ->addColumn('action', fn ($row) => view('pages.cuti_perizinan._row_actions', ['row' => $row, 'source' => $source])->render())
+            ->rawColumns(['status', 'action'])
+            ->toJson();
     }
 
     public function create()
@@ -134,24 +156,11 @@ class CutiPerizinanController extends Controller
     {
         $this->authorize('viewAny', CutiPerizinan::class);
 
-        $user = auth()->user();
-
-        $query = CutiPerizinan::with('user')
-            ->whereIn('status_pengajuan', ['disetujui', 'ditolak']);
-
-        if (! $user->hasRole('admin')) {
-            $query->whereIn('id_user', $user->bawahan()->pluck('id'));
+        if ($request->ajax()) {
+            return $this->datatable($request, route('cuti-perizinan.hasil'), ['disetujui', 'ditolak']);
         }
 
-        $cutiPerizinans = $query
-            ->when($request->filled('status'), fn ($q) => $q->where('status_pengajuan', $request->input('status')))
-            ->when($request->filled('jenis'), fn ($q) => $q->where('jenis', $request->input('jenis')))
-            ->when($request->filled('from'), fn ($q) => $q->whereDate('tanggal_mulai', '>=', $request->input('from')))
-            ->when($request->filled('to'), fn ($q) => $q->whereDate('tanggal_mulai', '<=', $request->input('to')))
-            ->orderBy('updated_at', 'desc')
-            ->get();
-
-        return view('pages.cuti_perizinan.hasil', compact('cutiPerizinans'));
+        return view('pages.cuti_perizinan.hasil');
     }
 
     public function undoApproval(CutiPerizinan $cutiPerizinan)

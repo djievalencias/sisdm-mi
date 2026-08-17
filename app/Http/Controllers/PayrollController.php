@@ -12,24 +12,40 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Yajra\DataTables\Facades\DataTables;
 
 class PayrollController extends Controller
 {
     public function index(Request $request)
     {
-        $payrolls = Payroll::with('user')
-            ->when($request->filled('id_user'), fn ($q) => $q->where('id_user', $request->input('id_user')))
-            ->when($request->filled('is_reviewed'), fn ($q) => $q->where('is_reviewed', (bool) $request->input('is_reviewed')))
-            ->when($request->filled('status_pembayaran'), fn ($q) => $q->where('status_pembayaran', (bool) $request->input('status_pembayaran')))
-            ->when(preg_match('/^\d{4}-\d{2}$/', (string) $request->input('month')), function ($q) use ($request) {
-                [$year, $month] = explode('-', $request->input('month'));
-                $q->whereYear('tanggal_payroll', $year)->whereMonth('tanggal_payroll', $month);
-            })
-            ->get();
+        if ($request->ajax()) {
+            $query = Payroll::query()
+                ->join('users', 'users.id', '=', 'payroll.id_user')
+                ->leftJoin('users as reviewers', 'reviewers.id', '=', 'payroll.reviewed_by')
+                ->select('payroll.*', 'users.nama as user_nama', 'reviewers.nama as reviewer_nama')
+                ->when($request->filled('id_user'), fn ($q) => $q->where('payroll.id_user', $request->input('id_user')))
+                ->when($request->filled('is_reviewed'), fn ($q) => $q->where('payroll.is_reviewed', (bool) $request->input('is_reviewed')))
+                ->when($request->filled('status_pembayaran'), fn ($q) => $q->where('payroll.status_pembayaran', (bool) $request->input('status_pembayaran')))
+                ->when(preg_match('/^\d{4}-\d{2}$/', (string) $request->input('month')), function ($q) use ($request) {
+                    [$year, $month] = explode('-', $request->input('month'));
+                    $q->whereYear('payroll.tanggal_payroll', $year)->whereMonth('payroll.tanggal_payroll', $month);
+                });
+
+            return DataTables::eloquent($query)
+                ->filterColumn('user_nama', fn ($q, $keyword) => $q->where('users.nama', 'like', "%{$keyword}%"))
+                ->orderColumn('user_nama', 'users.nama $1')
+                ->editColumn('tanggal_payroll', fn ($row) => $row->tanggal_payroll?->translatedFormat('d M Y'))
+                ->editColumn('take_home_pay', fn ($row) => number_format($row->take_home_pay, 2))
+                ->addColumn('reviewed', fn ($row) => view('pages.payroll._reviewed_pill', ['row' => $row])->render())
+                ->addColumn('paid', fn ($row) => view('pages.payroll._paid_pill', ['row' => $row])->render())
+                ->addColumn('action', fn ($row) => view('pages.payroll._row_actions', ['row' => $row])->render())
+                ->rawColumns(['reviewed', 'paid', 'action'])
+                ->toJson();
+        }
 
         $users = User::where('is_archived', false)->orderBy('nama')->get(['id', 'nama']);
 
-        return view('pages.payroll.index', compact('payrolls', 'users'));
+        return view('pages.payroll.index', compact('users'));
     }
 
     public function review($id)

@@ -9,6 +9,7 @@ use App\Traits\ImageStorage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Facades\DataTables;
 
 class AttendanceController extends Controller
 {
@@ -18,17 +19,33 @@ class AttendanceController extends Controller
 
     public function index(Request $request)
     {
-        $attendances = Attendance::with('user')
-            ->when($request->filled('id_user'), fn ($q) => $q->where('id_user', $request->input('id_user')))
-            ->when($request->filled('from'), fn ($q) => $q->whereDate('tanggal', '>=', $request->input('from')))
-            ->when($request->filled('to'), fn ($q) => $q->whereDate('tanggal', '<=', $request->input('to')))
-            ->when($request->filled('status'), fn ($q) => $q->where('status', (bool) $request->input('status')))
-            ->when($request->filled('is_tanggal_merah'), fn ($q) => $q->where('is_tanggal_merah', (bool) $request->input('is_tanggal_merah')))
-            ->get();
+        // Server-side table: rows come from this same route over ajax, so the
+        // page never renders more than one page of attendance at a time.
+        if ($request->ajax()) {
+            $query = Attendance::query()
+                ->join('users', 'users.id', '=', 'attendances.id_user')
+                ->select('attendances.*', 'users.nama as user_nama')
+                ->when($request->filled('id_user'), fn ($q) => $q->where('attendances.id_user', $request->input('id_user')))
+                ->when($request->filled('from'), fn ($q) => $q->whereDate('attendances.tanggal', '>=', $request->input('from')))
+                ->when($request->filled('to'), fn ($q) => $q->whereDate('attendances.tanggal', '<=', $request->input('to')))
+                ->when($request->filled('status'), fn ($q) => $q->where('attendances.status', (bool) $request->input('status')))
+                ->when($request->filled('is_tanggal_merah'), fn ($q) => $q->where('attendances.is_tanggal_merah', (bool) $request->input('is_tanggal_merah')));
+
+            return DataTables::eloquent($query)
+                // The alias cannot be used in WHERE/ORDER, so map both to the real column.
+                ->filterColumn('user_nama', fn ($q, $keyword) => $q->where('users.nama', 'like', "%{$keyword}%"))
+                ->orderColumn('user_nama', 'users.nama $1')
+                ->editColumn('tanggal', fn ($row) => $row->tanggal?->format('Y-m-d'))
+                ->editColumn('status', fn ($row) => $row->status ? __('Checked out') : __('Not yet'))
+                ->editColumn('is_tanggal_merah', fn ($row) => $row->is_tanggal_merah ? __('Yes') : __('No'))
+                ->addColumn('action', fn ($row) => view('pages.attendance._row_actions', ['row' => $row])->render())
+                ->rawColumns(['action'])
+                ->toJson();
+        }
 
         $users = User::where('is_archived', false)->orderBy('nama')->get(['id', 'nama']);
 
-        return view('pages.attendance.index', compact('attendances', 'users'));
+        return view('pages.attendance.index', compact('users'));
     }
 
     /**
